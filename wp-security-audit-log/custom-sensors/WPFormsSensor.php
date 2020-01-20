@@ -36,18 +36,26 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		// If post exists.
 		if ( ! empty( $post ) && $post instanceof WP_Post ) {
-			$this->_old_post  = $post;
+			$this->_old_post = $post;
 		}
 	}
 
 	public function event_form_created( $form_id, $data ) {
-		$alert_code = 5500;
-		$editor_link = esc_url( add_query_arg( array( 'view' => 'fields', 'form_id' => $form_id, ), admin_url( 'admin.php?page=wpforms-builder' ) ) );
+		$alert_code  = 5500;
+		$editor_link = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $form_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
 
 		$variables = array(
-			'PostTitle'			=> $data['post_title'],
-			'PostID'			=> $form_id,
-			'EditorLinkPost'	=> $editor_link
+			'PostTitle'      => $data['post_title'],
+			'PostID'         => $form_id,
+			'EditorLinkPost' => $editor_link,
 		);
 
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
@@ -55,78 +63,101 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	public function event_form_renamed( $post_id, $post, $update ) {
 		$alert_code    = 5501;
-	    $post          = get_post( $post_id );
-	    $post_created  = new DateTime( $post->post_date_gmt );
-	    $post_modified = new DateTime( $post->post_modified_gmt );
-	    $editor_link   = esc_url( add_query_arg( array( 'view' => 'fields', 'form_id' => $post_id, ), admin_url( 'admin.php?page=wpforms-builder' ) ) );
+		$post          = get_post( $post_id );
+		$post_created  = new DateTime( $post->post_date_gmt );
+		$post_modified = new DateTime( $post->post_modified_gmt );
+		$editor_link   = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $post_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
 
-	    if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title ){
-	    	$variables = array(
-				'OldPostTitle'		=> $this->_old_post->post_title,
-				'PostTitle'			=> $post->post_title,
-				'PostID'			=> $post_id,
-				'EditorLinkPost'	=> $editor_link
+		if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title ) {
+			$variables = array(
+				'OldPostTitle'   => $this->_old_post->post_title,
+				'PostTitle'      => $post->post_title,
+				'PostID'         => $post_id,
+				'EditorLinkPost' => $editor_link,
 			);
 
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
-	    } else {
-	    	return;
-	    }
+		} else {
+			return;
+		}
 	}
 
 	public function event_form_modified( $form_id, $data ) {
-		$alert_code 	= 5502;
-	    $post        	= get_post( $form_id );
-	    $post_created  	= new DateTime( $post->post_date_gmt );
-	    $post_modified 	= new DateTime( $post->post_modified_gmt );
-	    $editor_link = esc_url( add_query_arg( array( 'view' => 'fields', 'form_id' => $form_id, ), admin_url( 'admin.php?page=wpforms-builder' ) ) );
+		$alert_code    = 5502;
+		$post          = get_post( $form_id );
+		$post_created  = new DateTime( $post->post_date_gmt );
+		$post_modified = new DateTime( $post->post_modified_gmt );
+		$editor_link   = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $form_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
 
-	    if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ){
+		if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ) {
 
-	    	return;
+			return;
 
-	    } else {
+		} else {
 
-		    $variables = array(
-				'PostTitle'			=> $post->post_title,
-				'PostID'			=> $form_id,
-				'EditorLinkPost'	=> $editor_link
+			$variables = array(
+				'PostTitle'      => $post->post_title,
+				'PostID'         => $form_id,
+				'EditorLinkPost' => $editor_link,
 			);
 
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
 
-	    }		
+		}
 	}
 
 	public function event_form_deleted( $post_id ) {
-		$alert_code 	= 5503;
-		$post 			= get_post( $post_id );
+		$alert_code = 5503;
+		$post       = get_post( $post_id );
 
 		$variables = array(
-			'PostTitle'		=> $post->post_title,
-			'PostID'		=> $post_id,
+			'PostTitle' => $post->post_title,
+			'PostID'    => $post_id,
 		);
 
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
 
 	public function event_form_duplicated( $post_id, $post, $update ) {
-		$alert_code 	= 5505;
-		$form 			= get_post( $post_id );
-		$editor_link 	= esc_url( add_query_arg( array( 'view' => 'fields', 'form_id' => $post_id, ), admin_url( 'admin.php?page=wpforms-builder' ) ) );
+		$alert_code  = 5505;
+		$form        = get_post( $post_id );
+		$editor_link = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $post_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
 
-		if ( preg_match( "/\s\(ID #[0-9].*?\)/", $form->post_title ) ) {
+		if ( preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) ) {
 			$variables = array(
-				'OldPostTitle'		=> $this->_old_post->post_title,
-				'PostTitle'			=> $form->post_title,
-				'PostID'			=> $post_id,
-				'EditorLinkPost'	=> $editor_link
+				'OldPostTitle'   => $this->_old_post->post_title,
+				'PostTitle'      => $form->post_title,
+				'PostID'         => $post_id,
+				'EditorLinkPost' => $editor_link,
 			);
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
 		} else {
 			return;
 		}
 
-		
 	}
 }
