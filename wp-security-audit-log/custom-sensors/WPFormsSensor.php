@@ -21,6 +21,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'wpforms_builder_save_form', array( $this, 'event_form_modified' ), 10, 4 );
 		add_action( 'delete_post', array( $this, 'event_form_deleted' ), 10, 1 );
 		add_action( 'save_post', array( $this, 'event_form_duplicated' ), 10, 3 );
+		add_action( 'save_post', array( $this, 'event_form_notification' ), 10, 3 );
 	}
 
 	/**
@@ -157,6 +158,34 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
 		} else {
 			return;
+		}
+
+	}
+
+	public function event_form_notification( $post_id, $post, $update ) {
+		$alert_code   = 5506;
+		$form         = get_post( $post_id );
+		$form_content = json_decode( $form->post_content );
+		$editor_link = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $post_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
+
+		if ( '1' === $form_content->settings->notification_enable ) {
+			foreach ( $form_content->settings->notifications as $notification ) {
+				$variables = array(
+					'notifiation_name' => $notification->notification_name,
+					'form_name'        => $form->post_title,
+					'PostID'           => $post_id,
+					'EditorLinkPost'   => $editor_link,
+				);
+				$this->plugin->alerts->Trigger( $alert_code, $variables );
+			}
 		}
 
 	}

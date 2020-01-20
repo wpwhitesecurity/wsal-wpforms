@@ -49,6 +49,15 @@ $custom_alerts = array(
 				'duplicated',
 			),
 
+			array(
+				5506,
+				WSAL_LOW,
+				__( 'WPForms notification', 'wp-security-audit-log' ),
+				__( 'Notification name %notifiation_name% %LineBreak% Form name %form_name% %LineBreak% ID %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
+				'wpforms',
+				'added',
+			),
+
 		),
 	),
 );
