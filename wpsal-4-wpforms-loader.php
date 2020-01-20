@@ -78,6 +78,23 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
 }
 
 /**
+ * Adds new custom event object text for our plugin
+ *
+ * @method wsal_wpforms_add_custom_event_object_text
+ * @since  1.0.0
+ * @param string $display the text to display.
+ * @param string $object the current object type.
+ * @return string
+ */
+function wsal_wpforms_add_custom_event_object_text( $display, $object ) {
+	if ( 'wpforms' === $object ) {
+			$display = __( 'WP Forms', 'wp-security-audit-log' );
+	}
+
+	return $display;
+}
+
+/**
  * Adds new custom event objects for our plugin
  *
  * @method wsal_wpforms_add_custom_event_objects
@@ -97,5 +114,26 @@ function wsal_wpforms_add_custom_event_type_data( $types ) {
 	return $types;
 }
 
+/**
+ * Adds new custom event type text for our plugin
+ *
+ * @method wsal_wpforms_add_custom_event_object_text
+ * @since  1.0.0
+ * @param string $display the text to output.
+ * @param string $event_type the current event type.
+ * @return string
+ */
+function wsal_wpforms_add_custom_event_type_text( $display, $event_type ) {
+	if ( 'renamed' === $event_type ) {
+			$display = __( 'Renamed', 'wp-security-audit-log' );
+	} elseif ( 'duplicated' === $event_type ) {
+			$display = __( 'Duplicated', 'wp-security-audit-log' );
+	}
+
+	return $display;
+}
+
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
+add_filter( 'wsal_event_object_text', 'wsal_wpforms_add_custom_event_object_text', 10, 2 );
 add_filter( 'wsal_event_type_data', 'wsal_wpforms_add_custom_event_type_data' );
+add_filter( 'wsal_event_type_text', 'wsal_wpforms_add_custom_event_type_text', 10, 2 );
