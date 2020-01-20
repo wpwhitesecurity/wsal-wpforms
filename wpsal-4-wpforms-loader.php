@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: WP Security Audit Log for WPForms
  * Plugin URI: https://www.wpsecurityauditlog.com/
@@ -64,17 +63,17 @@ function wsal_mu_plugin_add_custom_events_path( $paths ) {
  *
  * @method wsal_wpforms_add_custom_event_objects
  * @since  1.0.0
- * @param  array $objects An array of default objects
+ * @param  array $objects An array of default objects.
  * @return array
  */
 function wsal_wpforms_add_custom_event_objects( $objects ) {
 	$new_objects = array(
-		'wpforms'			=> __( 'WPForms', 'wp-security-audit-log' ),
-	);	
+		'wpforms' => __( 'WPForms', 'wp-security-audit-log' ),
+	);
 
-	// combine the two arrays
-	$objects = array_merge($objects, $new_objects);
- 	
+	// combine the two arrays.
+	$objects = array_merge( $objects, $new_objects );
+
 	return $objects;
 }
 
@@ -83,18 +82,18 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
  *
  * @method wsal_wpforms_add_custom_event_objects
  * @since  1.0.0
- * @param  array $objects An array of default objects
+ * @param  array $types An array of default objects.
  * @return array
  */
 function wsal_wpforms_add_custom_event_type_data( $types ) {
 	$new_types = array(
-		'renamed'			=> __( 'Renamed', 'wp-security-audit-log' ),
-		'duplicated'		=> __( 'Duplicated', 'wp-security-audit-log' ),
+		'renamed'    => __( 'Renamed', 'wp-security-audit-log' ),
+		'duplicated' => __( 'Duplicated', 'wp-security-audit-log' ),
 	);
 
-	// combine the two arrays
-	$types = array_merge($types, $new_types);
- 
+	// combine the two arrays.
+	$types = array_merge( $types, $new_types );
+
 	return $types;
 }
 
