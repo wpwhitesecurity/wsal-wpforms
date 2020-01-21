@@ -1,4 +1,4 @@
-=== WPForms Add-on for WP Security Audit Log ===
+=== WP Security Audit Log add-on for WPForms ===
 Contributors: WPWhiteSecurity
 Donate link: https://www.wpsecurityauditlog.com
 Tags: wpforms, wordpress security plugin, wordpress security audit log, audit log, activity logs, event log wordpress, wordpress user tracking, wordpress activity log, wordpress audit, security event log, audit trail, wordpress security monitor, wordpress admin, wordpress admin monitoring, user activity, admin, multisite, dashboard, notification, wordpress monitoring, email notification, wordpress email alerts, SMS messages, tracking, user tracking, user activity report, wordpress audit trail
