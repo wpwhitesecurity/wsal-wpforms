@@ -85,6 +85,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			);
 
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
+			remove_action( 'save_post', array( $this, 'event_form_renamed' ), 10, 3 );
 		} else {
 			return;
 		}
@@ -157,6 +158,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				'EditorLinkPost' => $editor_link,
 			);
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
+			remove_action( 'save_post', array( $this, 'event_form_duplicated' ), 10, 3 );
 		} else {
 			return;
 		}
