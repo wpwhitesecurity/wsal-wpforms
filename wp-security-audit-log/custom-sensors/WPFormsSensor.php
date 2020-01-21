@@ -76,7 +76,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			)
 		);
 
-		if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title ) {
+		if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title && 'wpforms' === $post->post_type ) {
 			$variables = array(
 				'OldPostTitle'   => $this->_old_post->post_title,
 				'PostTitle'      => $post->post_title,
@@ -126,12 +126,14 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		$alert_code = 5503;
 		$post       = get_post( $post_id );
 
-		$variables = array(
-			'PostTitle' => $post->post_title,
-			'PostID'    => $post_id,
-		);
+		if ( 'wpforms' === $post->post_type ) {
+			$variables = array(
+				'PostTitle' => $post->post_title,
+				'PostID'    => $post_id,
+			);
 
-		$this->plugin->alerts->Trigger( $alert_code, $variables );
+			$this->plugin->alerts->Trigger( $alert_code, $variables );
+		}
 	}
 
 	public function event_form_duplicated( $post_id, $post, $update ) {
@@ -147,7 +149,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			)
 		);
 
-		if ( preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) ) {
+		if ( preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $form->post_type ) {
 			$variables = array(
 				'OldPostTitle'   => $this->_old_post->post_title,
 				'PostTitle'      => $form->post_title,
