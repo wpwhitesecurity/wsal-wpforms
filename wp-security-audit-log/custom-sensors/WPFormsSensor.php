@@ -159,7 +159,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	public function event_form_deleted( $post_id ) {
 		$alert_code = 5503;
 		$post       = get_post( $post_id );
-		error_log( print_r( $post->post_type, true ) );
 		if ( 'wpforms' === $post->post_type ) {
 			$variables = array(
 				'PostTitle' => $post->post_title,
