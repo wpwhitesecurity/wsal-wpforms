@@ -41,6 +41,14 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 	}
 
+	/**
+	 * Form created event.
+	 *
+	 * Detect when a new form is created.
+	 *
+	 * @param int   $form_id - Post ID.
+	 * @param array $data - Form data.
+	 */
 	public function event_form_created( $form_id, $data ) {
 		$alert_code  = 5500;
 		$editor_link = esc_url(
@@ -62,6 +70,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
 
+	/**
+	 * Form renamed event.
+	 *
+	 * Detect when forms title has been changed.
+	 *
+	 * @param int    $post_id - Post ID.
+	 * @param object $post - Post data.
+	 * @param bool   $update - Whether this is an existing post being updated or not.
+	 */
 	public function event_form_renamed( $post_id, $post, $update ) {
 		$alert_code    = 5501;
 		$post          = get_post( $post_id );
@@ -91,6 +108,14 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 	}
 
+	/**
+	 * Form modified event.
+	 *
+	 * Detect when forms content has been changed.
+	 *
+	 * @param int    $form_id - Post ID.
+	 * @param object $data - Post data.
+	 */
 	public function event_form_modified( $form_id, $data ) {
 		$alert_code    = 5502;
 		$post          = get_post( $form_id );
@@ -123,6 +148,13 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 	}
 
+	/**
+	 * Form deleted event.
+	 *
+	 * Detect when a form has been fully deleted.
+	 *
+	 * @param int $post_id - Post ID.
+	 */
 	public function event_form_deleted( $post_id ) {
 		$alert_code = 5503;
 		$post       = get_post( $post_id );
@@ -135,6 +167,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
 
+	/**
+	 * Form duplicated event.
+	 *
+	 * Detect when form has been cloned.
+	 *
+	 * @param int    $post_id - Post ID.
+	 * @param object $post - Post data.
+	 * @param bool   $update - Whether this is an existing post being updated or not.
+	 */
 	public function event_form_duplicated( $post_id, $post, $update ) {
 		$alert_code  = 5505;
 		$form        = get_post( $post_id );
@@ -162,11 +203,20 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	}
 
+	/**
+	 * Form notification event.
+	 *
+	 * Detect when form has a notification enabled or disabled.
+	 *
+	 * @param int    $post_id - Post ID.
+	 * @param object $post - Post data.
+	 * @param bool   $update - Whether this is an existing post being updated or not.
+	 */
 	public function event_form_notification( $post_id, $post, $update ) {
 		$alert_code   = 5506;
 		$form         = get_post( $post_id );
 		$form_content = json_decode( $form->post_content );
-		$editor_link = esc_url(
+		$editor_link  = esc_url(
 			add_query_arg(
 				array(
 					'view'    => 'fields',
@@ -176,7 +226,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			)
 		);
 
+		// Check if notifications are enabled for this form.
 		if ( '1' === $form_content->settings->notification_enable ) {
+			// Loop through any notifications and trigger alert.
 			foreach ( $form_content->settings->notifications as $notification ) {
 				$variables = array(
 					'notifiation_name' => $notification->notification_name,
