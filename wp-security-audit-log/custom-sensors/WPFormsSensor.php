@@ -229,8 +229,14 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		if ( '1' === $form_content->settings->notification_enable ) {
 			// Loop through any notifications and trigger alert.
 			foreach ( $form_content->settings->notifications as $notification ) {
+				// Check if a notification name is provided, and if not display the default name.
+				if ( $notification->notification_name ) {
+					$notification_name = $notification->notification_name;
+				} else {
+					$notification_name = __( 'Default Notification', 'wp-security-audit-log' );
+				}
 				$variables = array(
-					'notifiation_name' => $notification->notification_name,
+					'notifiation_name' => $notification_name,
 					'form_name'        => $form->post_title,
 					'PostID'           => $post_id,
 					'EditorLinkPost'   => $editor_link,
