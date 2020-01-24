@@ -218,34 +218,37 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	public function event_form_notification( $post_id, $post, $update ) {
 		$alert_code   = 5506;
 		$form         = get_post( $post_id );
-		$form_content = json_decode( $form->post_content );
-		$editor_link  = esc_url(
-			add_query_arg(
-				array(
-					'view'    => 'fields',
-					'form_id' => $post_id,
-				),
-				admin_url( 'admin.php?page=wpforms-builder' )
-			)
-		);
 
-		// Check if notifications are enabled for this form.
-		if ( '1' === $form_content->settings->notification_enable ) {
-			// Loop through any notifications and trigger alert.
-			foreach ( $form_content->settings->notifications as $notification ) {
-				// Check if a notification name is provided, and if not display the default name.
-				if ( $notification->notification_name ) {
-					$notification_name = $notification->notification_name;
-				} else {
-					$notification_name = __( 'Default Notification', 'wp-security-audit-log' );
+		if ( 'wpforms' === $form->post_type ) {
+			$form_content = json_decode( $form->post_content );
+			$editor_link  = esc_url(
+				add_query_arg(
+					array(
+						'view'    => 'fields',
+						'form_id' => $post_id,
+					),
+					admin_url( 'admin.php?page=wpforms-builder' )
+				)
+			);
+
+			// Check if notifications are enabled for this form.
+			if ( '1' === $form_content->settings->notification_enable ) {
+				// Loop through any notifications and trigger alert.
+				foreach ( $form_content->settings->notifications as $notification ) {
+					// Check if a notification name is provided, and if not display the default name.
+					if ( $notification->notification_name ) {
+						$notification_name = $notification->notification_name;
+					} else {
+						$notification_name = __( 'Default Notification', 'wp-security-audit-log' );
+					}
+					$variables = array(
+						'notifiation_name' => $notification_name,
+						'form_name'        => $form->post_title,
+						'PostID'           => $post_id,
+						'EditorLinkPost'   => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
 				}
-				$variables = array(
-					'notifiation_name' => $notification_name,
-					'form_name'        => $form->post_title,
-					'PostID'           => $post_id,
-					'EditorLinkPost'   => $editor_link,
-				);
-				$this->plugin->alerts->Trigger( $alert_code, $variables );
 			}
 		}
 
