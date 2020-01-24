@@ -21,6 +21,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'delete_post', array( $this, 'event_form_deleted' ), 10, 1 );
 		add_action( 'save_post', array( $this, 'event_form_duplicated' ), 10, 3 );
 		add_action( 'save_post', array( $this, 'event_form_notification' ), 10, 3 );
+		add_action( 'admin_init', array( $this, 'event_entry_deleted' ) );
 	}
 
 	/**
@@ -158,7 +159,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	public function event_form_deleted( $post_id ) {
 		$alert_code = 5503;
 		$post       = get_post( $post_id );
-
+		error_log( print_r( $post->post_type, true ) );
 		if ( 'wpforms' === $post->post_type ) {
 			$variables = array(
 				'PostTitle' => $post->post_title,
@@ -252,5 +253,27 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}
 		}
 
+	}
+
+	/**
+	 * Delete entry event.
+	 *
+	 * Detect when an entry has been deleted.
+	 *
+	 */
+	public function event_entry_deleted() {
+		$alert_code  = 5507;
+		global $pagenow;
+
+		// Check current admin page.
+		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'wpforms-entries' === $_GET['page'] && isset( $_GET['form_id'] ) && isset( $_GET['deleted'] ) ) {
+			wp_verify_nonce( sanitize_key( $_REQUEST['_wpnonce'] ), 'bulk-entries-nonce' );
+			$form = get_post( $_GET['form_id'] );
+			$variables = array(
+				'form_name' => $form->post_title,
+				'PostID'    => $_GET['form_id'],
+			);
+			$this->plugin->alerts->Trigger( $alert_code, $variables );
+		}
 	}
 }
