@@ -7,7 +7,6 @@
  * @since 1.0.0
  * @package Wsal
  */
-
 class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	/**
