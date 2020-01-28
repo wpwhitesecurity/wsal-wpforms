@@ -78,7 +78,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @param bool   $update - Whether this is an existing post being updated or not.
 	 */
 	public function event_form_renamed_duplicated_and_notifications( $post_id, $post, $update ) {
-		error_log( print_r( $post, true ) );
+		
 		$form        = get_post( $post_id );
 
 		// Handling form rename. Check if this is a form and if an old title is set.
@@ -243,7 +243,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		$alert_code  = 5507;
 		global $pagenow;
 
-		// Check current admin page.
+		// Check current admin page and also that the delete key is present.
 		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'wpforms-entries' === $_GET['page'] && isset( $_GET['form_id'] ) && isset( $_GET['deleted'] ) ) {
 			wp_verify_nonce( sanitize_key( $_REQUEST['_wpnonce'] ), 'bulk-entries-nonce' );
 			$form = get_post( $_GET['form_id'] );
