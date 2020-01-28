@@ -12,6 +12,56 @@
  */
 
 /*
+* Display admin notice if WSAL is not installed.
+*/
+function wsal_wpforms_install_notice() {
+    ?>
+    <div class="notice notice-success is-dismissible wsaf-wpforms-notice">
+        <p><?php _e( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on. [Install WP Security Audit Log]', 'wp-security-audit-log' ); ?></p>
+    </div>
+    <?php
+}
+
+// Check if main plugin is installed.
+if ( ! class_exists( 'WpSecurityAuditLog' ) ) {
+	// Check if the notice was already dismissed by the user.
+	if( get_option( 'wsal_forms_notice_dismissed' ) != true ) {
+		add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
+	}
+} else {
+	// Reset the notice if the class is not found.
+	delete_option( 'wsal_forms_notice_dismissed' );
+}
+
+
+/*
+* Load our js file to handle ajax.
+*/
+function wsal_wpforms_scripts() {
+	wp_enqueue_script(
+		'wsal-wpforms-scripts',
+		plugins_url( 'assets/js/scripts.js', __FILE__ ),
+		array( 'jquery' ),
+		'1.0',
+		true
+	);
+
+	// Send ajax url to JS file.
+	wp_localize_script( 'wsal-wpforms-scripts', 'WSALWPFormsData', array(
+		ajaxurl => get_admin_url() . 'admin-ajax.php',
+	));
+}
+add_action( 'admin_enqueue_scripts', 'wsal_wpforms_scripts' );
+
+/*
+* Update option if user clicks dismiss.
+*/
+function wsal_wpforms_dismiss_notice() {
+	update_option( 'wsal_forms_notice_dismissed', true );
+}
+add_action( 'wp_ajax_wsal_wpforms_dismiss_notice', 'wsal_wpforms_dismiss_notice' );
+
+/*
  * Hook into WSAL's action that runs before sensors get loaded.
  */
 add_action( 'wsal_before_sensor_load', 'wsal_mu_plugin_add_custom_sensors_and_events_dirs' );
