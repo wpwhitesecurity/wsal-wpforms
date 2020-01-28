@@ -1,15 +1,34 @@
 <?php
 /**
- * Plugin Name: WP Security Audit Log add-on for WPForms
+ * Plugin Name: WP Security Audit Log add-on for wpforms
  * Plugin URI: https://www.wpsecurityauditlog.com/
- * Description: An addon to the WP Security Audit Log Plugin to track events within the WPForms plugin.
+ * Description: An add-on to the WP Security Audit Log Plugin to track changes within the WPForms plugin.
  * Text Domain: wp-security-audit-log
+ * Author: WP White Security
  * Author URI: http://www.wpwhitesecurity.com/
+ * Version: 1.0.0
  * License: GPL2
  *
  * @package Wsal
  * @subpackage Wsal Custom Events Loader
  */
+ 
+/*
+	Copyright(c) 2020  WP White Security  (email : info@wpwhitesecurity.com)
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License, version 2, as
+	published by the Free Software Foundation.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 /*
  * Hook into WSAL's action that runs before sensors get loaded.
