@@ -17,7 +17,7 @@
 function wsal_wpforms_install_notice() {
     ?>
     <div class="notice notice-success is-dismissible wsaf-wpforms-notice">
-        <p><?php _e( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on. [Install WP Security Audit Log]', 'wp-security-audit-log' ); ?></p>
+        <p><?php _e( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on.', 'wp-security-audit-log' ); ?> <button class="install-addon button button-primary" data-plugin-slug="wp-security-audit-log/wp-security-audit-log.php" data-plugin-download-url="https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip" data-nonce="<?php echo wp_create_nonce( 'wsal-install-addon' ); ?>"><?php _e( 'Install WP Security Audit Log.', 'wp-security-audit-log' ); ?></button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>
     </div>
     <?php
 }
@@ -26,6 +26,11 @@ function wsal_wpforms_install_notice() {
 if ( ! class_exists( 'WpSecurityAuditLog' ) ) {
 	// Check if the notice was already dismissed by the user.
 	if( get_option( 'wsal_forms_notice_dismissed' ) != true ) {
+		if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'PluginInstallerAction' ) ) {
+			require_once 'wp-security-audit-log/classes/PluginInstallAndActivate.php';
+			require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
+		}
+		$plugin_installer = new PluginInstallerAction();
 		add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
 	}
 } else {
@@ -46,10 +51,17 @@ function wsal_wpforms_scripts() {
 		true
 	);
 
+	$script_data = array(
+		'ajaxURL'           => admin_url( 'admin-ajax.php' ),
+		'installing'        => __( 'Installing, please wait', 'wp-security-audit-log' ),
+		'already_installed' => __( 'Already installed', 'wp-security-audit-log' ),
+		'installed'         => __( 'Addon installed', 'wp-security-audit-log' ),
+		'activated'         => __( 'Addon activated', 'wp-security-audit-log' ),
+		'failed'            => __( 'Install failed', 'wp-security-audit-log' ),
+	);
+
 	// Send ajax url to JS file.
-	wp_localize_script( 'wsal-wpforms-scripts', 'WSALWPFormsData', array(
-		ajaxurl => get_admin_url() . 'admin-ajax.php',
-	));
+	wp_localize_script( 'wsal-wpforms-scripts', 'WSALWPFormsData', $script_data );
 }
 add_action( 'admin_enqueue_scripts', 'wsal_wpforms_scripts' );
 
@@ -71,7 +83,6 @@ add_action( 'wsal_before_sensor_load', 'wsal_mu_plugin_add_custom_sensors_and_ev
  * for including custom sensor and event directories.
  *
  * @method wsal_mu_plugin_add_custom_sensors_and_events_dirs
- * @since  1.0.0
  */
 function wsal_mu_plugin_add_custom_sensors_and_events_dirs( $sensor ) {
 	add_filter( 'wsal_custom_sensors_classes_dirs', 'wsal_mu_plugin_custom_sensors_path' );
@@ -184,6 +195,9 @@ function wsal_wpforms_add_custom_event_type_text( $display, $event_type ) {
 	return $display;
 }
 
+/**
+ * Add our filters.
+ */
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
 add_filter( 'wsal_event_object_text', 'wsal_wpforms_add_custom_event_object_text', 10, 2 );
 add_filter( 'wsal_event_type_data', 'wsal_wpforms_add_custom_event_type_data' );

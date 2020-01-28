@@ -4,7 +4,9 @@
  * An abstract class to be used when creating ajax actions. This ensures a consistent
  * way of using them and invoking them.
  */
-class PluginInstallerAction {
+
+if ( ! class_exists( 'PluginInstallerAction' ) ) {
+	class PluginInstallerAction {
 
 	/**
 	 * Sets up the properties for this ajax endpoint.
@@ -33,7 +35,7 @@ class PluginInstallerAction {
 	 * @since  1.0.0
 	 */
 	public function run_addon_install() {
-		check_ajax_referer( 'wsal-toggle-file-changes' );
+		check_ajax_referer( 'wsal-install-addon' );
 
 		$plugin_zip = esc_url( wp_unslash( $_POST[ 'plugin_url' ] ) );
 		$plugin_slug = sanitize_textarea_field( $_POST[ 'plugin_slug' ] );
@@ -176,4 +178,5 @@ class PluginInstallerAction {
 		}
 
  	}
+}
 }
