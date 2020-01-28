@@ -78,7 +78,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @param bool   $update - Whether this is an existing post being updated or not.
 	 */
 	public function event_form_renamed_duplicated_and_notifications( $post_id, $post, $update ) {
-		
 		$form        = get_post( $post_id );
 
 		// Handling form rename. Check if this is a form and if an old title is set.
