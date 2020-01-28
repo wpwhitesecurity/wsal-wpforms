@@ -143,11 +143,7 @@ if ( ! class_exists( 'PluginInstallerAction' ) ) {
 
  		if ( !in_array( $plugin_slug, $current ) ) {
  			$current[] = $plugin_slug;
- 			sort( $current );
- 			do_action( 'activate_plugin', trim( $plugin_slug ) );
- 			update_option( 'active_plugins', $current );
- 			do_action( 'activate_' . trim( $plugin_slug ) );
- 			do_action( 'activated_plugin', trim( $plugin_slug ) );
+			activate_plugin( $plugin_slug );
  		}
  		return null;
  	}
