@@ -85,7 +85,7 @@ if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) ) {
 						// Loop through plugins and output.
 						foreach ( $our_plugins as $details ) {
 							$disable_button = '';
-							if ( $this->is_plugin_installed( $details['plugin_slug'] ) && ! is_plugin_active( $details['plugin_slug'] ) ) {
+							if ( is_plugin_active( $details['plugin_slug'] ) ) {
 								$disable_button = 'disabled';
 							}
 							?>
