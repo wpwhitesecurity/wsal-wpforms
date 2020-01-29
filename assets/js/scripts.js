@@ -48,7 +48,4 @@ jQuery( document ).ready( function() {
       },
     });
   });
-
-  // Totally disabling the button.
-  jQuery(".install-addon.disabled").prop('disabled', true);
 });
