@@ -26,11 +26,11 @@ function wsal_wpforms_install_notice() {
 if ( ! class_exists( 'WpSecurityAuditLog' ) ) {
 	// Check if the notice was already dismissed by the user.
 	if( get_option( 'wsal_forms_notice_dismissed' ) != true ) {
-		if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'PluginInstallerAction' ) ) {
+		if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
 			require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
 		}
-		$plugin_installer = new PluginInstallerAction();
+		$plugin_installer = new WSAL_PluginInstallerAction();
 		add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
 	}
 } else {
