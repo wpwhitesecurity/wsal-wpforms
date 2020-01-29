@@ -52,11 +52,15 @@ if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) ) {
 						<?php
 						// Loop through plugins and output.
 						foreach ( $our_plugins as $details ) {
+							$disable_button = '';
+							if( $this->is_plugin_installed( $details['plugin_slug'] ) && ! is_plugin_active( $details['plugin_slug'] ) || $this->is_plugin_installed( $details['plugin_slug'] ) && is_plugin_active( $details['plugin_slug'] )) {
+								$disable_button = 'disabled';
+							}
 							?>
 							<td style="width: 50%;">
 								<div class="addon-wrapper">
 									<img src="<?php echo esc_url( trailingslashit( WSAL_BASE_URL ) ) . 'img/addons/' . $details['image_filename']; ?>">
-									<p><button class="install-addon button button-primary" data-plugin-slug="<?php echo esc_attr( $details['plugin_slug'] ); ?>" data-plugin-download-url="<?php echo esc_url( $details['plugin_url'] ); ?>" data-plugin-event-tab-id="<?php echo esc_attr( $details['event_tab_id'] ); ?>" >
+									<p><button class="install-addon button button-primary <?php echo esc_attr( $disable_button ); ?>" data-plugin-slug="<?php echo esc_attr( $details['plugin_slug'] ); ?>" data-plugin-download-url="<?php echo esc_url( $details['plugin_url'] ); ?>" data-plugin-event-tab-id="<?php echo esc_attr( $details['event_tab_id'] ); ?>" >
 									<?php
 										if( $this->is_plugin_installed( $details['plugin_slug'] ) && ! is_plugin_active( $details['plugin_slug'] ) ) {
 											esc_html_e( 'Addon installed, activate now?', 'wp-security-audit-log' );
