@@ -7,7 +7,7 @@ $custom_alerts = array(
 			array(
 				5500,
 				WSAL_LOW,
-				__( 'WPForms form created', 'wp-security-audit-log' ),
+				__( 'A form created', 'wp-security-audit-log' ),
 				__( 'Created the form %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
 				'wpforms',
 				'created',
@@ -16,7 +16,7 @@ $custom_alerts = array(
 			array(
 				5501,
 				WSAL_LOW,
-				__( 'WPForms form renamed', 'wp-security-audit-log' ),
+				__( 'A form was renamed', 'wp-security-audit-log' ),
 				__( 'Form renamed %LineBreak% Old Name %OldPostTitle% %LineBreak% New Name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
 				'wpforms',
 				'renamed',
@@ -25,7 +25,7 @@ $custom_alerts = array(
 			array(
 				5502,
 				WSAL_MEDIUM,
-				__( 'WPForms form modified', 'wp-security-audit-log' ),
+				__( 'A form was modified', 'wp-security-audit-log' ),
 				__( 'Form modified %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
 				'wpforms',
 				'modified',
@@ -34,7 +34,7 @@ $custom_alerts = array(
 			array(
 				5503,
 				WSAL_MEDIUM,
-				__( 'WPForms form deleted', 'wp-security-audit-log' ),
+				__( 'A form was deleted', 'wp-security-audit-log' ),
 				__( 'Form Deleted %PostTitle% %LineBreak% ID: %PostID% %LineBreak%', 'wp-security-audit-log' ),
 				'wpforms',
 				'deleted',
@@ -43,7 +43,7 @@ $custom_alerts = array(
 			array(
 				5505,
 				WSAL_MEDIUM,
-				__( 'WPForms form duplicated', 'wp-security-audit-log' ),
+				__( 'A form was duplicated', 'wp-security-audit-log' ),
 				__( 'Form Duplicated. Source form %OldPostTitle% %LineBreak% New form name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
 				'wpforms',
 				'duplicated',
@@ -52,10 +52,19 @@ $custom_alerts = array(
 			array(
 				5506,
 				WSAL_LOW,
-				__( 'WPForms notification', 'wp-security-audit-log' ),
+				__( 'A notification was added to a form', 'wp-security-audit-log' ),
 				__( 'Notification name %notifiation_name% %LineBreak% Form name %form_name% %LineBreak% ID %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
 				'wpforms',
 				'added',
+			),
+
+			array(
+				5507,
+				WSAL_MEDIUM,
+				__( 'An entry was deleted', 'wp-security-audit-log' ),
+				__( 'Form name %form_name% %LineBreak% Form ID %PostID%', 'wp-security-audit-log' ),
+				'wpforms',
+				'deleted',
 			),
 
 		),
