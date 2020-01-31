@@ -12,7 +12,7 @@
  * @package Wsal
  * @subpackage Wsal Custom Events Loader
  */
- 
+
 /*
 	Copyright(c) 2020  WP White Security  (email : info@wpwhitesecurity.com)
 
@@ -34,11 +34,19 @@
 * Display admin notice if WSAL is not installed.
 */
 function wsal_wpforms_install_notice() {
-    ?>
-    <div class="notice notice-success is-dismissible wsaf-wpforms-notice">
-        <p><?php _e( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on.', 'wp-security-audit-log' ); ?> <button class="install-addon button button-primary" data-plugin-slug="wp-security-audit-log/wp-security-audit-log.php" data-plugin-download-url="https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip" data-nonce="<?php echo wp_create_nonce( 'wsal-install-addon' ); ?>"><?php _e( 'Install WP Security Audit Log.', 'wp-security-audit-log' ); ?></button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>
-    </div>
-    <?php
+	?>
+	<div class="notice notice-success is-dismissible wsaf-wpforms-notice">
+		<?php
+		printf(
+			'<p>%1$s <button class="install-addon button button-primary" data-plugin-slug="wp-security-audit-log/wp-security-audit-log.php" data-plugin-download-url="%2$s" data-nonce="%3$s">%4$s</button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>',
+			esc_html__( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on.', 'wp-security-audit-log' ),
+			esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
+			esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
+			esc_html__( 'Install WP Security Audit Log.', 'wp-security-audit-log' )
+		);
+		?>
+	</div>
+	<?php
 }
 
 // Check if main plugin is installed.
