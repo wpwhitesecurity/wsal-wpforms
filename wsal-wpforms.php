@@ -52,7 +52,7 @@ function wsal_wpforms_install_notice() {
 // Check if main plugin is installed.
 if ( ! class_exists( 'WpSecurityAuditLog' ) ) {
 	// Check if the notice was already dismissed by the user.
-	if( get_option( 'wsal_forms_notice_dismissed' ) != true ) {
+	if ( get_option( 'wsal_forms_notice_dismissed' ) != true ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
 		if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
 			require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
@@ -110,6 +110,8 @@ add_action( 'wsal_before_sensor_load', 'wsal_mu_plugin_add_custom_sensors_and_ev
  * for including custom sensor and event directories.
  *
  * @method wsal_mu_plugin_add_custom_sensors_and_events_dirs
+ * @since  1.0.0
+ * @param  string $sensor a file path that needs returned.
  */
 function wsal_mu_plugin_add_custom_sensors_and_events_dirs( $sensor ) {
 	add_filter( 'wsal_custom_sensors_classes_dirs', 'wsal_mu_plugin_custom_sensors_path' );
