@@ -7,6 +7,12 @@
  * @since 1.0.0
  * @package Wsal
  */
+
+/**
+ * Custom sensor class to process WPForms events.
+ *
+ * @since 1.0.0
+ */
 class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	/**
