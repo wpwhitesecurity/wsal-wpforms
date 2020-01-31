@@ -11,6 +11,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	/**
 	 * Hook events related to sensor.
+	 *
+	 * @since 1.0.0
 	 */
 	public function HookEvents() {
 		add_action( 'pre_post_update', array( $this, 'get_before_post_edit_data' ), 10, 2 );
@@ -26,6 +28,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * Get Post Data.
 	 *
 	 * Collect old post data before post update event.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param int $post_id - Post ID.
 	 */
@@ -43,6 +47,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * Form created event.
 	 *
 	 * Detect when a new form is created.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param int   $form_id - Post ID.
 	 * @param array $data - Form data.
@@ -73,6 +79,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * Form renamed event.
 	 *
 	 * Detect when forms title has been changed.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param int    $post_id - Post ID.
 	 * @param object $post - Post data.
@@ -179,6 +187,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 *
 	 * Detect when forms content has been changed.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param int    $form_id - Post ID.
 	 * @param object $data - Post data.
 	 */
@@ -220,6 +230,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 *
 	 * Detect when a form has been fully deleted.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param int $post_id - Post ID.
 	 */
 	public function event_form_deleted( $post_id ) {
@@ -241,6 +253,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 *
 	 * Detect when an entry has been deleted.
 	 *
+	 * @since 1.0.0
 	 */
 	public function event_entry_deleted() {
 		$alert_code  = 5507;
