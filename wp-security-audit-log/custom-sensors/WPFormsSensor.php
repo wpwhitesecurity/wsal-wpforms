@@ -289,7 +289,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		global $pagenow;
 
 		// Check current admin page and also that the delete key is present.
-		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'wpforms-entries' === $_GET['page'] && isset( $_GET['form_id'] ) && isset( $_GET['deleted'] ) ) {
+		if ( 'admin.php' === $pagenow && ( isset( $_GET['page'] ) && 'wpforms-entries' === $_GET['page'] ) && isset( $_GET['form_id'] ) && ( isset( $_GET['deleted'] ) && true === $_GET['deleted'] ) ) {
 			wp_verify_nonce( ( isset( $_REQUEST['_wpnonce'] ) ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'bulk-entries-nonce' );
 			$form_id   = absint( $_GET['form_id'] );
 			$form      = get_post( $form_id );
