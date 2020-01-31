@@ -80,11 +80,11 @@ function wsal_wpforms_scripts() {
 
 	$script_data = array(
 		'ajaxURL'           => admin_url( 'admin-ajax.php' ),
-		'installing'        => __( 'Installing, please wait', 'wp-security-audit-log' ),
-		'already_installed' => __( 'Already installed', 'wp-security-audit-log' ),
-		'installed'         => __( 'Addon installed', 'wp-security-audit-log' ),
-		'activated'         => __( 'Addon activated', 'wp-security-audit-log' ),
-		'failed'            => __( 'Install failed', 'wp-security-audit-log' ),
+		'installing'        => esc_html__( 'Installing, please wait', 'wp-security-audit-log' ),
+		'already_installed' => esc_html__( 'Already installed', 'wp-security-audit-log' ),
+		'installed'         => esc_html__( 'Addon installed', 'wp-security-audit-log' ),
+		'activated'         => esc_html__( 'Addon activated', 'wp-security-audit-log' ),
+		'failed'            => esc_html__( 'Install failed', 'wp-security-audit-log' ),
 	);
 
 	// Send ajax url to JS file.
@@ -157,7 +157,7 @@ function wsal_mu_plugin_add_custom_events_path( $paths ) {
  */
 function wsal_wpforms_add_custom_event_objects( $objects ) {
 	$new_objects = array(
-		'wpforms' => __( 'WPForms', 'wp-security-audit-log' ),
+		'wpforms' => esc_html__( 'WPForms', 'wp-security-audit-log' ),
 	);
 
 	// combine the two arrays.
@@ -177,7 +177,7 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
  */
 function wsal_wpforms_add_custom_event_object_text( $display, $object ) {
 	if ( 'wpforms' === $object ) {
-			$display = __( 'WP Forms', 'wp-security-audit-log' );
+			$display = esc_html__( 'WP Forms', 'wp-security-audit-log' );
 	}
 
 	return $display;
