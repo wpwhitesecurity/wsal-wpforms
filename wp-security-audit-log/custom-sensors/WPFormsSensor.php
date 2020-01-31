@@ -30,7 +30,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @param int $post_id - Post ID.
 	 */
 	public function get_before_post_edit_data( $post_id ) {
-		$post_id = (int) $post_id; // Making sure that the post id is integer.
+		$post_id = absint( $post_id ); // Making sure that the post id is integer.
 		$post    = get_post( $post_id ); // Get post.
 
 		// If post exists.
@@ -49,6 +49,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_form_created( $form_id, $data ) {
 		$alert_code  = 5500;
+		$form_id = absint( $form_id ); // Making sure that the post id is integer.
 		$editor_link = esc_url(
 			add_query_arg(
 				array(
@@ -60,7 +61,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		);
 
 		$variables = array(
-			'PostTitle'      => $data['post_title'],
+			'PostTitle'      => sanitize_title( $data['post_title'] ),
 			'PostID'         => $form_id,
 			'EditorLinkPost' => $editor_link,
 		);
@@ -78,7 +79,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @param bool   $update - Whether this is an existing post being updated or not.
 	 */
 	public function event_form_renamed_duplicated_and_notifications( $post_id, $post, $update ) {
-		$form        = get_post( $post_id );
+		$post_id = absint( $post_id ); // Making sure that the post id is integer.
+		$form    = get_post( $post_id );
 
 		// Handling form rename. Check if this is a form and if an old title is set.
 		if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title && 'wpforms' === $post->post_type ) {
@@ -99,8 +101,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				);
 
 				$variables = array(
-					'OldPostTitle'   => $this->_old_post->post_title,
-					'PostTitle'      => $post->post_title,
+					'OldPostTitle'   => sanitize_title( $this->_old_post->post_title ),
+					'PostTitle'      => sanitize_title( $post->post_title ),
 					'PostID'         => $post_id,
 					'EditorLinkPost' => $editor_link,
 				);
@@ -124,8 +126,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			);
 
 			$variables = array(
-				'OldPostTitle'   => $this->_old_post->post_title,
-				'PostTitle'      => $form->post_title,
+				'OldPostTitle'   => sanitize_title( $this->_old_post->post_title ),
+				'PostTitle'      => sanitize_title( $form->post_title ),
 				'PostID'         => $post_id,
 				'EditorLinkPost' => $editor_link,
 			);
@@ -160,8 +162,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$notification_name = __( 'Default Notification', 'wp-security-audit-log' );
 						}
 						$variables = array(
-							'notifiation_name' => $notification_name,
-							'form_name'        => $form->post_title,
+							'notifiation_name' => sanitize_title( $notification_name ),
+							'form_name'        => sanitize_title( $form->post_title ),
 							'PostID'           => $post_id,
 							'EditorLinkPost'   => $editor_link,
 						);
@@ -182,6 +184,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_form_modified( $form_id, $data ) {
 		$alert_code    = 5502;
+		$form_id       = absint( $form_id ); // Making sure that the post id is integer.
 		$post          = get_post( $form_id );
 		$post_created  = new DateTime( $post->post_date_gmt );
 		$post_modified = new DateTime( $post->post_modified_gmt );
@@ -202,7 +205,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		} else {
 
 			$variables = array(
-				'PostTitle'      => $post->post_title,
+				'PostTitle'      => sanitize_title( $post->post_title ),
 				'PostID'         => $form_id,
 				'EditorLinkPost' => $editor_link,
 			);
@@ -221,6 +224,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_form_deleted( $post_id ) {
 		$alert_code = 5503;
+		$post_id    = absint( $post_id );
 		$post       = get_post( $post_id );
 		if ( 'wpforms' === $post->post_type ) {
 			$variables = array(
@@ -245,10 +249,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Check current admin page and also that the delete key is present.
 		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'wpforms-entries' === $_GET['page'] && isset( $_GET['form_id'] ) && isset( $_GET['deleted'] ) ) {
 			wp_verify_nonce( sanitize_key( $_REQUEST['_wpnonce'] ), 'bulk-entries-nonce' );
-			$form = get_post( $_GET['form_id'] );
+			$form_id = absint( $_GET['form_id'] );
+			$form = get_post( $form_id );
 			$variables = array(
-				'form_name' => $form->post_title,
-				'PostID'    => $_GET['form_id'],
+				'form_name' => sanitize_title( $form->post_title ),
+				'PostID'    => $form_id,
 			);
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
 		}
