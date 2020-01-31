@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WP Security Audit Log add-on for wpforms
+ * Plugin Name: WP Security Audit Log add-on for WPForms
  * Plugin URI: https://www.wpsecurityauditlog.com/
  * Description: An add-on to the WP Security Audit Log Plugin to track changes within the WPForms plugin.
  * Text Domain: wp-security-audit-log
