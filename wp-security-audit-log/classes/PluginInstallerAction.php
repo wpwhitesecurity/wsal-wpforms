@@ -4,7 +4,7 @@
  *
  * Class file for installing plugins from the repo.
  *
- * @since 4.0.1
+ * @since   4.0.1
  * @package Wsal
  */
 
@@ -16,6 +16,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 	 * @since 4.0.1
 	 */
 	class WSAL_PluginInstallerAction {
+
 
 		/**
 		 * Register the ajax action.
@@ -125,7 +126,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 
 			// get core plugin functions if they are not already in runtime.
 			if ( ! function_exists( 'activate_plugin' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				include_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
 			if ( ! is_plugin_active( $plugin_zip ) ) {
@@ -171,7 +172,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 
 			// get core plugin functions if not already in the runtime.
 			if ( ! function_exists( 'get_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				include_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 			$all_plugins = get_plugins();
 

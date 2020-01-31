@@ -4,7 +4,7 @@
  *
  * Class file for alert manager.
  *
- * @since 1.0.0
+ * @since   1.0.0
  * @package Wsal
  */
 
@@ -15,6 +15,7 @@
  */
 class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
+
 	/**
 	 * Hook events related to sensor.
 	 *
@@ -22,8 +23,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function HookEvents() {
 		add_action( 'pre_post_update', array( $this, 'get_before_post_edit_data' ), 10, 2 );
-
-		add_action( 'wpforms_create_form', array( $this, 'event_form_created' ), 10, 4 );
 		add_action( 'save_post', array( $this, 'event_form_renamed_duplicated_and_notifications' ), 10, 3 );
 		add_action( 'wpforms_builder_save_form', array( $this, 'event_form_modified' ), 10, 4 );
 		add_action( 'delete_post', array( $this, 'event_form_deleted' ), 10, 1 );
@@ -50,38 +49,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * Form created event.
-	 *
-	 * Detect when a new form is created.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int   $form_id - Post ID.
-	 * @param array $data - Form data.
-	 */
-	public function event_form_created( $form_id, $data ) {
-		$alert_code  = 5500;
-		$form_id     = absint( $form_id ); // Making sure that the post id is integer.
-		$editor_link = esc_url(
-			add_query_arg(
-				array(
-					'view'    => 'fields',
-					'form_id' => $form_id,
-				),
-				admin_url( 'admin.php?page=wpforms-builder' )
-			)
-		);
-
-		$variables = array(
-			'PostTitle'      => sanitize_text_field( $data['post_title'] ),
-			'PostID'         => $form_id,
-			'EditorLinkPost' => $editor_link,
-		);
-
-		$this->plugin->alerts->Trigger( $alert_code, $variables );
-	}
-
-	/**
 	 * Form renamed event.
 	 *
 	 * Detect when forms title has been changed.
@@ -89,15 +56,38 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @since 1.0.0
 	 *
 	 * @param int    $post_id - Post ID.
-	 * @param object $post - Post data.
-	 * @param bool   $update - Whether this is an existing post being updated or not.
+	 * @param object $post    - Post data.
+	 * @param bool   $update  - Whether this is an existing post being updated or not.
 	 */
 	public function event_form_renamed_duplicated_and_notifications( $post_id, $post, $update ) {
 		$post_id = absint( $post_id ); // Making sure that the post id is integer.
 		$form    = get_post( $post_id );
 
+		// Handling form creation. First lets check an old post was set and its not flagged as an update, then finally check its not a duplicate.
+		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) ) {
+			$alert_code  = 5500;
+			$editor_link = esc_url(
+				add_query_arg(
+					array(
+						'view'    => 'fields',
+						'form_id' => $post_id,
+					),
+					admin_url( 'admin.php?page=wpforms-builder' )
+				)
+			);
+
+			$variables = array(
+				'PostTitle'      => sanitize_text_field( $post->post_title ),
+				'PostID'         => $post_id,
+				'EditorLinkPost' => $editor_link,
+			);
+
+			$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
+		}
+
 		// Handling form rename. Check if this is a form and if an old title is set.
-		if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title && 'wpforms' === $post->post_type ) {
+		if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title && 'wpforms' === $post->post_type && $update ) {
+
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code    = 5501;
@@ -121,8 +111,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					'EditorLinkPost' => $editor_link,
 				);
 
-				$this->plugin->alerts->Trigger( $alert_code, $variables );
-				remove_action( 'save_post', array( $this, 'event_form_renamed' ), 10, 3 );
+				$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 			}
 		}
 
@@ -146,16 +135,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				'EditorLinkPost' => $editor_link,
 			);
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
-			remove_action( 'save_post', array( $this, 'event_form_duplicated' ), 10, 3 );
+			remove_action( 'save_post', array( $this, 'event_form_renamed_duplicated_and_notifications' ), 10, 3 );
 		}
 
 		// Handling form notifications.
-		if ( 'wpforms' === $form->post_type ) {
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
-				$alert_code   = 5506;
-				$form_content = json_decode( $form->post_content );
-				$editor_link  = esc_url(
+				$form_content     = json_decode( $form->post_content );
+				$old_form_content = json_decode( $this->_old_post->post_content );
+				$post_created     = new DateTime( $post->post_date_gmt );
+				$post_modified    = new DateTime( $post->post_modified_gmt );
+				$editor_link      = esc_url(
 					add_query_arg(
 						array(
 							'view'    => 'fields',
@@ -165,13 +156,30 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					)
 				);
 
-				// Check if notifications are enabled for this form.
-				if ( '1' === $form_content->settings->notification_enable ) {
-					// Loop through any notifications and trigger alert.
-					foreach ( $form_content->settings->notifications as $notification ) {
-						// Check if a notification name is provided, and if not display the default name.
-						if ( isset( $notification->notification_name ) ) {
-							$notification_name = $notification->notification_name;
+				// Create 2 arrays from the notification object for comparison later.
+				$form_content_array = json_decode(json_encode( $form_content->settings->notifications ), true);
+				$old_form_content_array = json_decode(json_encode( $old_form_content->settings->notifications ), true);
+
+				// Compare the 2 arrays and create array of added items.
+				$compare_added_items = array_diff(
+					array_map( 'serialize', $form_content_array ),
+					array_map( 'serialize', $old_form_content_array )
+				);
+				$added_items = array_map( 'unserialize', $compare_added_items );
+
+				// Compare the 2 arrays and create array of removed items.
+				$compare_removed_items = array_diff(
+					array_map( 'serialize', $old_form_content_array ),
+					array_map( 'serialize', $form_content_array )
+				);
+				$removed_items = array_map( 'unserialize', $compare_removed_items );
+
+				// Check new content size determine if something has been removed.
+				if( count( $form_content_array ) > count( $old_form_content_array ) ) {
+					$alert_code = 5506;
+					foreach ( $added_items as $notification ) {
+						if ( isset( $notification['notification_name'] ) ) {
+							$notification_name = $notification['notification_name'];
 						} else {
 							$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
 						}
@@ -181,7 +189,23 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'           => $post_id,
 							'EditorLinkPost'   => $editor_link,
 						);
-						$this->plugin->alerts->Trigger( $alert_code, $variables );
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
+					}
+				} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
+					$alert_code = 5508;
+					foreach ( $removed_items as $notification ) {
+						if ( isset( $notification['notification_name'] ) ) {
+							$notification_name = $notification['notification_name'];
+						} else {
+							$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+						}
+						$variables = array(
+							'notifiation_name' => sanitize_text_field( $notification_name ),
+							'form_name'        => sanitize_text_field( $form->post_title ),
+							'PostID'           => $post_id,
+							'EditorLinkPost'   => $editor_link,
+						);
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 					}
 				}
 			}
@@ -196,7 +220,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @since 1.0.0
 	 *
 	 * @param int    $form_id - Post ID.
-	 * @param object $data - Post data.
+	 * @param object $data    - Post data.
 	 */
 	public function event_form_modified( $form_id, $data ) {
 		$alert_code    = 5502;
@@ -214,7 +238,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			)
 		);
 
-		if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ) {
+		// Check time and also if there is an actual change in the post content.
+		if ( abs( $post_created->diff( $post_modified )->s ) <= 1 || $post->post_content === $this->_old_post->post_content ) {
 			// post hasn't changed return without event trigger.
 			return;
 		}
@@ -225,7 +250,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			'EditorLinkPost' => $editor_link,
 		);
 
-		$this->plugin->alerts->Trigger( $alert_code, $variables );
+		$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 
 	}
 
@@ -274,5 +299,50 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			);
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
 		}
+	}
+
+	/**
+	 * Method: This function make sures that alert 5500
+	 * has not been triggered before triggering categories
+	 * & tags events.
+	 *
+	 * @param  WSAL_AlertManager $manager - WSAL Alert Manager.
+	 * @return bool
+	 */
+	public function must_not_new_form( WSAL_AlertManager $manager ) {
+		if ( $manager->WillOrHasTriggered( 5500 ) ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Method: This function make sures that alert 5500
+	 * has not been triggered before triggering categories
+	 * & tags events.
+	 *
+	 * @param  WSAL_AlertManager $manager - WSAL Alert Manager.
+	 * @return bool
+	 */
+	public function check_if_renamed( WSAL_AlertManager $manager ) {
+		if ( $manager->WillOrHasTriggered( 5501 ) || $manager->WillOrHasTriggered( 5500 ) || $manager->WillOrHasTriggered( 5506 )  || $manager->WillOrHasTriggered( 5508 ) ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Method: This function make sures that alert 5500
+	 * has not been triggered before triggering categories
+	 * & tags events.
+	 *
+	 * @param  WSAL_AlertManager $manager - WSAL Alert Manager.
+	 * @return bool
+	 */
+	public function check_if_duplicate( WSAL_AlertManager $manager ) {
+		if ( $manager->WillOrHasTriggered( 5505 ) ) {
+			return false;
+		}
+		return true;
 	}
 }
