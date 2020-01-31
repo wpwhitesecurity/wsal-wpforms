@@ -61,7 +61,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		);
 
 		$variables = array(
-			'PostTitle'      => sanitize_title( $data['post_title'] ),
+			'PostTitle'      => sanitize_text_field( $data['post_title'] ),
 			'PostID'         => $form_id,
 			'EditorLinkPost' => $editor_link,
 		);
@@ -101,8 +101,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				);
 
 				$variables = array(
-					'OldPostTitle'   => sanitize_title( $this->_old_post->post_title ),
-					'PostTitle'      => sanitize_title( $post->post_title ),
+					'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
+					'PostTitle'      => sanitize_text_field( $post->post_title ),
 					'PostID'         => $post_id,
 					'EditorLinkPost' => $editor_link,
 				);
@@ -126,8 +126,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			);
 
 			$variables = array(
-				'OldPostTitle'   => sanitize_title( $this->_old_post->post_title ),
-				'PostTitle'      => sanitize_title( $form->post_title ),
+				'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
+				'PostTitle'      => sanitize_text_field( $form->post_title ),
 				'PostID'         => $post_id,
 				'EditorLinkPost' => $editor_link,
 			);
@@ -162,8 +162,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$notification_name = __( 'Default Notification', 'wp-security-audit-log' );
 						}
 						$variables = array(
-							'notifiation_name' => sanitize_title( $notification_name ),
-							'form_name'        => sanitize_title( $form->post_title ),
+							'notifiation_name' => sanitize_text_field( $notification_name ),
+							'form_name'        => sanitize_text_field( $form->post_title ),
 							'PostID'           => $post_id,
 							'EditorLinkPost'   => $editor_link,
 						);
@@ -205,7 +205,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		} else {
 
 			$variables = array(
-				'PostTitle'      => sanitize_title( $post->post_title ),
+				'PostTitle'      => sanitize_text_field( $post->post_title ),
 				'PostID'         => $form_id,
 				'EditorLinkPost' => $editor_link,
 			);
@@ -252,7 +252,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$form_id = absint( $_GET['form_id'] );
 			$form = get_post( $form_id );
 			$variables = array(
-				'form_name' => sanitize_title( $form->post_title ),
+				'form_name' => sanitize_text_field( $form->post_title ),
 				'PostID'    => $form_id,
 			);
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
