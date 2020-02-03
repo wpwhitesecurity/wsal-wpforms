@@ -211,10 +211,8 @@ function wsal_wpforms_add_custom_ignored_cpt( $post_types ) {
 /**
  * Adds new meta formatting for our plugion
  *
- * @method wsal_wpforms_add_custom_event_object_text
+ * @method wsal_wpforms_add_custom_meta_format
  * @since  1.0.0
- * @param  array $post_types An array of default post_types.
- * @return array
  */
 function wsal_wpforms_add_custom_meta_format( $name, $value ) {
 	if ( '%EditorLinkForm%' === $name ) {

@@ -59,8 +59,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @param bool   $update  - Whether this is an existing post being updated or not.
 	 */
 	public function event_form_renamed_duplicated_and_notifications( $post_id, $post, $update ) {
-		$post_id = absint( $post_id ); // Making sure that the post id is integer.
-		$form    = get_post( $post_id );
+		$post_id          = absint( $post_id ); // Making sure that the post id is integer.
+		$form             = get_post( $post_id );
 
 		// Handling form creation. First lets check an old post was set and its not flagged as an update, then finally check its not a duplicate.
 		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $post->post_type ) {
@@ -83,17 +83,16 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			);
 
 			$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
-		}
 
 		// Handling form rename. Check if this is a form and if an old title is set.
-		if ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title && 'wpforms' === $post->post_type && $update ) {
+		} elseif ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title && 'wpforms' === $post->post_type && $update ) {
 
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
-				$alert_code    = 5500;
-				$post          = get_post( $post_id );
-				$post_created  = new DateTime( $post->post_date_gmt );
-				$post_modified = new DateTime( $post->post_modified_gmt );
+				$alert_code       = 5500;
+				$post             = get_post( $post_id );
+				$post_created     = new DateTime( $post->post_date_gmt );
+				$post_modified    = new DateTime( $post->post_modified_gmt );
 				$editor_link   = esc_url(
 					add_query_arg(
 						array(
@@ -166,85 +165,50 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					)
 				);
 				// Create 2 arrays from the notification object for comparison later.
-				$form_content_array = json_decode(json_encode( $form_content->settings->notifications ), true);
-				$old_form_content_array = json_decode(json_encode( $old_form_content->settings->notifications ), true);
+				if ( isset( $form_content->settings->notifications ) && isset( $old_form_content->settings->notifications ) ) {
+					$form_content_array = json_decode(json_encode( $form_content->settings->notifications ), true);
+					$old_form_content_array = json_decode(json_encode( $old_form_content->settings->notifications ), true);
 
-				// Compare the 2 arrays and create array of added items.
-				$compare_added_items = array_diff(
-					array_map( 'serialize', $form_content_array ),
-					array_map( 'serialize', $old_form_content_array )
-				);
-				$added_items = array_map( 'unserialize', $compare_added_items );
+					// Compare the 2 arrays and create array of added items.
+					$compare_added_items = array_diff(
+						array_map( 'serialize', $form_content_array ),
+						array_map( 'serialize', $old_form_content_array )
+					);
+					$added_items = array_map( 'unserialize', $compare_added_items );
 
-				// Compare the 2 arrays and create array of removed items.
-				$compare_removed_items = array_diff(
-					array_map( 'serialize', $old_form_content_array ),
-					array_map( 'serialize', $form_content_array )
-				);
-				$removed_items = array_map( 'unserialize', $compare_removed_items );
+					// Compare the 2 arrays and create array of removed items.
+					$compare_removed_items = array_diff(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$removed_items = array_map( 'unserialize', $compare_removed_items );
 
-				$compare_changed_items = array_diff_assoc(
-					array_map( 'serialize', $old_form_content_array ),
-					array_map( 'serialize', $form_content_array )
-				);
-				$changed_items = array_map( 'unserialize', $compare_removed_items );
+					$compare_changed_items = array_diff_assoc(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$changed_items = array_map( 'unserialize', $compare_removed_items );
 
-				// Check new content size determine if something has been added.
-				if( count( $form_content_array ) > count( $old_form_content_array ) ) {
-					$alert_code = 5503;
-					foreach ( $added_items as $notification ) {
-						if ( isset( $notification['notification_name'] ) ) {
-							$notification_name = $notification['notification_name'];
-						} else {
-							$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+					// Check new content size determine if something has been added.
+					if( count( $form_content_array ) > count( $old_form_content_array ) ) {
+						$alert_code = 5503;
+						foreach ( $added_items as $notification ) {
+							if ( isset( $notification['notification_name'] ) ) {
+								$notification_name = $notification['notification_name'];
+							} else {
+								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+							}
+							$variables = array(
+								'EventType'        => 'created',
+								'notifiation_name' => sanitize_text_field( $notification_name ),
+								'form_name'        => sanitize_text_field( $form->post_title ),
+								'PostID'           => $post_id,
+								'EditorLinkForm'   => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						}
-						$variables = array(
-							'EventType'        => 'created',
-							'notifiation_name' => sanitize_text_field( $notification_name ),
-							'form_name'        => sanitize_text_field( $form->post_title ),
-							'PostID'           => $post_id,
-							'EditorLinkForm'   => $editor_link,
-						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-					}
-				// Check new content size determine if something has been removed.
-				} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
-					$alert_code = 5503;
-					foreach ( $removed_items as $notification ) {
-						if ( isset( $notification['notification_name'] ) ) {
-							$notification_name = $notification['notification_name'];
-						} else {
-							$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
-						}
-						$variables = array(
-							'EventType'        => 'deleted',
-							'notifiation_name' => sanitize_text_field( $notification_name ),
-							'form_name'        => sanitize_text_field( $form->post_title ),
-							'PostID'           => $post_id,
-							'EditorLinkForm'   => $editor_link,
-						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-					}
-					// Compare old post and new post to see if the notifications have been disabled.
-					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
-						$alert_code = 5505;
-						$variables = array(
-							'EventType'      => 'disabled',
-							'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
-							'PostID'         => $post_id,
-							'EditorLinkForm' => $editor_link,
-						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-
-					// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
-					} elseif ( $changed_items ) {
-
-						// Check time and also if there is an actual change in the post content.
-						if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ) {
-							// post hasn't changed return without event trigger.
-							return;
-						}
-
+					// Check new content size determine if something has been removed.
+					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
 						$alert_code = 5503;
 						foreach ( $removed_items as $notification ) {
 							if ( isset( $notification['notification_name'] ) ) {
@@ -253,13 +217,50 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
 							}
 							$variables = array(
-								'EventType'        => 'modified',
+								'EventType'        => 'deleted',
 								'notifiation_name' => sanitize_text_field( $notification_name ),
 								'form_name'        => sanitize_text_field( $form->post_title ),
 								'PostID'           => $post_id,
 								'EditorLinkForm'   => $editor_link,
 							);
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						}
+						// Compare old post and new post to see if the notifications have been disabled.
+						} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
+							$alert_code = 5505;
+							$variables = array(
+								'EventType'      => 'disabled',
+								'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
+								'PostID'         => $post_id,
+								'EditorLinkForm' => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+
+						// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
+						} elseif ( $changed_items ) {
+
+							// Check time and also if there is an actual change in the post content.
+							if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ) {
+								// post hasn't changed return without event trigger.
+								return;
+							}
+
+							$alert_code = 5503;
+							foreach ( $removed_items as $notification ) {
+								if ( isset( $notification['notification_name'] ) ) {
+									$notification_name = $notification['notification_name'];
+								} else {
+									$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+								}
+								$variables = array(
+									'EventType'        => 'modified',
+									'notifiation_name' => sanitize_text_field( $notification_name ),
+									'form_name'        => sanitize_text_field( $form->post_title ),
+									'PostID'           => $post_id,
+									'EditorLinkForm'   => $editor_link,
+								);
+								$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						}
 					}
 				}
 			}
@@ -283,68 +284,70 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					)
 				);
 
-				// Create 2 arrays from the fields object for comparison later.
-				$form_content_array = json_decode( json_encode( $form_content->fields ), true );
-				$old_form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
+				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) ) {
+					// Create 2 arrays from the fields object for comparison later.
+					$form_content_array = json_decode( json_encode( $form_content->fields ), true );
+					$old_form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
 
-				// Compare the 2 arrays and create array of added items.
-				$compare_added_items = array_diff(
-					array_map( 'serialize', $form_content_array ),
-					array_map( 'serialize', $old_form_content_array )
-				);
-				$added_items = array_map( 'unserialize', $compare_added_items );
+					// Compare the 2 arrays and create array of added items.
+					$compare_added_items = array_diff(
+						array_map( 'serialize', $form_content_array ),
+						array_map( 'serialize', $old_form_content_array )
+					);
+					$added_items = array_map( 'unserialize', $compare_added_items );
 
-				// Compare the 2 arrays and create array of removed items.
-				$compare_removed_items = array_diff(
-					array_map( 'serialize', $old_form_content_array ),
-					array_map( 'serialize', $form_content_array )
-				);
-				$removed_items = array_map( 'unserialize', $compare_removed_items );
+					// Compare the 2 arrays and create array of removed items.
+					$compare_removed_items = array_diff(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$removed_items = array_map( 'unserialize', $compare_removed_items );
 
-				$compare_changed_items = array_diff_assoc(
-					array_map( 'serialize', $old_form_content_array ),
-					array_map( 'serialize', $form_content_array )
-				);
-				$changed_items = array_map( 'unserialize', $compare_removed_items );
+					$compare_changed_items = array_diff_assoc(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$changed_items = array_map( 'unserialize', $compare_removed_items );
 
-				// Check new content size determine if something has been added.
-				if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
-					$alert_code = 5501;
-					foreach ( $added_items as $fields ) {
-						$variables = array(
-							'EventType'      => 'created',
-							'field_name'     => sanitize_text_field( $fields['label'] ),
-							'form_name'      => sanitize_text_field( $form->post_title ),
-							'PostID'         => $post_id,
-							'EditorLinkForm' => $editor_link,
-						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-					}
-				// Check new content size determine if something has been removed.
-				} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
-					$alert_code = 5501;
-					foreach ( $removed_items as $fields ) {
-						$variables = array(
-							'EventType'      => 'deleted',
-							'field_name'     => sanitize_text_field( $fields['label'] ),
-							'form_name'      => sanitize_text_field( $form->post_title ),
-							'PostID'         => $post_id,
-							'EditorLinkForm' => $editor_link,
-						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-					}
-				// Check content to see if anything has been modified.
-				} elseif ( $changed_items ) {
-					$alert_code = 5501;
-					foreach ( $changed_items as $fields ) {
-						$variables = array(
-							'EventType'      => 'modified',
-							'field_name'     => sanitize_text_field( $fields['label'] ),
-							'form_name'      => sanitize_text_field( $form->post_title ),
-							'PostID'         => $post_id,
-							'EditorLinkForm' => $editor_link,
-						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+					// Check new content size determine if something has been added.
+					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
+						$alert_code = 5501;
+						foreach ( $added_items as $fields ) {
+							$variables = array(
+								'EventType'      => 'created',
+								'field_name'     => sanitize_text_field( $fields['label'] ),
+								'form_name'      => sanitize_text_field( $form->post_title ),
+								'PostID'         => $post_id,
+								'EditorLinkForm' => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						}
+					// Check new content size determine if something has been removed.
+					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
+						$alert_code = 5501;
+						foreach ( $removed_items as $fields ) {
+							$variables = array(
+								'EventType'      => 'deleted',
+								'field_name'     => sanitize_text_field( $fields['label'] ),
+								'form_name'      => sanitize_text_field( $form->post_title ),
+								'PostID'         => $post_id,
+								'EditorLinkForm' => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						}
+					// Check content to see if anything has been modified.
+					} elseif ( $changed_items ) {
+						$alert_code = 5501;
+						foreach ( $changed_items as $fields ) {
+							$variables = array(
+								'EventType'      => 'modified',
+								'field_name'     => sanitize_text_field( $fields['label'] ),
+								'form_name'      => sanitize_text_field( $form->post_title ),
+								'PostID'         => $post_id,
+								'EditorLinkForm' => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						}
 					}
 				}
 			}
