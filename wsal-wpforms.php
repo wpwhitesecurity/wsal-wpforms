@@ -175,7 +175,13 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
  */
 function wsal_wpforms_add_custom_event_object_text( $display, $object ) {
 	if ( 'wpforms' === $object ) {
-		$display = esc_html__( 'WP Forms', 'wp-security-audit-log' );
+		$display = esc_html__( 'Forms in WPForms', 'wp-security-audit-log' );
+	}
+	if ( 'wpforms_notifications' === $object ) {
+		$display = esc_html__( 'Notifications in WPForms', 'wp-security-audit-log' );
+	}
+	if ( 'wpforms_entries' === $object ) {
+		$display = esc_html__( 'Entries in WPForms', 'wp-security-audit-log' );
 	}
 
 	return $display;
