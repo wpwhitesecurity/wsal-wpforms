@@ -117,28 +117,35 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		// Handling duplicated forms by checking to see if the post has ID # in the title.
 		if ( preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $form->post_type ) {
-			$alert_code  = 5505;
-			// Grab old form ID from its post content.
-			$old_form_content = json_decode($this->_old_post->post_content);
-			$editor_link = esc_url(
-				add_query_arg(
-					array(
-						'view'    => 'fields',
-						'form_id' => $post_id,
-					),
-					admin_url( 'admin.php?page=wpforms-builder' )
-				)
-			);
+			$post_created    = new DateTime( $form->post_date_gmt );
+			$post_modified   = new DateTime( $form->post_modified_gmt );
+			$alert_code      = 5505;
+			// Check if this is indeed a new form.
+			if( $form->post_date_gmt === $form->post_modified_gmt ) {
 
-			$variables = array(
-				'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
-				'PostTitle'      => sanitize_text_field( $form->post_title ),
-				'SourceID'       => sanitize_text_field( $old_form_content->id ),
-				'PostID'         => $post_id,
-				'EditorLinkPost' => $editor_link,
-			);
-			$this->plugin->alerts->Trigger( $alert_code, $variables );
-			remove_action( 'save_post', array( $this, 'event_form_renamed_duplicated_and_notifications' ), 10, 3 );
+				error_log( print_r( 'same' , true ) );
+				// Grab old form ID from its post content.
+				$old_form_content = json_decode($this->_old_post->post_content);
+				$editor_link = esc_url(
+					add_query_arg(
+						array(
+							'view'    => 'fields',
+							'form_id' => $post_id,
+						),
+						admin_url( 'admin.php?page=wpforms-builder' )
+					)
+				);
+
+				$variables = array(
+					'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
+					'PostTitle'      => sanitize_text_field( $form->post_title ),
+					'SourceID'       => sanitize_text_field( $old_form_content->id ),
+					'PostID'         => $post_id,
+					'EditorLinkPost' => $editor_link,
+				);
+				$this->plugin->alerts->Trigger( $alert_code, $variables );
+				remove_action( 'save_post', array( $this, 'event_form_renamed_duplicated_and_notifications' ), 10, 3 );
+			}
 		}
 
 		// Handling form notifications.
@@ -267,7 +274,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'         => $post_id,
 							'EditorLinkPost' => $editor_link,
 						);
-						$this->plugin->alerts->Trigger( $alert_code, $variables );
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 					}
 				// Check new content size determine if something has been removed.
 				} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
@@ -280,7 +287,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'         => $post_id,
 							'EditorLinkPost' => $editor_link,
 						);
-						$this->plugin->alerts->Trigger( $alert_code, $variables );
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 					}
 				// Check content to see if anything has been modified.
 				} elseif( $changed_items ) {
@@ -293,7 +300,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'         => $post_id,
 							'EditorLinkPost' => $editor_link,
 						);
-						$this->plugin->alerts->Trigger( $alert_code, $variables );
+					$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 					}
 				}
 			}
