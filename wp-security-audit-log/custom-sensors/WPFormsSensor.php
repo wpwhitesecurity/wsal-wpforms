@@ -64,7 +64,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		$form    = get_post( $post_id );
 
 		// Handling form creation. First lets check an old post was set and its not flagged as an update, then finally check its not a duplicate.
-		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) ) {
+		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $post->post_type ) {
 			$alert_code  = 5500;
 			$editor_link = esc_url(
 				add_query_arg(
