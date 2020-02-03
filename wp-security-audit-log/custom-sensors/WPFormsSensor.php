@@ -120,10 +120,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$post_created    = new DateTime( $form->post_date_gmt );
 			$post_modified   = new DateTime( $form->post_modified_gmt );
 			$alert_code      = 5505;
+			
 			// Check if this is indeed a new form.
 			if( $form->post_date_gmt === $form->post_modified_gmt ) {
-
-				error_log( print_r( 'same' , true ) );
 				// Grab old form ID from its post content.
 				$old_form_content = json_decode($this->_old_post->post_content);
 				$editor_link = esc_url(
@@ -184,7 +183,13 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				);
 				$removed_items = array_map( 'unserialize', $compare_removed_items );
 
-				// Check new content size determine if something has been removed.
+				$compare_changed_items = array_diff_assoc(
+					array_map( 'serialize', $old_form_content_array ),
+					array_map( 'serialize', $form_content_array )
+				);
+				$changed_items = array_map( 'unserialize', $compare_removed_items );
+
+				// Check new content size determine if something has been added.
 				if( count( $form_content_array ) > count( $old_form_content_array ) ) {
 					$alert_code = 5506;
 					foreach ( $added_items as $notification ) {
@@ -201,8 +206,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						);
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 					}
+				// Check new content size determine if something has been removed.
 				} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
-					$alert_code = 5508;
+					$alert_code = 5506;
 					foreach ( $removed_items as $notification ) {
 						if ( isset( $notification['notification_name'] ) ) {
 							$notification_name = $notification['notification_name'];
@@ -210,12 +216,42 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
 						}
 						$variables = array(
+							'EventType'        => 'deleted',
 							'notifiation_name' => sanitize_text_field( $notification_name ),
 							'form_name'        => sanitize_text_field( $form->post_title ),
 							'PostID'           => $post_id,
 							'EditorLinkPost'   => $editor_link,
 						);
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
+					}
+					// Compare old post and new post to see if the notifications have been disabled.
+					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
+						$alert_code = 5508;
+						$variables = array(
+							'EventType'      => 'disabled',
+							'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
+							'PostID'         => $post_id,
+							'EditorLinkPost' => $editor_link,
+						);
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
+
+					// Finally, as none of the above triggered anything, lets see if the notifications themselved have been modified.
+					} elseif ( $changed_items ) {
+						$alert_code = 5506;
+						foreach ( $removed_items as $notification ) {
+							if ( isset( $notification['notification_name'] ) ) {
+								$notification_name = $notification['notification_name'];
+							} else {
+								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+							}
+							$variables = array(
+								'EventType'        => 'modified',
+								'notifiation_name' => sanitize_text_field( $notification_name ),
+								'form_name'        => sanitize_text_field( $form->post_title ),
+								'PostID'           => $post_id,
+								'EditorLinkPost'   => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 					}
 				}
 			}
@@ -290,7 +326,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 					}
 				// Check content to see if anything has been modified.
-				} elseif( $changed_items ) {
+				} elseif ( $changed_items ) {
 					$alert_code = 5504;
 					foreach ( $changed_items as $fields ) {
 						$variables = array(
