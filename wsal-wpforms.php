@@ -206,8 +206,24 @@ function wsal_wpforms_add_custom_ignored_cpt( $post_types ) {
 }
 
 /**
+ * Adds new meta formatting for our plugion
+ *
+ * @method wsal_wpforms_add_custom_event_object_text
+ * @since  1.0.0
+ * @param  array $post_types An array of default post_types.
+ * @return array
+ */
+function wsal_wpforms_add_custom_meta_format( $name, $value ) {
+	if ( '%EditorLinkForm%' === $name ) {
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in the editor', 'wp-security-audit-log' ) . '</a>';
+	}
+	return $value;
+}
+
+/**
  * Add our filters.
  */
+add_filter( 'wsal_meta_formatter_custom_formatter', 'wsal_wpforms_add_custom_meta_format', 10, 2 );
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
 add_filter( 'wsal_event_object_text', 'wsal_wpforms_add_custom_event_object_text', 10, 2 );
 add_filter( 'wsal_ignored_custom_post_types', 'wsal_wpforms_add_custom_ignored_cpt' );

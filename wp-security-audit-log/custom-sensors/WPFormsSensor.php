@@ -79,7 +79,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$variables = array(
 				'PostTitle'      => sanitize_text_field( $post->post_title ),
 				'PostID'         => $post_id,
-				'EditorLinkPost' => $editor_link,
+				'EditorLinkForm' => $editor_link,
 			);
 
 			$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
@@ -108,7 +108,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
 					'PostTitle'      => sanitize_text_field( $post->post_title ),
 					'PostID'         => $post_id,
-					'EditorLinkPost' => $editor_link,
+					'EditorLinkForm' => $editor_link,
 				);
 
 				$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
@@ -120,7 +120,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$post_created    = new DateTime( $form->post_date_gmt );
 			$post_modified   = new DateTime( $form->post_modified_gmt );
 			$alert_code      = 5505;
-			
+
 			// Check if this is indeed a new form.
 			if( $form->post_date_gmt === $form->post_modified_gmt ) {
 				// Grab old form ID from its post content.
@@ -140,7 +140,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					'PostTitle'      => sanitize_text_field( $form->post_title ),
 					'SourceID'       => sanitize_text_field( $old_form_content->id ),
 					'PostID'         => $post_id,
-					'EditorLinkPost' => $editor_link,
+					'EditorLinkForm' => $editor_link,
 				);
 				$this->plugin->alerts->Trigger( $alert_code, $variables );
 				remove_action( 'save_post', array( $this, 'event_form_renamed_duplicated_and_notifications' ), 10, 3 );
@@ -198,11 +198,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						} else {
 							$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
 						}
+						$editor_link = $this->GetEditorLink( $form );
 						$variables = array(
 							'notifiation_name' => sanitize_text_field( $notification_name ),
 							'form_name'        => sanitize_text_field( $form->post_title ),
 							'PostID'           => $post_id,
-							'EditorLinkPost'   => $editor_link,
+							$editor_link['name'] => $editor_link['value'],
 						);
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 					}
@@ -220,7 +221,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'notifiation_name' => sanitize_text_field( $notification_name ),
 							'form_name'        => sanitize_text_field( $form->post_title ),
 							'PostID'           => $post_id,
-							'EditorLinkPost'   => $editor_link,
+							'EditorLinkForm'   => $editor_link,
 						);
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 					}
@@ -231,7 +232,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'EventType'      => 'disabled',
 							'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
 							'PostID'         => $post_id,
-							'EditorLinkPost' => $editor_link,
+							'EditorLinkForm' => $editor_link,
 						);
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 
@@ -249,7 +250,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'notifiation_name' => sanitize_text_field( $notification_name ),
 								'form_name'        => sanitize_text_field( $form->post_title ),
 								'PostID'           => $post_id,
-								'EditorLinkPost'   => $editor_link,
+								'EditorLinkForm'   => $editor_link,
 							);
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_new_form' ) );
 					}
@@ -308,7 +309,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'field_name'     => sanitize_text_field( $fields['label'] ),
 							'form_name'      => sanitize_text_field( $form->post_title ),
 							'PostID'         => $post_id,
-							'EditorLinkPost' => $editor_link,
+							'EditorLinkForm' => $editor_link,
 						);
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 					}
@@ -321,7 +322,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'field_name'     => sanitize_text_field( $fields['label'] ),
 							'form_name'      => sanitize_text_field( $form->post_title ),
 							'PostID'         => $post_id,
-							'EditorLinkPost' => $editor_link,
+							'EditorLinkForm' => $editor_link,
 						);
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 					}
@@ -334,7 +335,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'field_name'     => sanitize_text_field( $fields['label'] ),
 							'form_name'      => sanitize_text_field( $form->post_title ),
 							'PostID'         => $post_id,
-							'EditorLinkPost' => $editor_link,
+							'EditorLinkForm' => $editor_link,
 						);
 					$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
 					}
@@ -378,7 +379,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		$variables = array(
 			'PostTitle'      => sanitize_text_field( $post->post_title ),
 			'PostID'         => $form_id,
-			'EditorLinkPost' => $editor_link,
+			'EditorLinkForm' => $editor_link,
 		);
 
 		$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_renamed' ) );
