@@ -118,6 +118,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Handling duplicated forms by checking to see if the post has ID # in the title.
 		if ( preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $form->post_type ) {
 			$alert_code  = 5505;
+			// Grab old form ID from its post content.
+			$old_form_content = json_decode($this->_old_post->post_content);
 			$editor_link = esc_url(
 				add_query_arg(
 					array(
@@ -131,6 +133,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$variables = array(
 				'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
 				'PostTitle'      => sanitize_text_field( $form->post_title ),
+				'SourceID'       => sanitize_text_field( $old_form_content->id ),
 				'PostID'         => $post_id,
 				'EditorLinkPost' => $editor_link,
 			);
