@@ -183,6 +183,9 @@ function wsal_wpforms_add_custom_event_object_text( $display, $object ) {
 	if ( 'wpforms_entries' === $object ) {
 		$display = esc_html__( 'Entries in WPForms', 'wp-security-audit-log' );
 	}
+	if ( 'wpforms_fields' === $object ) {
+		$display = esc_html__( 'Fields in WPForms', 'wp-security-audit-log' );
+	}
 
 	return $display;
 }
