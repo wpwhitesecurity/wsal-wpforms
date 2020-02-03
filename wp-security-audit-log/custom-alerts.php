@@ -41,6 +41,15 @@ $custom_alerts = array(
 			),
 
 			array(
+				5504,
+				WSAL_MEDIUM,
+				__( 'A field was deleted', 'wp-security-audit-log' ),
+				__( 'Field name %field_name% %LineBreak% Form name %form_name% %LineBreak% Form ID: %PostID% %LineBreak%', 'wp-security-audit-log' ),
+				'wpforms',
+				'deleted',
+			),
+
+			array(
 				5505,
 				WSAL_MEDIUM,
 				__( 'A form was duplicated', 'wp-security-audit-log' ),

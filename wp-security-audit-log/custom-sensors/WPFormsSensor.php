@@ -213,6 +213,91 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 			}
 		}
+
+		// Handling fields
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update ) {
+			// Checking to ensure this is not a draft or fresh form.
+			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
+				$form_content     = json_decode( $form->post_content );
+				$old_form_content = json_decode( $this->_old_post->post_content );
+				$post_created     = new DateTime( $post->post_date_gmt );
+				$post_modified    = new DateTime( $post->post_modified_gmt );
+				$editor_link      = esc_url(
+					add_query_arg(
+						array(
+							'view'    => 'fields',
+							'form_id' => $post_id,
+						),
+						admin_url( 'admin.php?page=wpforms-builder' )
+					)
+				);
+
+				// Create 2 arrays from the fields object for comparison later.
+				$form_content_array = json_decode( json_encode( $form_content->fields ), true );
+				$old_form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
+
+				// Compare the 2 arrays and create array of added items.
+				$compare_added_items = array_diff(
+					array_map( 'serialize', $form_content_array ),
+					array_map( 'serialize', $old_form_content_array )
+				);
+				$added_items = array_map( 'unserialize', $compare_added_items );
+
+				// Compare the 2 arrays and create array of removed items.
+				$compare_removed_items = array_diff(
+					array_map( 'serialize', $old_form_content_array ),
+					array_map( 'serialize', $form_content_array )
+				);
+				$removed_items = array_map( 'unserialize', $compare_removed_items );
+
+				$compare_changed_items = array_diff_assoc(
+					array_map( 'serialize', $old_form_content_array ),
+					array_map( 'serialize', $form_content_array )
+				);
+				$changed_items = array_map( 'unserialize', $compare_removed_items );
+
+				// Check new content size determine if something has been added.
+				if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
+					$alert_code = 5504;
+					foreach ( $added_items as $fields ) {
+						$variables = array(
+							'EventType'      => 'created',
+							'field_name'     => sanitize_text_field( $fields['label'] ),
+							'form_name'      => sanitize_text_field( $form->post_title ),
+							'PostID'         => $post_id,
+							'EditorLinkPost' => $editor_link,
+						);
+						$this->plugin->alerts->Trigger( $alert_code, $variables );
+					}
+				// Check new content size determine if something has been removed.
+				} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
+					$alert_code = 5504;
+					foreach ( $removed_items as $fields ) {
+						$variables = array(
+							'EventType'      => 'deleted',
+							'field_name'     => sanitize_text_field( $fields['label'] ),
+							'form_name'      => sanitize_text_field( $form->post_title ),
+							'PostID'         => $post_id,
+							'EditorLinkPost' => $editor_link,
+						);
+						$this->plugin->alerts->Trigger( $alert_code, $variables );
+					}
+				// Check content to see if anything has been modified.
+				} elseif( $changed_items ) {
+					$alert_code = 5504;
+					foreach ( $changed_items as $fields ) {
+						$variables = array(
+							'EventType'      => 'modified',
+							'field_name'     => sanitize_text_field( $fields['label'] ),
+							'form_name'      => sanitize_text_field( $form->post_title ),
+							'PostID'         => $post_id,
+							'EditorLinkPost' => $editor_link,
+						);
+						$this->plugin->alerts->Trigger( $alert_code, $variables );
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -328,7 +413,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @return bool
 	 */
 	public function check_if_renamed( WSAL_AlertManager $manager ) {
-		if ( $manager->WillOrHasTriggered( 5501 ) || $manager->WillOrHasTriggered( 5500 ) || $manager->WillOrHasTriggered( 5506 )  || $manager->WillOrHasTriggered( 5508 ) ) {
+		if ( $manager->WillOrHasTriggered( 5501 ) || $manager->WillOrHasTriggered( 5500 ) || $manager->WillOrHasTriggered( 5506 ) || $manager->WillOrHasTriggered( 5508 ) || $manager->WillOrHasTriggered( 5504 ) ) {
 			return false;
 		}
 		return true;
