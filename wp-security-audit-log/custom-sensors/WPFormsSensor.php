@@ -15,6 +15,8 @@
  */
 class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
+	private $new_form_recently = null;
+
 	/**
 	 * Hook events related to sensor.
 	 *
@@ -149,7 +151,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		// Handling form notifications.
-		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update ) {
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$form_content     = json_decode( $form->post_content );
@@ -274,7 +276,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		// Handling fields.
-		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update ) {
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$form_content     = json_decode( $form->post_content );
@@ -399,7 +401,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		// Finally, if all of the above didnt catch anything, but the form as still been modified in some way, lets handle that.
-		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $update ) {
+		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $update && ! $this->was_triggered_recently( 5500 ) ) {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code  = 5500;
 				$form_content     = json_decode( $form->post_content );
@@ -528,5 +530,40 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Check if the alert was triggered recently.
+	 *
+	 * Checks last 5 events if they occured less than 20 seconds ago.
+	 *
+	 * @param integer|array $alert_id - Alert code.
+	 * @return boolean
+	 */
+	private function was_triggered_recently( $alert_id ) {
+		// if we have already checked this don't check again.
+		if ( isset( $this->new_form_recently ) ) {
+			return true;
+		}
+		$query = new WSAL_Models_OccurrenceQuery();
+		$query->addOrderBy( 'created_on', true );
+		$query->setLimit( 5 );
+		$last_occurences  = $query->getAdapter()->Execute( $query );
+		$known_to_trigger = false;
+		foreach ( $last_occurences as $last_occurence ) {
+			if ( $known_to_trigger ) {
+				break;
+			}
+			if ( ! empty( $last_occurence ) && ( $last_occurence->created_on + 20 ) > time() ) {
+				if ( ! is_array( $alert_id ) && $last_occurence->alert_id === $alert_id ) {
+					$known_to_trigger = true;
+				} elseif ( is_array( $alert_id ) && in_array( $last_occurence[0]->alert_id, $alert_id, true ) ) {
+					$known_to_trigger = true;
+				}
+			}
+		}
+		// once we know the answer to this don't check again - this needs queries.
+		$this->new_form_recently = $known_to_trigger;
+		return $known_to_trigger;
 	}
 }
