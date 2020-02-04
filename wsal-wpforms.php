@@ -214,7 +214,7 @@ function wsal_wpforms_add_custom_ignored_cpt( $post_types ) {
  * @method wsal_wpforms_add_custom_meta_format
  * @since  1.0.0
  */
-function wsal_wpforms_add_custom_meta_format( $name, $value ) {
+function wsal_wpforms_add_custom_meta_format( $value, $name ) {
 	$check_value = (string) $value;
 	if ( '%EditorLinkForm%' === $name ) {
 		if ( 'NULL' !== $check_value ) {
@@ -232,7 +232,7 @@ function wsal_wpforms_add_custom_meta_format( $name, $value ) {
  * @method wsal_wpforms_add_custom_meta_format_value
  * @since  1.0.0
  */
-function wsal_wpforms_add_custom_meta_format_value( $name, $value ) {
+function wsal_wpforms_add_custom_meta_format_value( $value, $name ) {
 	$check_value = (string) $value;
 	if ( '%EditorLinkForm%' === $name ) {
 		if ( 'NULL' !== $check_value ) {
