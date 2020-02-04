@@ -291,6 +291,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					)
 				);
 
+				// First lets see if we have BOTH old and new content to compare.
 				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) ) {
 					// Create 2 arrays from the fields object for comparison later.
 					$form_content_array     = json_decode( json_encode( $form_content->fields ), true );
@@ -359,12 +360,46 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$has_alert_triggered = true;
 						}
 					}
+
+				// Now we shall check if we have just a single new field thats been added.
+				} elseif ( isset( $form_content->fields ) && ! isset( $old_form_content->fields ) ) {
+					// Create 2 arrays from the fields object for comparison later.
+					$form_content_array = json_decode( json_encode( $form_content->fields ), true );
+					$alert_code         = 5501;
+					foreach ( $form_content_array as $fields ) {
+						$variables = array(
+							'EventType'      => 'created',
+							'field_name'     => sanitize_text_field( $fields['label'] ),
+							'form_name'      => sanitize_text_field( $form->post_title ),
+							'PostID'         => $post_id,
+							'EditorLinkForm' => $editor_link,
+						);
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						$has_alert_triggered = true;
+					}
+
+				// Finally we shall check if we have just a single new field thats been removed.
+				} elseif ( ! isset( $form_content->fields ) && isset( $old_form_content->fields ) ) {
+					// Create 2 arrays from the fields object for comparison later.
+					$form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
+					$alert_code         = 5501;
+					foreach ( $form_content_array as $fields ) {
+						$variables = array(
+							'EventType'      => 'deleted',
+							'field_name'     => sanitize_text_field( $fields['label'] ),
+							'form_name'      => sanitize_text_field( $form->post_title ),
+							'PostID'         => $post_id,
+							'EditorLinkForm' => $editor_link,
+						);
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						$has_alert_triggered = true;
+					}
 				}
 			}
 		}
 
 		// Finally, if all of the above didnt catch anything, but the form as still been modified in some way, lets handle that.
-		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update ) {
+		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $update ) {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code  = 5500;
 				$form_content     = json_decode( $form->post_content );
