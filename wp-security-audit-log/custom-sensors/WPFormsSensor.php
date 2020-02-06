@@ -92,7 +92,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
-				$alert_code  = 5500;
+				$alert_code  = 5506;
 				$post        = get_post( $post_id );
 				$editor_link = esc_url(
 					add_query_arg(
@@ -106,13 +106,13 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 				$variables = array(
 					'EventType'      => 'renamed',
-					'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
-					'PostTitle'      => sanitize_text_field( $post->post_title ),
+					'old_form_name'  => sanitize_text_field( $this->_old_post->post_title ),
+					'new_form_name'  => sanitize_text_field( $post->post_title ),
 					'PostID'         => $post_id,
 					'EditorLinkForm' => $editor_link,
 				);
 
-				$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
+				$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 				$has_alert_triggered = true;
 			}
 		}
@@ -137,16 +137,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					)
 				);
 
-				$variables = array(
-					'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
-					'PostTitle'      => sanitize_text_field( $form->post_title ),
-					'SourceID'       => sanitize_text_field( $old_form_content->id ),
-					'PostID'         => $post_id,
-					'EditorLinkForm' => $editor_link,
-				);
-				$this->plugin->alerts->Trigger( $alert_code, $variables );
-				$has_alert_triggered = true;
-				remove_action( 'save_post', array( $this, 'event_form_saved' ), 10, 3 );
+				if ( isset( $old_form_content->id ) ) {
+					$variables = array(
+						'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
+						'PostTitle'      => sanitize_text_field( $form->post_title ),
+						'SourceID'       => sanitize_text_field( $old_form_content->id ),
+						'PostID'         => $post_id,
+						'EditorLinkForm' => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
+					$has_alert_triggered = true;
+					remove_action( 'save_post', array( $this, 'event_form_saved' ), 10, 3 );
+				}
 			}
 		}
 

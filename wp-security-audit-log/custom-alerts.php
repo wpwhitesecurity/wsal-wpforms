@@ -7,7 +7,7 @@ $custom_alerts = array(
 			array(
 				5500,
 				WSAL_LOW,
-				__( 'A form was created, renamed, modified or deleted', 'wp-security-audit-log' ),
+				__( 'A form was created, modified or deleted', 'wp-security-audit-log' ),
 				__( 'Form name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
 				'wpforms',
 				'created',
@@ -53,9 +53,18 @@ $custom_alerts = array(
 				5505,
 				WSAL_LOW,
 				__( 'Notifications were disabled for a form', 'wp-security-audit-log' ),
-				__( 'All the notifications in the form. %LineBreak% Form name %form_name% %LineBreak% ID %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
+				__( 'All the notifications in the form. %LineBreak% Form name %form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
 				'wpforms_notifications',
 				'deleted',
+			),
+
+			array(
+				5506,
+				WSAL_LOW,
+				__( 'A form was renamed', 'wp-security-audit-log' ),
+				__( 'New form name %new_form_name% %LineBreak% Old form name %old_form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
+				'wpforms',
+				'renamed',
 			),
 
 		),
