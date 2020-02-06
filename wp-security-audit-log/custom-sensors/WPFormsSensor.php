@@ -15,7 +15,12 @@
  */
 class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
-	private $new_form_recently = null;
+	/**
+	 * Holds a cached value if the checked alert has recently fired.
+	 *
+	 * @var null|array
+	 */
+	private $cached_alert_checks = null;
 
 	/**
 	 * Hook events related to sensor.
@@ -544,7 +549,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	private function was_triggered_recently( $alert_id ) {
 		// if we have already checked this don't check again.
-		if ( isset( $this->new_form_recently ) ) {
+		if ( isset( $this->cached_alert_checks ) && array_has_key( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[$alert_id] ) {
 			return true;
 		}
 		$query = new WSAL_Models_OccurrenceQuery();
@@ -564,8 +569,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 			}
 		}
-		// once we know the answer to this don't check again - this needs queries.
-		$this->new_form_recently = $known_to_trigger;
+		// once we know the answer to this don't check again to avoid queries.
+		$this->cached_alert_checks[ $alert_id ] = $known_to_trigger;
 		return $known_to_trigger;
 	}
 }
