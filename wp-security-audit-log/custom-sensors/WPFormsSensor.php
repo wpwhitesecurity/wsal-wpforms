@@ -549,7 +549,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	private function was_triggered_recently( $alert_id ) {
 		// if we have already checked this don't check again.
-		if ( isset( $this->cached_alert_checks ) && array_has_key( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[$alert_id] ) {
+		if ( isset( $this->cached_alert_checks ) && array_key_exists( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[$alert_id] ) {
 			return true;
 		}
 		$query = new WSAL_Models_OccurrenceQuery();
