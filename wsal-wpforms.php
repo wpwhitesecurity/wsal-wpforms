@@ -49,7 +49,7 @@ function wsal_wpforms_install_notice() {    ?>
 }
 
 // Check if main plugin is installed.
-if ( ! class_exists( 'WpSecurityAuditLog' ) ) {
+if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManager' ) ) {
 	// Check if the notice was already dismissed by the user.
 	if ( get_option( 'wsal_forms_notice_dismissed' ) != true ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
 		if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
