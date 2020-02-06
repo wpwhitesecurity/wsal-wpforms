@@ -31,7 +31,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'pre_post_update', array( $this, 'get_before_post_edit_data' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'event_form_saved' ), 10, 3 );
 		add_action( 'delete_post', array( $this, 'event_form_deleted' ), 10, 1 );
-		add_action( 'admin_init', array( $this, 'event_entry_deleted' ) );
+		add_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 	}
 
 	/**
@@ -487,21 +487,44 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 *
 	 * @since 1.0.0
 	 */
-	public function event_entry_deleted() {
+	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
-		global $pagenow;
+		$entry = wpforms()->entry->get( $row_id );
+		$form  = get_post( $entry->form_id );
 
-		// Check current admin page and also that the delete key is present.
-		if ( 'admin.php' === $pagenow && ( isset( $_GET['page'] ) && 'wpforms-entries' === $_GET['page'] ) && isset( $_GET['form_id'] ) && ( isset( $_GET['deleted'] ) && true === $_GET['deleted'] ) ) {
-			wp_verify_nonce( ( isset( $_REQUEST['_wpnonce'] ) ) ? sanitize_key( $_REQUEST['_wpnonce'] ) : '', 'bulk-entries-nonce' );
-			$form_id   = absint( $_GET['form_id'] );
-			$form      = get_post( $form_id );
-			$variables = array(
-				'form_name' => sanitize_text_field( $form->post_title ),
-				'PostID'    => $form_id,
-			);
-			$this->plugin->alerts->Trigger( $alert_code, $variables );
+		// Grab from content.
+		$form_content = (string) $entry->fields;
+
+		// Search it for any email address
+		$email_address = $this->extract_emails( $form_content );
+
+		if ( $email_address && is_array( $email_address ) ) {
+			$email_address = $email_address[0];
+		} elseif ( $email_address && ! $email_address ) {
+			$email_address = $email_address;
+		} else {
+			$email_address = esc_html__( 'No email provided', 'wp-security-audit-log' );
 		}
+
+		$editor_link = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $entry->form_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
+
+		$variables = array(
+			'entry_email'    => sanitize_text_field( $email_address ),
+			'entry_id'       => sanitize_text_field( $row_id ),
+			'form_name'      => sanitize_text_field( $form->post_title ),
+			'form_id'        => $entry->form_id,
+			'EditorLinkForm' => $editor_link,
+		);
+		$this->plugin->alerts->Trigger( $alert_code, $variables );
+		remove_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 	}
 
 	public function check_other_changes( WSAL_AlertManager $manager ) {
@@ -572,5 +595,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// once we know the answer to this don't check again to avoid queries.
 		$this->cached_alert_checks[ $alert_id ] = $known_to_trigger;
 		return $known_to_trigger;
+	}
+
+	/**
+	 * Extract email address from a string.
+	 *
+	 * @param string $string  - String to search.
+	 * @return string
+	 */
+	private function extract_emails( $string ) {
+		// This regular expression extracts all emails from a string:
+		$regexp = '/([a-z0-9_\.\-])+\@(([a-z0-9\-])+\.)+([a-z0-9]{2,4})+/i';
+		preg_match( $regexp, $string, $m );
+		return isset( $m[0] ) ? $m[0] : array();
 	}
 }

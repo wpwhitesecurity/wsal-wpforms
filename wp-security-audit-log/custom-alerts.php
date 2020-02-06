@@ -44,7 +44,7 @@ $custom_alerts = array(
 				5504,
 				WSAL_MEDIUM,
 				__( 'An entry was deleted', 'wp-security-audit-log' ),
-				__( 'Entry deleted %LineBreak% Form name %form_name% %LineBreak% Form ID %PostID%', 'wp-security-audit-log' ),
+				__( 'Entry email address: %entry_email% %LineBreak% Entry ID: %entry_id% %LineBreak% Form name: %form_name% %LineBreak% Form ID: %form_id% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
 				'wpforms_entries',
 				'deleted',
 			),
