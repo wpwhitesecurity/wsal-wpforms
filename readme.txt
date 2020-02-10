@@ -20,7 +20,7 @@ Install this add-on alongside the WP Security Audit Log plugin to
 
 Keep a record of the changes that happen on your WPForms plugin, when someone creates, modifies or deletes a form, deletes an entry and much more by installing this add-on alongside the WP Security Audit Log plugin.
 
-Refer to [activity log for WPForms](https://www.wpsecurityauditlog.com/integrations/activity-log-wpforms/) for more detailed information on this integration.
+Refer to [activity log for WPForms](https://www.wpsecurityauditlog.com/integrations/activity-log-wpforms/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for more detailed information on this integration.
 
 
 
@@ -47,7 +47,7 @@ Below are some of the user and plugin changes you can keep a log of when you ins
 * Deletes an entry (lead)
 * Adds, enables, modifies or disable notifications in forms
 
-Refer to the [activity logs event IDs for WPForms](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for a complete list of the changes the plugin can keep a log of.
+Refer to the [activity logs event IDs for WPForms](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
 
 == Installation ==
 
