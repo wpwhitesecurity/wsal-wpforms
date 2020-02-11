@@ -7,64 +7,64 @@ $custom_alerts = array(
 			array(
 				5500,
 				WSAL_LOW,
-				__( 'A form created', 'wp-security-audit-log' ),
-				__( 'Created the form %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
+				__( 'A form was created, modified or deleted', 'wp-security-audit-log' ),
+				__( 'Form name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
 				'wpforms',
 				'created',
 			),
 
 			array(
 				5501,
-				WSAL_LOW,
-				__( 'A form was renamed', 'wp-security-audit-log' ),
-				__( 'Form renamed %LineBreak% Old Name %OldPostTitle% %LineBreak% New Name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
-				'wpforms',
-				'renamed',
+				WSAL_MEDIUM,
+				__( 'A field was created, deleted or modified', 'wp-security-audit-log' ),
+				__( 'Field name %field_name% %LineBreak% Form name %form_name% %LineBreak% Form ID: %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
+				'wpforms_fields',
+				'deleted',
 			),
 
 			array(
 				5502,
 				WSAL_MEDIUM,
-				__( 'A form was modified', 'wp-security-audit-log' ),
-				__( 'Form modified %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
-				'wpforms',
-				'modified',
-			),
-
-			array(
-				5503,
-				WSAL_MEDIUM,
-				__( 'A form was deleted', 'wp-security-audit-log' ),
-				__( 'Form Deleted %PostTitle% %LineBreak% ID: %PostID% %LineBreak%', 'wp-security-audit-log' ),
-				'wpforms',
-				'deleted',
-			),
-
-			array(
-				5505,
-				WSAL_MEDIUM,
 				__( 'A form was duplicated', 'wp-security-audit-log' ),
-				__( 'Form Duplicated. Source form %OldPostTitle% %LineBreak% New form name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
+				__( 'Source form %OldPostTitle% %LineBreak% New form name %PostTitle% %LineBreak% Source form ID %SourceID% %LineBreak% New form ID: %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
 				'wpforms',
 				'duplicated',
 			),
 
 			array(
-				5506,
+				5503,
 				WSAL_LOW,
-				__( 'A notification was added to a form', 'wp-security-audit-log' ),
-				__( 'Notification name %notifiation_name% %LineBreak% Form name %form_name% %LineBreak% ID %PostID% %LineBreak% %EditorLinkPost%', 'wp-security-audit-log' ),
-				'wpforms',
+				__( 'A notification was added to a form, enabled or modified', 'wp-security-audit-log' ),
+				__( 'Notification name %notifiation_name% %LineBreak% Form name %form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
+				'wpforms_notifications',
 				'added',
 			),
 
 			array(
-				5507,
+				5504,
 				WSAL_MEDIUM,
 				__( 'An entry was deleted', 'wp-security-audit-log' ),
-				__( 'Form name %form_name% %LineBreak% Form ID %PostID%', 'wp-security-audit-log' ),
-				'wpforms',
+				__( 'Entry email address: %entry_email% %LineBreak% Entry ID: %entry_id% %LineBreak% Form name: %form_name% %LineBreak% Form ID: %form_id% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
+				'wpforms_entries',
 				'deleted',
+			),
+
+			array(
+				5505,
+				WSAL_LOW,
+				__( 'Notifications were disabled for a form', 'wp-security-audit-log' ),
+				__( 'All the notifications in the form. %LineBreak% Form name %form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
+				'wpforms_notifications',
+				'deleted',
+			),
+
+			array(
+				5506,
+				WSAL_LOW,
+				__( 'A form was renamed', 'wp-security-audit-log' ),
+				__( 'New form name %new_form_name% %LineBreak% Old form name %old_form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
+				'wpforms',
+				'renamed',
 			),
 
 		),

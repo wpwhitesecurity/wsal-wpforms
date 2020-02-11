@@ -4,7 +4,7 @@
  *
  * Class file for installing plugins from the repo.
  *
- * @since 4.0.1
+ * @since   4.0.1
  * @package Wsal
  */
 
@@ -16,6 +16,10 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 	 * @since 4.0.1
 	 */
 	class WSAL_PluginInstallerAction {
+
+		public function __construct() {
+	 		$this->register();
+	 	}
 
 		/**
 		 * Register the ajax action.
@@ -39,17 +43,12 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			$plugin_zip  = ( isset( $_POST['plugin_url'] ) ) ? esc_url_raw( wp_unslash( $_POST['plugin_url'] ) ) : '';
 			$plugin_slug = ( isset( $_POST['plugin_slug'] ) ) ? sanitize_textarea_field( wp_unslash( $_POST['plugin_slug'] ) ) : '';
 
-			$predefined_plugins = WSAL_PluginInstallAndActivate::get_installable_plugins();
+			$valid_plugin_slug = 'wp-security-audit-log/wp-security-audit-log.php';
+			$valid_plugin_url = 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip';
 
-			// validate that the plugin is in the allowed list.
+			// validate that the plugin is allowed.
 			$valid = false;
-			foreach ( $predefined_plugins as $plugin ) {
-				// if we have a valid plugin then break.
-				if ( $valid ) {
-					break;
-				}
-				$valid = ( $plugin_zip === $plugin['plugin_url'] && $plugin_slug === $plugin['plugin_slug'] ) ? true : false;
-			}
+			$valid = ( $plugin_zip === $valid_plugin_url && $plugin_slug === $valid_plugin_slug ) ? true : false;
 
 			// bail early if we didn't get a valid url and slug to install.
 			if ( ! $valid ) {
@@ -125,7 +124,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 
 			// get core plugin functions if they are not already in runtime.
 			if ( ! function_exists( 'activate_plugin' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				include_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
 			if ( ! is_plugin_active( $plugin_zip ) ) {
@@ -171,7 +170,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 
 			// get core plugin functions if not already in the runtime.
 			if ( ! function_exists( 'get_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				include_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 			$all_plugins = get_plugins();
 

@@ -19,6 +19,7 @@ if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) ) {
 	 */
 	class WSAL_PluginInstallAndActivate {
 
+
 		/**
 		 * Checks if the plugin is already available/installed on the site.
 		 *
@@ -53,7 +54,7 @@ if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) ) {
 
 			// get core plugin functions if they are not already in runtime.
 			if ( ! function_exists( 'get_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				include_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 			$all_plugins = get_plugins();
 
@@ -92,22 +93,24 @@ if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) ) {
 							<td style="width: 50%;">
 								<div class="addon-wrapper">
 									<img src="<?php echo esc_url( trailingslashit( WSAL_BASE_URL ) . 'img/addons/' . $details['image_filename'] ); ?>">
-									<p><button class="install-addon button button-primary <?php echo esc_attr( $disable_button ); ?>" data-nonce="<?php echo esc_attr( $nonce ); ?>" data-plugin-slug="<?php echo esc_attr( $details['plugin_slug'] ); ?>" data-plugin-download-url="<?php echo esc_url( $details['plugin_url'] ); ?>" data-plugin-event-tab-id="<?php echo esc_attr( $details['event_tab_id'] ); ?>">
-									<?php
-									if ( $this->is_plugin_installed( $details['plugin_slug'] ) && ! is_plugin_active( $details['plugin_slug'] ) ) {
-										esc_html_e( 'Addon installed, activate now?', 'wp-security-audit-log' );
-									} elseif ( $this->is_plugin_installed( $details['plugin_slug'] ) && is_plugin_active( $details['plugin_slug'] ) ) {
-										esc_html_e( 'Addon installed', 'wp-security-audit-log' );
-									} else {
-											esc_html_e( 'Install Add-on', 'wp-security-audit-log' );
-									}
-									?>
-								</button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>
+									<p>
+										<button class="install-addon button button-primary <?php echo esc_attr( $disable_button ); ?>" data-nonce="<?php echo esc_attr( $nonce ); ?>" data-plugin-slug="<?php echo esc_attr( $details['plugin_slug'] ); ?>" data-plugin-download-url="<?php echo esc_url( $details['plugin_url'] ); ?>" data-plugin-event-tab-id="<?php echo esc_attr( $details['event_tab_id'] ); ?>">
+											<?php
+											if ( $this->is_plugin_installed( $details['plugin_slug'] ) && ! is_plugin_active( $details['plugin_slug'] ) ) {
+												esc_html_e( 'Addon installed, activate now?', 'wp-security-audit-log' );
+											} elseif ( $this->is_plugin_installed( $details['plugin_slug'] ) && is_plugin_active( $details['plugin_slug'] ) ) {
+												esc_html_e( 'Addon installed', 'wp-security-audit-log' );
+											} else {
+												esc_html_e( 'Install Add-on', 'wp-security-audit-log' );
+											}
+											?>
+										</button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span>
+									</p>
 								</div>
 							</td>
 							<?php
-						}
-						?>
+							}
+							?>
 					</tr>
 				</tbody>
 			</table>
