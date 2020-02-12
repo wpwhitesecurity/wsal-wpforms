@@ -48,20 +48,32 @@ function wsal_wpforms_install_notice() {    ?>
 	<?php
 }
 
-// Check if main plugin is installed.
-if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManager' ) ) {
-	// Check if the notice was already dismissed by the user.
-	if ( get_option( 'wsal_forms_notice_dismissed' ) != true ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
-		if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
-			require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
-			require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
+add_action( 'plugins_loaded', 'wsal_wpforms_load_notice' );
+
+function wsal_wpforms_load_notice() {
+	// Check if main plugin is installed.
+	if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManager' ) ) {
+		// Check if the notice was already dismissed by the user.
+		if ( get_option( 'wsal_forms_notice_dismissed' ) != true ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
+			if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
+				require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
+				require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
+			}
+			if ( is_multisite() ) {
+				if ( is_admin() && function_exists( 'is_super_admin' ) && is_super_admin() ) {
+					$plugin_installer = new WSAL_PluginInstallerAction();
+					add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
+				}
+			} else {
+				$plugin_installer = new WSAL_PluginInstallerAction();
+				add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
+			}
+
 		}
-		$plugin_installer = new WSAL_PluginInstallerAction();
-		add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
+	} else {
+		// Reset the notice if the class is not found.
+		delete_option( 'wsal_forms_notice_dismissed' );
 	}
-} else {
-	// Reset the notice if the class is not found.
-	delete_option( 'wsal_forms_notice_dismissed' );
 }
 
 /**
