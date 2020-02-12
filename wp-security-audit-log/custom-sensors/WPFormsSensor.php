@@ -283,7 +283,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		// Handling fields.
-		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $this->was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$form_content     = json_decode( $form->post_content );
@@ -334,7 +334,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						);
 						$added_items = array_map( 'unserialize', $added_items );
 					}
-
 
 					// Check new content size determine if something has been added.
 					if ( $added_items && $added_items !== $changed_items ) {
