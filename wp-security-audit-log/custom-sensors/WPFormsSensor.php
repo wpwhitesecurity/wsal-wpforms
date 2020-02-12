@@ -325,9 +325,19 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						array_map( 'serialize', $form_content_array )
 					);
 					$changed_items         = array_map( 'unserialize', $compare_removed_items );
+					$changed_items         = array_intersect_key( $added_items, $changed_items );
+
+					if ( ! empty( $added_items ) ) {
+						$added_items = array_diff(
+							array_map( 'serialize', $added_items ),
+							array_map( 'serialize', $changed_items )
+						);
+						$added_items = array_map( 'unserialize', $added_items );
+					}
+
 
 					// Check new content size determine if something has been added.
-					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
+					if ( $added_items && $added_items !== $changed_items ) {
 						$alert_code = 5501;
 						foreach ( $added_items as $fields ) {
 							$variables = array(
@@ -340,22 +350,28 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
+					}
+
 					// Check new content size determine if something has been removed.
-					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
+					if ( $removed_items ) {
 						$alert_code = 5501;
-						foreach ( $removed_items as $fields ) {
-							$variables = array(
-								'EventType'      => 'deleted',
-								'field_name'     => sanitize_text_field( $fields['label'] ),
-								'form_name'      => sanitize_text_field( $form->post_title ),
-								'PostID'         => $post_id,
-								'EditorLinkForm' => $editor_link,
-							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-							$has_alert_triggered = true;
+						foreach ( $removed_items as $fields => $value ) {
+							if( ! $changed_items[$fields] ) {
+								$variables = array(
+									'EventType'      => 'deleted',
+									'field_name'     => sanitize_text_field( $value['label'] ),
+									'form_name'      => sanitize_text_field( $form->post_title ),
+									'PostID'         => $post_id,
+									'EditorLinkForm' => $editor_link,
+								);
+								$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+								$has_alert_triggered = true;
+							}
 						}
+					}
+
 					// Check content to see if anything has been modified.
-					} elseif ( $changed_items ) {
+					if ( $changed_items ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
 							$variables = array(
