@@ -283,7 +283,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		// Handling fields.
-		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $this->was_triggered_recently( 5500 ) ) {
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$form_content     = json_decode( $form->post_content );
@@ -301,17 +301,21 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				);
 
 				// First lets see if we have BOTH old and new content to compare.
-				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) ) {
+				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) && serialize( $form_content->fields ) !== serialize( $old_form_content->fields ) ) {
 					// Create 2 arrays from the fields object for comparison later.
 					$form_content_array     = json_decode( json_encode( $form_content->fields ), true );
 					$old_form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
 
 					// Compare the 2 arrays and create array of added items.
-					$compare_added_items = array_diff(
-						array_map( 'serialize', $form_content_array ),
-						array_map( 'serialize', $old_form_content_array )
-					);
-					$added_items         = array_map( 'unserialize', $compare_added_items );
+					if( $form_content_array !== $old_form_content_array  ) {
+						$compare_added_items = array_diff(
+							array_map( 'serialize', $form_content_array ),
+							array_map( 'serialize', $old_form_content_array )
+						);
+						$added_items = array_map( 'unserialize', $compare_added_items );
+					} else {
+						$added_items = $form_content_array;
+					}
 
 					// Compare the 2 arrays and create array of removed items.
 					$compare_removed_items = array_diff(
@@ -355,7 +359,20 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( $removed_items ) {
 						$alert_code = 5501;
 						foreach ( $removed_items as $fields => $value ) {
-							if( ! $changed_items[$fields] ) {
+
+							if ( ! empty( $changed_items ) ) {
+								if( ! $changed_items[$fields] ) {
+									$variables = array(
+										'EventType'      => 'deleted',
+										'field_name'     => sanitize_text_field( $value['label'] ),
+										'form_name'      => sanitize_text_field( $form->post_title ),
+										'PostID'         => $post_id,
+										'EditorLinkForm' => $editor_link,
+									);
+									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+									$has_alert_triggered = true;
+								}
+							} else {
 								$variables = array(
 									'EventType'      => 'deleted',
 									'field_name'     => sanitize_text_field( $value['label'] ),
@@ -366,11 +383,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 								$has_alert_triggered = true;
 							}
+
 						}
 					}
 
 					// Check content to see if anything has been modified.
-					if ( $changed_items ) {
+					if ( $changed_items && ! $this->was_triggered_recently( 5500 )) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
 							$variables = array(
