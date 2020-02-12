@@ -30,6 +30,45 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+register_activation_hook( __FILE__, 'wsal_wpforms_force_main_site_installation' );
+
+add_action( 'plugins_loaded', 'wsal_wpforms_init_actions' );
+
+function wsal_wpforms_init_actions() {
+	if ( is_multisite() && function_exists( 'is_super_admin' ) && is_super_admin() && ! is_network_admin() ) {
+		add_action( 'admin_notices', 'wsal_wpforms_network_activatation_notice' );
+		add_action( 'admin_init', 'wsal_wpforms_plugin_deactivate' );
+	} else {
+		add_action( 'admin_init', 'wsal_wpforms_load_notice' );
+	}
+}
+
+function wsal_wpforms_plugin_deactivate() {
+	if ( ! function_exists( 'deactivate_plugins' ) ) {
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+	if ( ! is_plugin_active_for_network( plugin_basename( __FILE__ ) ) ) {
+		deactivate_plugins( plugin_basename( __FILE__ ) );
+	}
+}
+
+function wsal_wpforms_force_main_site_installation() {
+	if ( is_multisite() && is_super_admin() && ! is_network_admin() ) {
+		wsal_wpforms_plugin_deactivate();
+	}
+}
+
+function wsal_wpforms_network_activatation_notice() {
+	$installation_errors  = esc_html__( 'The WP Security Audit Log add-on for WPForms plugin is a multisite network tool, so it has to be activated at network level.', 'wp-security-audit-log' );
+	$installation_errors .= '<br />';
+	$installation_errors .= '<a href="javascript:;" onclick="window.top.location.href=\'' . esc_url( network_admin_url( 'plugins.php' ) ) . '\'">' . esc_html__( 'Redirect me to the network dashboard', 'wp-security-audit-log' ) . '</a> ';
+	?>
+	<div class="notice notice-error is-dismissible">
+		<p><?php echo wp_kses_post( $installation_errors ); ?></p>
+	</div>
+	<?php
+}
+
 /**
  * Display admin notice if WSAL is not installed.
  */
@@ -48,8 +87,6 @@ function wsal_wpforms_install_notice() {    ?>
 	<?php
 }
 
-add_action( 'plugins_loaded', 'wsal_wpforms_load_notice' );
-
 function wsal_wpforms_load_notice() {
 	$plugin_path = plugins_url( 'wp-security-audit-log/wp-security-audit-log.php' );
 	// Check if main plugin is installed.
@@ -64,7 +101,7 @@ function wsal_wpforms_load_notice() {
 				if ( is_admin() && function_exists( 'is_super_admin' ) && is_super_admin() ) {
 					$plugin_installer = new WSAL_PluginInstallerAction();
 					add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
-					add_action( 'network_admin_notices', 'wsal_wpforms_install_notice', 10 );
+					add_action( 'network_admin_notices', 'wsal_wpforms_install_notice', 10, 1 );
 				}
 			} else {
 				$plugin_installer = new WSAL_PluginInstallerAction();
