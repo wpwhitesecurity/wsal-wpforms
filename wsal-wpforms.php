@@ -48,28 +48,31 @@ function wsal_wpforms_install_notice() {    ?>
 	<?php
 }
 
-$plugin_path = plugin_dir_path( __DIR__ ) . 'wp-security-audit-log/wp-security-audit-log.php';
+add_action( 'admin_init', 'wsal_wpforms_init_install_notice' );
 
-// Check if main plugin is installed.
-if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManager' ) ) {
-	// Check if the notice was already dismissed by the user.
-	if ( get_option( 'wsal_forms_notice_dismissed' ) != true && ! file_exists( $plugin_path ) ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
-		if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
-			require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
-			require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
-		}
-		$plugin_installer = new WSAL_PluginInstallerAction();
-		if ( is_multisite() && is_network_admin() ) {
-			add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
-			add_action( 'network_admin_notices', 'wsal_wpforms_install_notice', 10, 1 );
-		} elseif ( ! is_multisite() ) {
-			add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
-		}
+function wsal_wpforms_init_install_notice() {
+	$plugin_path = plugin_dir_path( __DIR__ ) . 'wp-security-audit-log/wp-security-audit-log.php';
+	// Check if main plugin is installed.
+	if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManager' ) ) {
+		// Check if the notice was already dismissed by the user.
+		if ( get_option( 'wsal_forms_notice_dismissed' ) != true && ! file_exists( $plugin_path ) ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
+			if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
+				require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
+				require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
+			}
+			$plugin_installer = new WSAL_PluginInstallerAction();
+			if ( is_multisite() && is_network_admin() ) {
+				add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
+				add_action( 'network_admin_notices', 'wsal_wpforms_install_notice', 10, 1 );
+			} elseif ( ! is_multisite() ) {
+				add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
+			}
 
+		}
+	} else {
+		// Reset the notice if the class is not found.
+		delete_option( 'wsal_forms_notice_dismissed' );
 	}
-} else {
-	// Reset the notice if the class is not found.
-	delete_option( 'wsal_forms_notice_dismissed' );
 }
 
 /**
