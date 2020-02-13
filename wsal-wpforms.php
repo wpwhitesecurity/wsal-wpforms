@@ -200,7 +200,10 @@ function wsal_mu_plugin_add_custom_events_path( $paths ) {
  */
 function wsal_wpforms_add_custom_event_objects( $objects ) {
 	$new_objects = array(
-		'wpforms' => esc_html__( 'WPForms', 'wp-security-audit-log' ),
+		'wpforms'               => esc_html__( 'WPForms', 'wp-security-audit-log' ),
+		'wpforms-notifications' => esc_html__( 'Notifications in WPForms', 'wp-security-audit-log' ),
+		'wpforms-entries'       => esc_html__( 'Entries in WPForms', 'wp-security-audit-log' ),
+		'wpforms-fields'        => esc_html__( 'Fields in WPForms', 'wp-security-audit-log' ),
 	);
 
 	// combine the two arrays.
@@ -222,13 +225,13 @@ function wsal_wpforms_add_custom_event_object_text( $display, $object ) {
 	if ( 'wpforms' === $object ) {
 		$display = esc_html__( 'Forms in WPForms', 'wp-security-audit-log' );
 	}
-	if ( 'wpforms_notifications' === $object ) {
+	if ( 'wpforms-notifications' === $object || 'wpforms_notifications' === $object ) {
 		$display = esc_html__( 'Notifications in WPForms', 'wp-security-audit-log' );
 	}
-	if ( 'wpforms_entries' === $object ) {
+	if ( 'wpforms-entries' === $object || 'wpforms_entries' === $object ) {
 		$display = esc_html__( 'Entries in WPForms', 'wp-security-audit-log' );
 	}
-	if ( 'wpforms_fields' === $object ) {
+	if ( 'wpforms-fields' === $object || 'wpforms_fields' === $object ) {
 		$display = esc_html__( 'Fields in WPForms', 'wp-security-audit-log' );
 	}
 
