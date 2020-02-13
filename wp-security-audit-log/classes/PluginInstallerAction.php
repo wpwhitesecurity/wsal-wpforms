@@ -128,7 +128,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			}
 
 			if( is_multisite() ) {
-				$result = activate_plugin( $plugin_slug, null, true, true );
+				$result = activate_plugin( $plugin_zip, null, true, true );
 			} else {
 				if ( ! is_plugin_active( $plugin_zip ) ) {
 					activate_plugin( $plugin_zip );
