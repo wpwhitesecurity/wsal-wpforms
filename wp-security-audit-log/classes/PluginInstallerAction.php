@@ -38,7 +38,6 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 		 * @since  4.0.1
 		 */
 		public function run_addon_install() {
-			error_log( print_r( 'xxxx', true ) );
 			check_ajax_referer( 'wsal-install-addon' );
 
 			$plugin_zip  = ( isset( $_POST['plugin_url'] ) ) ? esc_url_raw( wp_unslash( $_POST['plugin_url'] ) ) : '';
