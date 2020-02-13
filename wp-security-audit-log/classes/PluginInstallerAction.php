@@ -128,10 +128,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			}
 
 			if( is_multisite() ) {
-				$result = activate_plugin( $plugin_zip, null, true );
-				if ( is_wp_error( $result ) ) {
-				    error_log( print_r( $result, true ) );
-				}
+				$result = activate_plugin( $plugin_slug, null, true, true );
 			} else {
 				if ( ! is_plugin_active( $plugin_zip ) ) {
 					activate_plugin( $plugin_zip );
@@ -155,10 +152,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			$current = get_option( 'active_plugins' );
 			$plugin  = plugin_basename( trim( $plugin_slug ) );
 			if ( is_multisite() ) {
-				$result = activate_plugin( $plugin_slug, null, true );
-				if ( is_wp_error( $result ) ) {
-				    error_log( print_r( $result, true ) );
-				}
+				$result = activate_plugin( $plugin_slug, null, true, true );
 			} else {
 				if ( ! in_array( $plugin_slug, $current, true ) ) {
 					$current[] = $plugin_slug;
