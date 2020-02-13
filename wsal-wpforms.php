@@ -82,7 +82,8 @@ function wsal_wpforms_install_notice() {    ?>
 	<?php
 }
 
-$plugin_path = plugins_url( 'wp-security-audit-log/wp-security-audit-log.php' );
+$plugin_path = plugin_dir_path( __DIR__ ) . 'wp-security-audit-log/wp-security-audit-log.php';
+
 // Check if main plugin is installed.
 if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManager' ) ) {
 	// Check if the notice was already dismissed by the user.
@@ -91,13 +92,11 @@ if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManage
 			require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
 			require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
 		}
-
+		$plugin_installer = new WSAL_PluginInstallerAction();
 		if ( is_multisite() && is_network_admin() ) {
-			$plugin_installer = new WSAL_PluginInstallerAction();
 			add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
 			add_action( 'network_admin_notices', 'wsal_wpforms_install_notice', 10, 1 );
 		} elseif ( ! is_multisite() ) {
-			$plugin_installer = new WSAL_PluginInstallerAction();
 			add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
 		}
 

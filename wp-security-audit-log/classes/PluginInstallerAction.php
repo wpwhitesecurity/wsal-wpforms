@@ -38,6 +38,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 		 * @since  4.0.1
 		 */
 		public function run_addon_install() {
+			error_log( print_r( 'xxxx', true ) );
 			check_ajax_referer( 'wsal-install-addon' );
 
 			$plugin_zip  = ( isset( $_POST['plugin_url'] ) ) ? esc_url_raw( wp_unslash( $_POST['plugin_url'] ) ) : '';
@@ -127,8 +128,15 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 				include_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
-			if ( ! is_plugin_active( $plugin_zip ) ) {
-				activate_plugin( $plugin_zip );
+			if( is_multisite() ) {
+				$result = activate_plugin( $plugin_zip, null, true );
+				if ( is_wp_error( $result ) ) {
+				    error_log( print_r( $result, true ) );
+				}
+			} else {
+				if ( ! is_plugin_active( $plugin_zip ) ) {
+					activate_plugin( $plugin_zip );
+				}
 			}
 		}
 
@@ -147,11 +155,18 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 
 			$current = get_option( 'active_plugins' );
 			$plugin  = plugin_basename( trim( $plugin_slug ) );
-
-			if ( ! in_array( $plugin_slug, $current, true ) ) {
-				$current[] = $plugin_slug;
-				activate_plugin( $plugin_slug );
+			if ( is_multisite() ) {
+				$result = activate_plugin( $plugin_slug, null, true );
+				if ( is_wp_error( $result ) ) {
+				    error_log( print_r( $result, true ) );
+				}
+			} else {
+				if ( ! in_array( $plugin_slug, $current, true ) ) {
+					$current[] = $plugin_slug;
+					activate_plugin( $plugin_slug );
+				}
 			}
+
 			return null;
 		}
 
