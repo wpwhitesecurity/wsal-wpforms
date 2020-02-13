@@ -30,14 +30,17 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-register_activation_hook( __FILE__, 'wsal_wpforms_force_main_site_installation' );
-
 add_action( 'plugins_loaded', 'wsal_wpforms_init_actions' );
 
 function wsal_wpforms_init_actions() {
 	if ( is_multisite() && function_exists( 'is_super_admin' ) && is_super_admin() && ! is_network_admin() ) {
-		add_action( 'admin_notices', 'wsal_wpforms_network_activatation_notice' );
-		add_action( 'admin_init', 'wsal_wpforms_plugin_deactivate' );
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		if ( is_plugin_active( plugin_basename( __FILE__ ) ) ) {
+			add_action( 'admin_notices', 'wsal_wpforms_network_activatation_notice' );
+			add_action( 'admin_init', 'wsal_wpforms_plugin_deactivate' );
+		}
 	}
 }
 
@@ -47,12 +50,6 @@ function wsal_wpforms_plugin_deactivate() {
 	}
 	if ( ! is_plugin_active_for_network( plugin_basename( __FILE__ ) ) ) {
 		deactivate_plugins( plugin_basename( __FILE__ ) );
-	}
-}
-
-function wsal_wpforms_force_main_site_installation() {
-	if ( is_multisite() && is_super_admin() && ! is_network_admin() ) {
-		wsal_wpforms_plugin_deactivate();
 	}
 }
 
@@ -94,11 +91,12 @@ if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManage
 			require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
 			require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';
 		}
-		if ( is_multisite() ) {
+
+		if ( is_multisite() && is_network_admin() ) {
 			$plugin_installer = new WSAL_PluginInstallerAction();
 			add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
 			add_action( 'network_admin_notices', 'wsal_wpforms_install_notice', 10, 1 );
-		} else {
+		} elseif ( ! is_multisite() ) {
 			$plugin_installer = new WSAL_PluginInstallerAction();
 			add_action( 'admin_notices', 'wsal_wpforms_install_notice' );
 		}
