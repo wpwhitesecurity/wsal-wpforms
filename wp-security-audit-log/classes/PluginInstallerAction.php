@@ -62,9 +62,8 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			// Check if the plugin is installed.
 			if ( $this->is_plugin_installed( $plugin_slug ) ) {
 				// If plugin is installed but not active, activate it.
-				if ( ! is_plugin_active( $plugin_zip ) ) {
-					$this->run_activate( $plugin_slug );
-					$this->activate( $plugin_zip );
+				if ( ! is_plugin_active( $plugin_slug ) ) {
+					$this->activate( $plugin_slug );
 					$result = 'activated';
 				} else {
 					$result = 'already_installed';
@@ -72,8 +71,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			} else {
 				// No plugin found or plugin not present to be activated, so lets install it.
 				$this->install_plugin( $plugin_zip );
-				$this->run_activate( $plugin_slug );
-				$this->activate( $plugin_zip );
+				$this->activate( $plugin_slug );
 				$result = 'success';
 			}
 
@@ -111,39 +109,11 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 		/**
 		 * Activates a plugin that is available on the site.
 		 *
-		 * @method activate
-		 * @since  4.0.1
-		 * @param  string $plugin_zip URL to the direct zip file.
-		 * @return void
-		 */
-		public function activate( $plugin_zip = '' ) {
-			// bail early if we don't have a slug to work with.
-			if ( empty( $plugin_zip ) ) {
-				return;
-			}
-
-			// get core plugin functions if they are not already in runtime.
-			if ( ! function_exists( 'activate_plugin' ) ) {
-				include_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-
-			if( is_multisite() ) {
-				$result = activate_plugin( $plugin_zip, null, true, true );
-			} else {
-				if ( ! is_plugin_active( $plugin_zip ) ) {
-					activate_plugin( $plugin_zip );
-				}
-			}
-		}
-
-		/**
-		 * Activates a plugin that is available on the site.
-		 *
 		 * @method run_activate
 		 * @since  4.0.1
 		 * @param  string $plugin_slug slug for plugin.
 		 */
-		public function run_activate( $plugin_slug = '' ) {
+		public function activate( $plugin_slug = '' ) {
 			// bail early if we don't have a slug to work with.
 			if ( empty( $plugin_slug ) ) {
 				return;
