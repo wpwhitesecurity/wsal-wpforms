@@ -152,7 +152,13 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			$current = get_option( 'active_plugins' );
 			$plugin  = plugin_basename( trim( $plugin_slug ) );
 			if ( is_multisite() ) {
-				$result = activate_plugin( $plugin_slug, null, true, true );
+				// confirm flag saying this was on plugins-network was passed.
+				if ( filter_input( INPUT_POST, 'is_network', FILTER_VALIDATE_BOOLEAN ) ) {
+					// looks like this was passed from the wrong screen.
+					return false;
+				}
+				$result = activate_plugin( $plugin_slug, null, WP_NETWORK_ADMIN );
+
 			} else {
 				if ( ! in_array( $plugin_slug, $current, true ) ) {
 					$current[] = $plugin_slug;
