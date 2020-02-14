@@ -32,6 +32,9 @@
 
 add_action( 'plugins_loaded', 'wsal_wpforms_init_actions' );
 
+/**
+ * Check if plugin is being installed via a multisite child site, if so, show notice.
+ */
 function wsal_wpforms_init_actions() {
 	if ( is_multisite() && function_exists( 'is_super_admin' ) && is_super_admin() && ! is_network_admin() ) {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -44,6 +47,9 @@ function wsal_wpforms_init_actions() {
 	}
 }
 
+/**
+ * Deactivate our plugin.
+ */
 function wsal_wpforms_plugin_deactivate() {
 	if ( ! function_exists( 'deactivate_plugins' ) ) {
 		include_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -53,6 +59,9 @@ function wsal_wpforms_plugin_deactivate() {
 	}
 }
 
+/**
+ * Network activation error notice.
+ */
 function wsal_wpforms_network_activatation_notice() {
 	$installation_errors  = esc_html__( 'The WP Security Audit Log add-on for WPForms plugin is a multisite network tool, so it has to be activated at network level.', 'wp-security-audit-log' );
 	$installation_errors .= '<br />';
@@ -67,29 +76,45 @@ function wsal_wpforms_network_activatation_notice() {
 /**
  * Display admin notice if WSAL is not installed.
  */
-function wsal_wpforms_install_notice() {    ?>
-	<div class="notice notice-success is-dismissible wsaf-wpforms-notice">
+function wsal_wpforms_install_notice() {
+	$plugin_installer = new WSAL_PluginInstallerAction();
+
+	// First lets check if WSAL is installed, but not active.
+	if ( $plugin_installer->is_plugin_installed( 'wp-security-audit-log/wp-security-audit-log.php' ) && ! is_plugin_active( 'wp-security-audit-log/wp-security-audit-log.php' ) ) : ?>
+		<div class="notice notice-success is-dismissible wsaf-wpforms-notice">
+			<?php
+				printf(
+					'<p>%1$s <button class="activate-addon button button-primary" data-plugin-slug="wp-security-audit-log/wp-security-audit-log.php" data-plugin-download-url="%2$s" data-nonce="%3$s">%4$s</button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>',
+					esc_html__( 'WP Security Audit Log is installed but not active.', 'wp-security-audit-log' ),
+					esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
+					esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
+					esc_html__( 'Activate WP Security Audit Log.', 'wp-security-audit-log' )
+				);
+			?>
+		</div>
+	<?php else : ?>
+		<div class="notice notice-success is-dismissible wsaf-wpforms-notice">
+			<?php
+				printf(
+					'<p>%1$s <button class="install-addon button button-primary" data-plugin-slug="wp-security-audit-log/wp-security-audit-log.php" data-plugin-download-url="%2$s" data-nonce="%3$s">%4$s</button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>',
+					esc_html__( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on.', 'wp-security-audit-log' ),
+					esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
+					esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
+					esc_html__( 'Install WP Security Audit Log.', 'wp-security-audit-log' )
+				);
+			?>
+		</div>
 	<?php
-	printf(
-		'<p>%1$s <button class="install-addon button button-primary" data-plugin-slug="wp-security-audit-log/wp-security-audit-log.php" data-plugin-download-url="%2$s" data-nonce="%3$s">%4$s</button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>',
-		esc_html__( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on.', 'wp-security-audit-log' ),
-		esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
-		esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
-		esc_html__( 'Install WP Security Audit Log.', 'wp-security-audit-log' )
-	);
-	?>
-	</div>
-	<?php
+	endif;
 }
 
 add_action( 'admin_init', 'wsal_wpforms_init_install_notice' );
 
 function wsal_wpforms_init_install_notice() {
-	$plugin_path = plugin_dir_path( __DIR__ ) . 'wp-security-audit-log/wp-security-audit-log.php';
 	// Check if main plugin is installed.
 	if ( ! class_exists( 'WpSecurityAuditLog' ) && ! class_exists( 'WSAL_AlertManager' ) ) {
 		// Check if the notice was already dismissed by the user.
-		if ( get_option( 'wsal_forms_notice_dismissed' ) != true && ! file_exists( $plugin_path ) ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
+		if ( get_option( 'wsal_forms_notice_dismissed' ) != true ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- this may be truthy and not explicitly bool
 			if ( ! class_exists( 'WSAL_PluginInstallAndActivate' ) && ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 				require_once 'wp-security-audit-log/classes/PluginInstallandActivate.php';
 				require_once 'wp-security-audit-log/classes/PluginInstallerAction.php';

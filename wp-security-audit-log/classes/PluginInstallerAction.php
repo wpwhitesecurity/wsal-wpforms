@@ -152,7 +152,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			$current = get_option( 'active_plugins' );
 			$plugin  = plugin_basename( trim( $plugin_slug ) );
 			if ( is_multisite() ) {
-				$result = activate_plugin( $plugin_slug, null, true, true );
+				$result = activate_plugin( $plugin_slug, null, true, false );
 			} else {
 				if ( ! in_array( $plugin_slug, $current, true ) ) {
 					$current[] = $plugin_slug;

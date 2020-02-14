@@ -58,5 +58,12 @@ jQuery( document ).ready(
 				);
 			}
 		);
+
+		jQuery( ".activate-addon" ).click(
+			function (e) {
+				var PluginSlug = jQuery( this ).attr( 'data-plugin-slug' );
+				jQuery('[data-plugin="'+ PluginSlug +'"] .activate a')[0].click();
+			}
+		);
 	}
 );
