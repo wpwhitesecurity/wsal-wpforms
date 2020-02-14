@@ -131,7 +131,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			$plugin  = plugin_basename( trim( $plugin_slug ) );
 			if ( is_multisite() ) {
 				// confirm flag saying this was on plugins-network was passed.
-				if ( filter_input( INPUT_POST, 'is_network', FILTER_VALIDATE_BOOLEAN ) ) {
+				if ( isset( $_POST['is_network'] ) && 1 === $_POST['is_network'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in the caller.
 					// looks like this was passed from the wrong screen.
 					wp_send_json_error( 'network_install_send_from_wrong_screen' );
 				}
