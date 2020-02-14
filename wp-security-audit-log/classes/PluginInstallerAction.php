@@ -162,6 +162,10 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 					// fail.
 					return false;
 				}
+				// since no current screen is set fake it via constant.
+				if ( ! defined( 'WP_NETWORK_ADMIN' ) ) {
+					define( 'WP_NETWORK_ADMIN', true );
+				}
 				$result = activate_plugin( $plugin_slug, null, WP_NETWORK_ADMIN );
 
 			} else {
