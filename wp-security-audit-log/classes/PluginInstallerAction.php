@@ -39,6 +39,11 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 		 */
 		public function run_addon_install() {
 			check_ajax_referer( 'wsal-install-addon' );
+			// verify users can install plugins before continuing.
+			if ( ! current_user_can( 'manage_plugins' ) ) {
+				// fail.
+				wp_send_json_error( 'user_cannot_manage_plugins' );
+			}
 
 			$plugin_zip  = ( isset( $_POST['plugin_url'] ) ) ? esc_url_raw( wp_unslash( $_POST['plugin_url'] ) ) : '';
 			$plugin_slug = ( isset( $_POST['plugin_slug'] ) ) ? sanitize_textarea_field( wp_unslash( $_POST['plugin_slug'] ) ) : '';
@@ -125,12 +130,12 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 				// confirm flag saying this was on plugins-network was passed.
 				if ( filter_input( INPUT_POST, 'is_network', FILTER_VALIDATE_BOOLEAN ) ) {
 					// looks like this was passed from the wrong screen.
-					return false;
+					wp_send_json_error( 'network_install_send_from_wrong_screen' );
 				}
 				// before we handle network updates ensure user is allowed.
 				if ( ! current_user_can( 'manage_network_plugins' ) ) {
 					// fail.
-					return false;
+					wp_send_json_error( 'user_cannot_manage_network_plugins' );
 				}
 				// since no current screen is set fake it via constant.
 				if ( ! defined( 'WP_NETWORK_ADMIN' ) ) {
