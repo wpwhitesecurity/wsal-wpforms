@@ -157,6 +157,11 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 					// looks like this was passed from the wrong screen.
 					return false;
 				}
+				// before we handle network updates ensure user is allowed.
+				if ( ! current_user_can( 'manage_network_plugins' ) ) {
+					// fail.
+					return false;
+				}
 				$result = activate_plugin( $plugin_slug, null, WP_NETWORK_ADMIN );
 
 			} else {
