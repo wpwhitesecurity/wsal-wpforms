@@ -68,17 +68,19 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 			if ( $this->is_plugin_installed( $plugin_slug ) ) {
 				// If plugin is installed but not active, activate it.
 				if ( ! is_plugin_active( $plugin_slug ) ) {
-					$this->activate( $plugin_slug );
-					$result = 'activated';
+					$activated = $this->activate( $plugin_slug );
+					$result    = 'activated';
 				} else {
 					$result = 'already_installed';
 				}
 			} else {
 				// No plugin found or plugin not present to be activated, so lets install it.
-				$this->install_plugin( $plugin_zip );
-				$this->activate( $plugin_slug );
-				$result = 'success';
+				$installed = $this->install_plugin( $plugin_zip );
+				$activated = $this->activate( $plugin_slug );
+				$result    = 'success';
 			}
+			// TODO: swap to a wp_send_json_success.
+			// TODO: use responses to determine if we succeded.
 
 			wp_send_json( $result );
 		}
@@ -109,6 +111,7 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 				}
 				die();
 			}
+			return $install_result;
 		}
 
 		/**
@@ -142,15 +145,13 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 					define( 'WP_NETWORK_ADMIN', true );
 				}
 				$result = activate_plugin( $plugin_slug, null, WP_NETWORK_ADMIN );
-
 			} else {
 				if ( ! in_array( $plugin_slug, $current, true ) ) {
 					$current[] = $plugin_slug;
-					activate_plugin( $plugin_slug );
+					$result    = activate_plugin( $plugin_slug );
 				}
 			}
-
-			return null;
+			return $result;
 		}
 
 		/**
