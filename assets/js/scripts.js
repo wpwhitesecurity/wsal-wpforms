@@ -24,6 +24,7 @@ jQuery( document ).ready(
 				var nonceValue        = jQuery( this ).attr( 'data-nonce' );
 				var PluginDownloadUrl = jQuery( this ).attr( 'data-plugin-download-url' );
 				var RedirectToTab     = jQuery( this ).attr( 'data-plugin-event-tab-id' );
+				var isNetworkInstall  = jQuery( this ).data( 'plugins-network' );
 				jQuery( currentButton ).next( '.spinner' ).show( '200' );
 				e.preventDefault();
 				jQuery.ajax(
@@ -35,6 +36,7 @@ jQuery( document ).ready(
 							action: "run_addon_install",
 							plugin_slug: PluginSlug,
 							plugin_url: PluginDownloadUrl,
+							is_network: isNetworkInstall,
 							_wpnonce: nonceValue
 						},
 						complete: function ( data ) {
@@ -56,6 +58,13 @@ jQuery( document ).ready(
 						},
 					}
 				);
+			}
+		);
+
+		jQuery( ".activate-addon" ).click(
+			function (e) {
+				var PluginSlug = jQuery( this ).attr( 'data-plugin-slug' );
+				jQuery('[data-plugin="'+ PluginSlug +'"] .activate a')[0].click();
 			}
 		);
 	}
