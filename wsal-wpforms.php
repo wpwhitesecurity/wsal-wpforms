@@ -78,6 +78,7 @@ function wsal_wpforms_network_activatation_notice() {
  */
 function wsal_wpforms_install_notice() {
 	$plugin_installer = new WSAL_PluginInstallerAction();
+	$screen = get_current_screen();
 
 	// First lets check if WSAL is installed, but not active.
 	if ( $plugin_installer->is_plugin_installed( 'wp-security-audit-log/wp-security-audit-log.php' ) && ! is_plugin_active( 'wp-security-audit-log/wp-security-audit-log.php' ) ) : ?>
@@ -88,7 +89,8 @@ function wsal_wpforms_install_notice() {
 					esc_html__( 'WP Security Audit Log is installed but not active.', 'wp-security-audit-log' ),
 					esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
 					esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
-					esc_html__( 'Activate WP Security Audit Log.', 'wp-security-audit-log' )
+					( is_a( $screen, '\WP_Screen' ) && isset( $screen->id ) && 'plugins-network' === $screen->id ) ? true : false, // confirms if we are on a network or not.
+					esc_html__( 'Install WP Security Audit Log.', 'wp-security-audit-log' )
 				);
 			?>
 		</div>
@@ -100,6 +102,7 @@ function wsal_wpforms_install_notice() {
 					esc_html__( 'This is an add-on for the WP Security Audit Log plugin. Please install it to use this add-on.', 'wp-security-audit-log' ),
 					esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
 					esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
+					( is_a( $screen, '\WP_Screen' ) && isset( $screen->id ) && 'plugins-network' === $screen->id ) ? true : false, // confirms if we are on a network or not.
 					esc_html__( 'Install WP Security Audit Log.', 'wp-security-audit-log' )
 				);
 			?>
