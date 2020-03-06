@@ -1,4 +1,4 @@
-=== WP Security Audit Log add-on for WPForms ===
+=== WP Security Audit Log for WPForms ===
 Contributors: WPWhiteSecurity
 Plugin URI: https://www.wpsecurityauditlog.com
 License: GPLv3
@@ -51,19 +51,19 @@ Refer to the [activity logs event IDs for WPForms](https://www.wpsecurityauditlo
 
 == Installation ==
 
-=== Install this WPForms add-on from within WP Security Audit Log (easiest method) ===
+=== Install this add-on for WPForms from within WP Security Audit Log (easiest method) ===
 
 1. Navigate to the section <i>Enable/disable events</i> > <i>Third party add-ons</i>.
 1. Click <i>Install add-on</i> under the WPForms logo and add-on description.
 
-=== Install this WPForms add-on from within WordPress ===
+=== Install this add-on from within WordPress ===
 
 1. Ensure WP Security Audit Log is already installed.
 1. Visit 'Plugins > Add New'.
 1. Search for 'WP Security Audit Log add-on for WPForms'.
 1. Install and activate the add-on.
 
-=== Install this WPForms add-on manually ===
+=== Install this add-on manually ===
 
 1. Ensure WP Security Audit Log is already installed.
 1. Download the plugin and extract the files.
