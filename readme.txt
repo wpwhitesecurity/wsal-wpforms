@@ -85,7 +85,12 @@ Please refer to our [Support & Documentation pages](https://www.wpsecurityauditl
 = 1.0.1 (2020-03-06) =
 
 **New event ID**
-	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for more info)
+	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for more info).
+	
+**Improvements**
+	* Plugin now keeps a log of multiple changes done together in one form save / change.
+	* Plugin notifications only shown to super administrators on multisite network.
+	* Add-on specific [activity log objects](https://www.wpsecurityauditlog.com/support-documentation/objects-event-types-wordpress-activity-log/) can now be declared in the main plugin, WP Security Audit Log.
 
 = 1.0.0 (2020-02-13) =
 
