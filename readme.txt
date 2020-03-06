@@ -6,7 +6,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Security Audit Log add-on, activity logs
 Requires at least: 3.6
 Tested up to: 5.3.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 5.6
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
@@ -81,6 +81,11 @@ Please refer to our [Support & Documentation pages](https://www.wpsecurityauditl
 1. Forms, entries, notifications and other WPForms plugin changes reported in the WordPress activity log.
 
 == Changelog ==
+
+= 1.0.1 (2020-03-06) =
+
+**New event ID**
+	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for more info)
 
 = 1.0.0 (2020-02-13) =
 
