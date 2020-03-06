@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: WP Security Audit Log add-on for WPForms
+ * Plugin Name: WP Security Audit Log for WPForms
  * Plugin URI: https://www.wpsecurityauditlog.com/integrations/activity-log-wpforms/
- * Description: An add-on to the WP Security Audit Log Plugin to track changes within the WPForms plugin.
+ * Description: A WP Security Audit Log plugin add-on to keep a log of changes within WPForms.
  * Text Domain: wp-security-audit-log
  * Author: WP White Security
  * Author URI: http://www.wpwhitesecurity.com/
- * Version: 1.0.0
+ * Version: 1.0.1
  * License: GPL2
  *
  * @package Wsal

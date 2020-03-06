@@ -1,4 +1,4 @@
-=== WP Security Audit Log add-on for WPForms ===
+=== WP Security Audit Log for WPForms ===
 Contributors: WPWhiteSecurity
 Plugin URI: https://www.wpsecurityauditlog.com
 License: GPLv3
@@ -6,7 +6,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Security Audit Log add-on, activity logs
 Requires at least: 3.6
 Tested up to: 5.3.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 5.6
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
@@ -51,19 +51,19 @@ Refer to the [activity logs event IDs for WPForms](https://www.wpsecurityauditlo
 
 == Installation ==
 
-=== Install this WPForms add-on from within WP Security Audit Log (easiest method) ===
+=== Install this add-on for WPForms from within WP Security Audit Log (easiest method) ===
 
 1. Navigate to the section <i>Enable/disable events</i> > <i>Third party add-ons</i>.
 1. Click <i>Install add-on</i> under the WPForms logo and add-on description.
 
-=== Install this WPForms add-on from within WordPress ===
+=== Install this add-on from within WordPress ===
 
 1. Ensure WP Security Audit Log is already installed.
 1. Visit 'Plugins > Add New'.
 1. Search for 'WP Security Audit Log add-on for WPForms'.
 1. Install and activate the add-on.
 
-=== Install this WPForms add-on manually ===
+=== Install this add-on manually ===
 
 1. Ensure WP Security Audit Log is already installed.
 1. Download the plugin and extract the files.
@@ -81,6 +81,11 @@ Please refer to our [Support & Documentation pages](https://www.wpsecurityauditl
 1. Forms, entries, notifications and other WPForms plugin changes reported in the WordPress activity log.
 
 == Changelog ==
+
+= 1.0.1 (2020-03-06) =
+
+**New event ID**
+	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for more info)
 
 = 1.0.0 (2020-02-13) =
 
