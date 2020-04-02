@@ -15,14 +15,9 @@ Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) 
 
 Website forms allow your prospects to contact you, make a purchase, subscribe to a service, submit a support request, and do much more. Therefore it is vital to keep a log of the changes that you and your team do to website forms and the WPForms plugin. This eliminates guesswork when there are problems and you need to troubleshoot, and also improves user accountability.
 
-Install this add-on alongside the WP Security Audit Log plugin to 
-
-
 Keep a record of the changes that happen on your WPForms plugin, when someone creates, modifies or deletes a form, deletes an entry and much more by installing this add-on alongside the WP Security Audit Log plugin.
 
 Refer to [activity log for WPForms](https://www.wpsecurityauditlog.com/integrations/activity-log-wpforms/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for more detailed information on this integration.
-
-
 
 #### About WP Security Audit Log
 [WP Security Audit Log](https://www.wpsecurityauditlog.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) is the most comprehensive real time activity log plugin for WordPress. It helps thousands administrators and security professionals keep an eye on what is happening on their websites and multisite networks. 
