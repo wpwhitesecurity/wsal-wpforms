@@ -39,12 +39,13 @@ if ( ! class_exists( 'WSAL_PluginInstallerAction' ) ) {
 		 */
 		public function run_addon_install() {
 			check_ajax_referer( 'wsal-install-addon' );
+
 			// verify users can install plugins before continuing.
-			if ( ! current_user_can( 'manage_plugins' ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				// fail.
 				wp_send_json_error( 'user_cannot_manage_plugins' );
 			}
-
+			
 			$plugin_zip  = ( isset( $_POST['plugin_url'] ) ) ? esc_url_raw( wp_unslash( $_POST['plugin_url'] ) ) : '';
 			$plugin_slug = ( isset( $_POST['plugin_slug'] ) ) ? sanitize_textarea_field( wp_unslash( $_POST['plugin_slug'] ) ) : '';
 
