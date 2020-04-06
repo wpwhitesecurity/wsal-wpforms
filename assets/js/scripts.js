@@ -40,7 +40,6 @@ jQuery( document ).ready(
 							_wpnonce: nonceValue
 						},
 						complete: function ( data ) {
-							console.log(data);
 							if (data.responseText == '"already_installed"' ) {
 								jQuery( currentButton ).html( WSALWPFormsData.already_installed ).addClass( 'disabled' );
 								jQuery( currentButton ).next( '.spinner' ).hide( '200' );
