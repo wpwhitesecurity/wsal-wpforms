@@ -90,7 +90,7 @@ function wsal_wpforms_install_notice() {
 					esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
 					esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
 					( is_a( $screen, '\WP_Screen' ) && isset( $screen->id ) && 'plugins-network' === $screen->id ) ? true : false, // confirms if we are on a network or not.
-					esc_html__( 'Install WP Security Audit Log.', 'wp-security-audit-log' )
+					esc_html__( 'Activate WP Security Audit Log.', 'wp-security-audit-log' )
 				);
 			?>
 		</div>
