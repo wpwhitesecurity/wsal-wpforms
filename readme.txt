@@ -42,7 +42,7 @@ Below are some of the user and plugin changes you can keep a log of when you ins
 * Deletes an entry (lead)
 * Adds, enables, modifies or disable notifications in forms
 
-Refer to the [activity logs event IDs for WPForms](https://wpactivitylog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
+Refer to the [activity logs event IDs for WPForms](https://wpactivitylog.com/support/kb/list-wordpress-audit-trail-alerts/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
 
 == Installation ==
 
@@ -68,7 +68,7 @@ Refer to the [activity logs event IDs for WPForms](https://wpactivitylog.com/sup
 == Frequently Asked Questions ==
 
 = Support and Documentation =
-Please refer to our [Support & Documentation pages](https://wpactivitylog.com/support-documentation/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) for all the technical information and support documentation on the WP Activity Log plugin.
+Please refer to our [Support & Documentation pages](https://wpactivitylog.com/support/kb/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) for all the technical information and support documentation on the WP Activity Log plugin.
 
 == Screenshots ==
 
@@ -80,12 +80,12 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 = 1.0.1 (2020-03-06) =
 
 **New event ID**
-	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://wpactivitylog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for more info).
+	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://wpactivitylog.com/support/kb/list-wordpress-audit-trail-alerts/#wpforms) for more info).
 
 **Improvements**
 	* Plugin now keeps a log of multiple changes done together in one form save / change.
 	* Plugin notifications only shown to super administrators on multisite network.
-	* Extension specific [activity log objects](https://wpactivitylog.com/support-documentation/objects-event-types-wordpress-activity-log/) can now be declared in the main plugin, WP Activity Log.
+	* Extension specific [activity log objects](https://wpactivitylog.com/support/kb/objects-event-types-wordpress-activity-log/) can now be declared in the main plugin, WP Activity Log.
 
 = 1.0.0 (2020-02-13) =
 
