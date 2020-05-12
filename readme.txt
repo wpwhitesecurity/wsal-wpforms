@@ -1,6 +1,6 @@
 === WP Activity Log for WPForms ===
 Contributors: WPWhiteSecurity
-Plugin URI: https://www.wpsecurityauditlog.com
+Plugin URI: https://wpactivitylog.com
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Activity Log extension, activity logs
@@ -17,10 +17,10 @@ Website forms allow your prospects to contact you, make a purchase, subscribe to
 
 Keep a record of the changes that happen on your WPForms plugin, when someone creates, modifies or deletes a form, deletes an entry and much more by installing this extension alongside the WP Activity Log plugin.
 
-Refer to [activity log for WPForms](https://www.wpsecurityauditlog.com/integrations/activity-log-wpforms/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for more detailed information on this integration.
+Refer to [activity log for WPForms](https://wpactivitylog.com/integrations/activity-log-wpforms/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for more detailed information on this integration.
 
 #### About WP Activity Log
-[WP Activity Log](https://www.wpsecurityauditlog.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) is the most comprehensive real time activity log plugin for WordPress. It helps thousands administrators and security professionals keep an eye on what is happening on their websites and multisite networks.
+[WP Activity Log](https://wpactivitylog.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) is the most comprehensive real time activity log plugin for WordPress. It helps thousands administrators and security professionals keep an eye on what is happening on their websites and multisite networks.
 
 WP Activity Log is also the most highly rated WordPress activity log plugin and have been featured on popular sites such as GoDaddy, ManageWP, Pagely, Shout Me Loud and WPKube.
 
@@ -28,7 +28,7 @@ WP Activity Log is also the most highly rated WordPress activity log plugin and 
 
 To keep a log of the changes that happen on your WPForms plugin, forms, entries and other plugin components simply:
 
-1. Install the [WP Activity Log plugin](https://www.wpsecurityauditlog.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)
+1. Install the [WP Activity Log plugin](https://wpactivitylog.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)
 1. Install this extension from the section <i>Enable/disable events</i> > <i>Third party extensions</i>.
 
 ### With this extension you can keep a log of:
@@ -42,7 +42,7 @@ Below are some of the user and plugin changes you can keep a log of when you ins
 * Deletes an entry (lead)
 * Adds, enables, modifies or disable notifications in forms
 
-Refer to the [activity logs event IDs for WPForms](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
+Refer to the [activity logs event IDs for WPForms](https://wpactivitylog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
 
 == Installation ==
 
@@ -68,7 +68,7 @@ Refer to the [activity logs event IDs for WPForms](https://www.wpsecurityauditlo
 == Frequently Asked Questions ==
 
 = Support and Documentation =
-Please refer to our [Support & Documentation pages](https://www.wpsecurityauditlog.com/support-documentation/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) for all the technical information and support documentation on the WP Activity Log plugin.
+Please refer to our [Support & Documentation pages](https://wpactivitylog.com/support-documentation/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) for all the technical information and support documentation on the WP Activity Log plugin.
 
 == Screenshots ==
 
@@ -80,12 +80,12 @@ Please refer to our [Support & Documentation pages](https://www.wpsecurityauditl
 = 1.0.1 (2020-03-06) =
 
 **New event ID**
-	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://www.wpsecurityauditlog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for more info).
+	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://wpactivitylog.com/support-documentation/list-wordpress-audit-trail-alerts/#wpforms) for more info).
 
 **Improvements**
 	* Plugin now keeps a log of multiple changes done together in one form save / change.
 	* Plugin notifications only shown to super administrators on multisite network.
-	* Extension specific [activity log objects](https://www.wpsecurityauditlog.com/support-documentation/objects-event-types-wordpress-activity-log/) can now be declared in the main plugin, WP Activity Log.
+	* Extension specific [activity log objects](https://wpactivitylog.com/support-documentation/objects-event-types-wordpress-activity-log/) can now be declared in the main plugin, WP Activity Log.
 
 = 1.0.0 (2020-02-13) =
 
