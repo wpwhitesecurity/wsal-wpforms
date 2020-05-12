@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Activity Log for WPForms
  * Plugin URI: https://www.wpsecurityauditlog.com/integrations/activity-log-wpforms/
- * Description: A WP Activity Log plugin add-on to keep a log of changes within WPForms.
+ * Description: A WP Activity Log plugin extension to keep a log of changes within WPForms.
  * Text Domain: wp-security-audit-log
  * Author: WP White Security
  * Author URI: http://www.wpwhitesecurity.com/
@@ -63,7 +63,7 @@ function wsal_wpforms_plugin_deactivate() {
  * Network activation error notice.
  */
 function wsal_wpforms_network_activatation_notice() {
-	$installation_errors  = esc_html__( 'The WP Activity Log add-on for WPForms plugin is a multisite network tool, so it has to be activated at network level.', 'wp-security-audit-log' );
+	$installation_errors  = esc_html__( 'The WP Activity Log extension for WPForms plugin is a multisite network tool, so it has to be activated at network level.', 'wp-security-audit-log' );
 	$installation_errors .= '<br />';
 	$installation_errors .= '<a href="javascript:;" onclick="window.top.location.href=\'' . esc_url( network_admin_url( 'plugins.php' ) ) . '\'">' . esc_html__( 'Redirect me to the network dashboard', 'wp-security-audit-log' ) . '</a> ';
 	?>
@@ -99,7 +99,7 @@ function wsal_wpforms_install_notice() {
 			<?php
 				printf(
 					'<p>%1$s <button class="install-wsal button button-primary" data-plugin-slug="wp-security-audit-log/wp-security-audit-log.php" data-plugin-download-url="%2$s" data-plugins-network="%4$s" data-nonce="%3$s">%5$s</button><span class="spinner" style="display: none; visibility: visible; float: none; margin: 0 0 0 8px;"></span></p>',
-					esc_html__( 'This is an add-on for the WP Activity Log plugin. Please install it to use this add-on.', 'wp-security-audit-log' ),
+					esc_html__( 'This is an extension for the WP Activity Log plugin. Please install it to use this extension.', 'wp-security-audit-log' ),
 					esc_url( 'https://downloads.wordpress.org/plugin/wp-security-audit-log.latest-stable.zip' ),
 					esc_attr( wp_create_nonce( 'wsal-install-addon' ) ),
 					( is_a( $screen, '\WP_Screen' ) && isset( $screen->id ) && 'plugins-network' === $screen->id ) ? true : false, // confirms if we are on a network or not.
@@ -152,8 +152,8 @@ function wsal_wpforms_scripts() {
 		'ajaxURL'           => admin_url( 'admin-ajax.php' ),
 		'installing'        => esc_html__( 'Installing, please wait', 'wp-security-audit-log' ),
 		'already_installed' => esc_html__( 'Already installed', 'wp-security-audit-log' ),
-		'installed'         => esc_html__( 'Addon installed', 'wp-security-audit-log' ),
-		'activated'         => esc_html__( 'Addon activated', 'wp-security-audit-log' ),
+		'installed'         => esc_html__( 'Extension installed', 'wp-security-audit-log' ),
+		'activated'         => esc_html__( 'Extension activated', 'wp-security-audit-log' ),
 		'failed'            => esc_html__( 'Install failed', 'wp-security-audit-log' ),
 	);
 
