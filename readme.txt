@@ -42,7 +42,7 @@ Below are some of the user and plugin changes you can keep a log of when you ins
 * Deletes an entry (lead)
 * Adds, enables, modifies or disable notifications in forms
 
-Refer to the [activity logs event IDs for WPForms](https://wpactivitylog.com/support/kb/list-wordpress-audit-trail-alerts/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
+Refer to the [activity logs event IDs for WPForms](https://wpactivitylog.com/support/kb/list-wordpress-activity-log-event-ids/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
 
 == Installation ==
 
@@ -85,7 +85,7 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 = 1.0.1 (2020-03-06) =
 
 **New event ID**
-	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://wpactivitylog.com/support/kb/list-wordpress-audit-trail-alerts/#wpforms) for more info).
+	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://wpactivitylog.com/support/kb/list-wordpress-activity-log-event-ids/#wpforms) for more info).
 
 **Improvements**
 	* Plugin now keeps a log of multiple changes done together in one form save / change.
