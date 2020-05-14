@@ -6,7 +6,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Activity Log extension, activity logs
 Requires at least: 3.6
 Tested up to: 5.3.2
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 5.6
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
@@ -17,7 +17,7 @@ Website forms allow your prospects to contact you, make a purchase, subscribe to
 
 Keep a record of the changes that happen on your WPForms plugin, when someone creates, modifies or deletes a form, deletes an entry and much more by installing this extension alongside the WP Activity Log plugin.
 
-Refer to [activity log for WPForms](https://wpactivitylog.com/integrations/activity-log-wpforms/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for more detailed information on this integration.
+Refer to [activity log for WPForms](https://wpactivitylog.com/extensions/wpforms-activity-log/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for more detailed information on this integration.
 
 #### About WP Activity Log
 [WP Activity Log](https://wpactivitylog.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) is the most comprehensive real time activity log plugin for WordPress. It helps thousands administrators and security professionals keep an eye on what is happening on their websites and multisite networks.
@@ -76,6 +76,11 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 1. Forms, entries, notifications and other WPForms plugin changes reported in the WordPress activity log.
 
 == Changelog ==
+
+= 1.0.2 (2020-05-20) =
+
+**Main plugin rename update**
+	*[WP Security Audit Log has been renamed to WP Activity Log](https://wpactivitylog.com/wp-security-audit-log-renamed-wp-activity-log/).
 
 = 1.0.1 (2020-03-06) =
 
