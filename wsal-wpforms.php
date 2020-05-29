@@ -229,8 +229,11 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
 	$new_objects = array(
 		'wpforms'               => esc_html__( 'WPForms', 'wp-security-audit-log' ),
 		'wpforms-notifications' => esc_html__( 'Notifications in WPForms', 'wp-security-audit-log' ),
+		'wpforms_notifications' => esc_html__( 'Notifications in WPForms', 'wp-security-audit-log' ),
 		'wpforms-entries'       => esc_html__( 'Entries in WPForms', 'wp-security-audit-log' ),
+		'wpforms_entries'       => esc_html__( 'Entries in WPForms', 'wp-security-audit-log' ),
 		'wpforms-fields'        => esc_html__( 'Fields in WPForms', 'wp-security-audit-log' ),
+		'wpforms_fields'        => esc_html__( 'Fields in WPForms', 'wp-security-audit-log' ),
 	);
 
 	// combine the two arrays.
