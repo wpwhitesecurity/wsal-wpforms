@@ -243,35 +243,9 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
 }
 
 /**
- * Adds new custom event object text for our plugin
- *
- * @method wsal_wpforms_add_custom_event_object_text
- * @since  1.0.0
- * @param  string $display the text to display.
- * @param  string $object  the current object type.
- * @return string
- */
-function wsal_wpforms_add_custom_event_object_text( $display, $object ) {
-	if ( 'wpforms' === $object ) {
-		$display = esc_html__( 'Forms in WPForms', 'wp-security-audit-log' );
-	}
-	if ( 'wpforms-notifications' === $object || 'wpforms_notifications' === $object ) {
-		$display = esc_html__( 'Notifications in WPForms', 'wp-security-audit-log' );
-	}
-	if ( 'wpforms-entries' === $object || 'wpforms_entries' === $object ) {
-		$display = esc_html__( 'Entries in WPForms', 'wp-security-audit-log' );
-	}
-	if ( 'wpforms-fields' === $object || 'wpforms_fields' === $object ) {
-		$display = esc_html__( 'Fields in WPForms', 'wp-security-audit-log' );
-	}
-
-	return $display;
-}
-
-/**
  * Adds new ignored CPT for our plugin
  *
- * @method wsal_wpforms_add_custom_event_object_text
+ * @method wsal_wpforms_add_custom_ignored_cpt
  * @since  1.0.0
  * @param  array $post_types An array of default post_types.
  * @return array
@@ -328,5 +302,4 @@ function wsal_wpforms_add_custom_meta_format_value( $value, $name ) {
 add_filter( 'wsal_link_filter', 'wsal_wpforms_add_custom_meta_format_value', 10, 2 );
 add_filter( 'wsal_meta_formatter_custom_formatter', 'wsal_wpforms_add_custom_meta_format', 10, 2 );
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
-add_filter( 'wsal_event_object_text', 'wsal_wpforms_add_custom_event_object_text', 10, 2 );
 add_filter( 'wsal_ignored_custom_post_types', 'wsal_wpforms_add_custom_ignored_cpt' );
