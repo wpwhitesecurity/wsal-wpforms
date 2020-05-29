@@ -580,22 +580,35 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
 		$alert_code = 5507;
-		$names = array();
-		$i     = 0;
+
+		$fields = json_decode( $entry->fields, true );
+
 		foreach ( $updated_fields as $updated_field ) {
-			$names[$i] = $updated_field['name'];
-			$i++;
-		}
 
+			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
 
-		if ( isset( $names ) ) {
-			$variables = array(
-				'entry_id'   => $entry->entry_id,
-				'form_name'  => $form_data['settings']['form_title'],
-				'field_name' => implode( ', ', $names ),
+			$editor_link = esc_url(
+				add_query_arg(
+					array(
+						'view'     => 'edit',
+						'entry_id' => $entry->entry_id,
+					),
+					admin_url( 'admin.php?page=wpforms-entries' )
+				)
 			);
 
-			$this->plugin->alerts->Trigger( $alert_code, $variables );
+			if ( isset( $updated_field['name'] ) ) {
+				$variables = array(
+					'entry_id'         => $entry->entry_id,
+					'form_name'        => $form_data['settings']['form_title'],
+					'field_name'       => $updated_field['name'],
+					'old_value'        => implode( $modified_value ),
+					'new_value'        => $updated_field['value'],
+					'EditorLinkEntry'  => $editor_link,
+				);
+
+				$this->plugin->alerts->Trigger( $alert_code, $variables );
+			}
 		}
 
 	}

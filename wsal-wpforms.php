@@ -275,6 +275,14 @@ function wsal_wpforms_add_custom_meta_format( $value, $name ) {
 			return '';
 		}
 	}
+
+	if ( '%EditorLinkEntry%' === $name ) {
+		if ( 'NULL' !== $check_value ) {
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in the editor', 'wp-security-audit-log' ) . '</a>';
+		} else {
+			return '';
+		}
+	}
 	return $value;
 }
 
@@ -289,6 +297,14 @@ function wsal_wpforms_add_custom_meta_format_value( $value, $name ) {
 	if ( '%EditorLinkForm%' === $name ) {
 		if ( 'NULL' !== $check_value ) {
 			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in the editor', 'wp-security-audit-log' ) . '</a>';
+		} else {
+			return '';
+		}
+	}
+
+	if ( '%EditorLinkEntry%' === $name ) {
+		if ( 'NULL' !== $check_value ) {
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in the editor', 'wp-security-audit-log' ) . '</a>';
 		} else {
 			return '';
 		}
