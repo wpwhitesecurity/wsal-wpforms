@@ -251,6 +251,17 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 
+					} elseif ( ! $old_form_content->settings->notification_enable && $form_content->settings->notification_enable ) {
+						$alert_code = 5505;
+						$variables  = array(
+							'EventType'      => 'enabled',
+							'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
+							'PostID'         => $post_id,
+							'EditorLinkForm' => $editor_link,
+						);
+						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						$has_alert_triggered = true;
+
 					// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
 					} elseif ( $changed_items ) {
 
