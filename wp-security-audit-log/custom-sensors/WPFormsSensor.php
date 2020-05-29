@@ -32,6 +32,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'save_post', array( $this, 'event_form_saved' ), 10, 3 );
 		add_action( 'delete_post', array( $this, 'event_form_deleted' ), 10, 1 );
 		add_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
+		add_action( 'wpforms_pro_admin_entries_edit_submit_completed', array( $this, 'event_entry_modified' ), 5, 4 );
+
 	}
 
 	/**
@@ -241,6 +243,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						}
 					// Compare old post and new post to see if the notifications have been disabled.
 					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
+						error_log( print_r( $old_form_content->settings->notification_enable, true ) );
+						error_log( print_r( $form_content->settings->notification_enable, true ) );
 						$alert_code = 5505;
 						$variables  = array(
 							'EventType'      => 'disabled',
@@ -251,7 +255,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 
-					} elseif ( ! $old_form_content->settings->notification_enable && $form_content->settings->notification_enable ) {
+					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
+						error_log( print_r( $old_form_content->settings->notification_enable, true ) );
+						error_log( print_r( $form_content->settings->notification_enable, true ) );
 						$alert_code = 5505;
 						$variables  = array(
 							'EventType'      => 'enabled',
@@ -570,6 +576,28 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		);
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
 		remove_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
+	}
+
+	public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
+		$alert_code = 5507;
+		$names = array();
+		$i     = 0;
+		foreach ( $updated_fields as $updated_field ) {
+			$names[$i] = $updated_field['name'];
+			$i++;
+		}
+
+
+		if ( isset( $names ) ) {
+			$variables = array(
+				'entry_id'   => $entry->entry_id,
+				'form_name'  => $form_data['settings']['form_title'],
+				'field_name' => implode( ', ', $names ),
+			);
+
+			$this->plugin->alerts->Trigger( $alert_code, $variables );
+		}
+
 	}
 
 	public function check_other_changes( WSAL_AlertManager $manager ) {

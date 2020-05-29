@@ -67,6 +67,15 @@ $custom_alerts = array(
 				'renamed',
 			),
 
+			array(
+				5507,
+				WSAL_LOW,
+				__( 'A form was renamed', 'wp-security-audit-log' ),
+				__( 'Entry ID: %entry_id% %LineBreak% From form: %form_name% %LineBreak% Modified field name: %field_name%', 'wp-security-audit-log' ),
+				'wpforms_entries',
+				'modified',
+			),
+
 		),
 	),
 );
