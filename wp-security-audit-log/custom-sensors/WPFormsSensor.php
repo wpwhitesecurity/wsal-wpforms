@@ -243,8 +243,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						}
 					// Compare old post and new post to see if the notifications have been disabled.
 					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
-						error_log( print_r( $old_form_content->settings->notification_enable, true ) );
-						error_log( print_r( $form_content->settings->notification_enable, true ) );
 						$alert_code = 5505;
 						$variables  = array(
 							'EventType'      => 'disabled',
@@ -256,8 +254,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$has_alert_triggered = true;
 
 					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
-						error_log( print_r( $old_form_content->settings->notification_enable, true ) );
-						error_log( print_r( $form_content->settings->notification_enable, true ) );
 						$alert_code = 5505;
 						$variables  = array(
 							'EventType'      => 'enabled',
