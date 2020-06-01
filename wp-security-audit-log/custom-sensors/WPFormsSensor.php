@@ -33,6 +33,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'delete_post', array( $this, 'event_form_deleted' ), 10, 1 );
 		add_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 		add_action( 'wpforms_pro_admin_entries_edit_submit_completed', array( $this, 'event_entry_modified' ), 5, 4 );
+		add_action( 'updated_option', array( $this, 'event_settings_updated' ), 10, 3 );
 
 	}
 
@@ -574,37 +575,77 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		remove_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 	}
 
-	public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
-		$alert_code = 5507;
+	/**
+	 * Modify entry event.
+	 *
+	 * @since 1.0.3
+	 */
+	 public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
+ 		$alert_code = 5507;
 
-		$fields = json_decode( $entry->fields, true );
+ 		$fields = json_decode( $entry->fields, true );
 
-		foreach ( $updated_fields as $updated_field ) {
+ 		foreach ( $updated_fields as $updated_field ) {
 
-			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
+ 			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
 
-			$editor_link = esc_url(
-				add_query_arg(
-					array(
-						'view'     => 'edit',
-						'entry_id' => $entry->entry_id,
-					),
-					admin_url( 'admin.php?page=wpforms-entries' )
-				)
+ 			$editor_link = esc_url(
+ 				add_query_arg(
+ 					array(
+ 						'view'     => 'edit',
+ 						'entry_id' => $entry->entry_id,
+ 					),
+ 					admin_url( 'admin.php?page=wpforms-entries' )
+ 				)
+ 			);
+
+ 			if ( isset( $updated_field['name'] ) ) {
+ 				$variables = array(
+ 					'entry_id'         => $entry->entry_id,
+ 					'form_name'        => $form_data['settings']['form_title'],
+ 					'field_name'       => $updated_field['name'],
+ 					'old_value'        => implode( $modified_value ),
+ 					'new_value'        => $updated_field['value'],
+ 					'EditorLinkEntry'  => $editor_link,
+ 				);
+
+ 				$this->plugin->alerts->Trigger( $alert_code, $variables );
+ 			}
+ 		}
+
+ 	}
+
+	public function event_settings_updated( $option_name, $old_value, $value ) {
+		if ( 'wp_user_roles' === $option_name ) {
+
+			$event_details = array(
+				'setting_name' => '',
+				'setting_type' => '',
+				'old_value'    => '',
+				'new_value'    => '',
 			);
 
-			if ( isset( $updated_field['name'] ) ) {
-				$variables = array(
-					'entry_id'         => $entry->entry_id,
-					'form_name'        => $form_data['settings']['form_title'],
-					'field_name'       => $updated_field['name'],
-					'old_value'        => implode( $modified_value ),
-					'new_value'        => $updated_field['value'],
-					'EditorLinkEntry'  => $editor_link,
-				);
-
-				$this->plugin->alerts->Trigger( $alert_code, $variables );
+			// Gather new info
+			foreach ( $value as $role => $details ) {
+				$role = array();
+				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
+					$event_details['setting_name'] = __( 'Create Forms', 'wp-security-audit-log' );
+					$event_details['setting_type'] = __( 'N/A', 'wp-security-audit-log' );
+					$event_details['new_value']    = $event_details['new_value'] . ', ' . $details['name'];
+				}
 			}
+
+			// Gather old info
+			foreach ( $old_value as $role => $details ) {
+				$role = array();
+				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
+					$event_details['setting_name'] = 'Create Forms';
+					$event_details['old_value']    = $event_details['old_value'] . ', ' . $details['name'];
+				}
+			}
+
+			error_log( print_r( $event_details, true ) );
+
 		}
 
 	}
@@ -691,4 +732,17 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		preg_match( $regexp, $string, $m );
 		return isset( $m[0] ) ? $m[0] : array();
 	}
+
+	private function array_key_exists_recursive( $key, $array ) {
+		if (array_key_exists($key, $array)) {
+			return true;
+		}
+		foreach($array as $k => $value) {
+			if (is_array($value) && $this->array_key_exists_recursive($key, $value)) {
+					return true;
+				}
+		}
+		return false;
+	}
+
 }
