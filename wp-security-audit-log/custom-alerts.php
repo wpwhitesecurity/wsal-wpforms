@@ -76,6 +76,15 @@ $custom_alerts = array(
 				'modified',
 			),
 
+			array(
+				5508,
+				WSAL_LOW,
+				__( 'Setting updated', 'wp-security-audit-log' ),
+				__( 'Access setting: %setting_name% %LineBreak% Type: %setting_type% %LineBreak% Old privileges: %old_value% %LineBreak% New privileges: %new_value%', 'wp-security-audit-log' ),
+				'wpforms',
+				'modified',
+			),
+
 		),
 	),
 );

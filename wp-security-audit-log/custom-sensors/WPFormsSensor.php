@@ -616,36 +616,111 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
  	}
 
 	public function event_settings_updated( $option_name, $old_value, $value ) {
+
+		// For access settings, we need to check its the correct thing updateing.
 		if ( 'wp_user_roles' === $option_name ) {
 
+			// Compare the 2 arrays and create array of changed.
+			$compare_changed_items = array_diff_assoc(
+				array_map( 'serialize', $old_value ),
+				array_map( 'serialize', $value )
+			);
+			$changed_items         = array_map( 'unserialize', $compare_changed_items  );
+
+			// Build empty var.
 			$event_details = array(
 				'setting_name' => '',
 				'setting_type' => '',
 				'old_value'    => '',
 				'new_value'    => '',
 			);
+			$create_forms_roles   = '';
+			$view_own_forms_roles = '';
+			$event = array();
 
 			// Gather new info
 			foreach ( $value as $role => $details ) {
-				$role = array();
+
+				// Create Forms.
 				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$event_details['setting_name'] = __( 'Create Forms', 'wp-security-audit-log' );
-					$event_details['setting_type'] = __( 'N/A', 'wp-security-audit-log' );
-					$event_details['new_value']    = $event_details['new_value'] . ', ' . $details['name'];
+					$create_forms_roles .= $details['name']. ', ';
+					$event['create_forms'] = array(
+						'setting_name' => __( 'Create Forms', 'wp-security-audit-log' ),
+						'setting_type' => __( 'N/A', 'wp-security-audit-log' ),
+						'new_value'    => $create_forms_roles,
+					);
 				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
+					$view_own_forms_roles .= $details['name']. ', ';
+					$event['view_forms'] = array(
+						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
+						'setting_type' => __( 'N/A', 'wp-security-audit-log' ),
+						'new_value'    => $view_own_forms_roles,
+					);
+				}
+
 			}
+
+
+			$old_create_forms_roles   = '';
+			$old_view_own_forms_roles = '';
 
 			// Gather old info
 			foreach ( $old_value as $role => $details ) {
-				$role = array();
 				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$event_details['setting_name'] = 'Create Forms';
-					$event_details['old_value']    = $event_details['old_value'] . ', ' . $details['name'];
+					$old_create_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_create_forms_roles,
+					);
+					if ( isset( $event['create_forms'] ) ) {
+						$event['create_forms'] = array_merge( $event['create_forms'], $old_event );
+					}
+
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
+					$old_view_own_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_view_own_forms_roles,
+					);
+					if ( isset( $event['view_forms'] ) ) {
+						$event['view_forms'] = array_merge( $event['view_forms'], $old_event );
+					}
+
 				}
 			}
 
-			error_log( print_r( $event_details, true ) );
+			error_log( print_r( $event, true ) );
 
+			foreach ( $event as $event => $details ) {
+
+				if ( isset( $details['old_value'] ) ) {
+					$old_value = $details['old_value'];
+				} else {
+					$old_value = '';
+				}
+
+				if ( isset( $details['new_value'] ) ) {
+					$new_value = $details['new_value'];
+				} else {
+					break;
+				}
+
+				if ( $old_value == $details['new_value'] ) {
+					continue;
+				}
+
+				$alert_code = 5508;
+				$variables = array(
+					'setting_name' => $details['setting_name'],
+					'setting_type' => $details['setting_type'],
+					'old_value'    => $old_value,
+					'new_value'    =>	$new_value
+				);
+
+				$this->plugin->alerts->Trigger( $alert_code, $variables );
+			}
 		}
 
 	}
