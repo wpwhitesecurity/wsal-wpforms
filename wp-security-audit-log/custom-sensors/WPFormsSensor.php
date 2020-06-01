@@ -618,7 +618,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	public function event_settings_updated( $option_name, $old_value, $value ) {
 
 		// For access settings, we need to check its the correct thing updateing.
-		if ( 'wp_user_roles' === $option_name ) {
+		if ( 'wp_user_roles' === $option_name  || $value !== $old_value ) {
+
+			if ( ! is_array( $old_value ) || ! is_array( $value ) ) {
+				return;
+			}
 
 			// Compare the 2 arrays and create array of changed.
 			$compare_changed_items = array_diff_assoc(
@@ -636,6 +640,36 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			);
 			$create_forms_roles   = '';
 			$view_own_forms_roles = '';
+			$view_others_forms_roles = '';
+			$edit_own_forms_roles = '';
+			$edit_others_forms_roles = '';
+			$delete_own_forms_roles = '';
+			$delete_others_forms_roles = '';
+			$view_entries_own_forms_roles = '';
+			$view_entries_others_forms_roles = '';
+			$edit_entries_own_forms_roles = '';
+			$edit_entries_others_forms_roles = '';
+			$delete_entries_own_forms_roles = '';
+			$delete_entries_others_forms_roles = '';
+
+			$old_create_forms_roles   = '';
+			$old_view_own_forms_roles = '';
+			$old_view_others_forms_roles = '';
+			$old_edit_own_forms_roles = '';
+			$old_edit_others_forms_roles = '';
+			$old_delete_own_forms_roles = '';
+			$old_delete_others_forms_roles = '';
+			$old_view_entries_own_forms_roles = '';
+			$old_view_entries_others_forms_roles = '';
+			$old_edit_entries_own_forms_roles = '';
+			$old_edit_entries_others_forms_roles = '';
+			$old_delete_entries_own_forms_roles = '';
+			$old_delete_entries_others_forms_roles = '';
+
+			$values_done = false;
+			$old_values_done = false;
+			$size = count( $value );
+			$counter = 0;
 			$event = array();
 
 			// Gather new info
@@ -655,16 +689,115 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					$view_own_forms_roles .= $details['name']. ', ';
 					$event['view_forms'] = array(
 						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'N/A', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
 						'new_value'    => $view_own_forms_roles,
 					);
 				}
 
+				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
+					$view_others_forms_roles .= $details['name']. ', ';
+					$event['view_others_forms'] = array(
+						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'new_value'    => $view_others_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
+					$edit_own_forms_roles .= $details['name']. ', ';
+					$event['edit_forms'] = array(
+						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'new_value'    => $edit_own_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
+					$edit_others_forms_roles .= $details['name']. ', ';
+					$event['edit_others_forms'] = array(
+						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'new_value'    => $edit_others_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
+					$delete_own_forms_roles .= $details['name']. ', ';
+					$event['delete_forms'] = array(
+						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'new_value'    => $edit_own_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
+					$delete_others_forms_roles .= $details['name']. ', ';
+					$event['delete_others_forms'] = array(
+						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'new_value'    => $delete_others_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
+					$view_entries_own_forms_roles .= $details['name']. ', ';
+					$event['view_entries_forms'] = array(
+						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'new_value'    => $view_entries_own_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
+					$view_entries_others_forms_roles .= $details['name']. ', ';
+					$event['view_entries_others_forms'] = array(
+						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'new_value'    => $view_entries_others_forms_roles
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
+					$edit_entries_own_forms_roles .= $details['name']. ', ';
+					$event['edit_entries_forms'] = array(
+						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'new_value'    => $edit_entries_own_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
+					$edit_entries_others_forms_roles .= $details['name']. ', ';
+					$event['edit_entries_others_forms'] = array(
+						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'new_value'    => $edit_entries_others_forms_roles
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
+					$delete_entries_own_forms_roles .= $details['name']. ', ';
+					$event['delete_entries_forms'] = array(
+						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'new_value'    => $delete_entries_own_forms_roles,
+					);
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
+					$delete_entries_others_forms_roles .= $details['name']. ', ';
+					$event['delete_entries_others_forms'] = array(
+						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
+						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'new_value'    => $delete_entries_others_forms_roles
+					);
+				}
+
+				$counter++;
+
 			}
 
 
-			$old_create_forms_roles   = '';
-			$old_view_own_forms_roles = '';
 
 			// Gather old info
 			foreach ( $old_value as $role => $details ) {
@@ -676,7 +809,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( isset( $event['create_forms'] ) ) {
 						$event['create_forms'] = array_merge( $event['create_forms'], $old_event );
 					}
-
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
@@ -687,27 +819,126 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( isset( $event['view_forms'] ) ) {
 						$event['view_forms'] = array_merge( $event['view_forms'], $old_event );
 					}
-
 				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
+					$old_view_others_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_view_others_forms_roles,
+					);
+					if ( isset( $event['view_others_forms'] ) ) {
+						$event['view_others_forms'] = array_merge( $event['view_others_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
+					$old_edit_own_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_edit_own_forms_roles,
+					);
+					if ( isset( $event['edit_forms'] ) ) {
+						$event['edit_forms'] = array_merge( $event['edit_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
+					$old_edit_others_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_edit_others_forms_roles,
+					);
+					if ( isset( $event['edit_others_forms'] ) ) {
+						$event['edit_others_forms'] = array_merge( $event['edit_others_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
+					$old_delete_own_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_delete_own_forms_roles,
+					);
+					if ( isset( $event['delete_forms'] ) ) {
+						$event['delete_forms'] = array_merge( $event['delete_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
+					$old_delete_others_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_delete_others_forms_roles,
+					);
+					if ( isset( $event['delete_others_forms'] ) ) {
+						$event['delete_others_forms'] = array_merge( $event['delete_others_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
+					$old_view_entries_own_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_view_entries_own_forms_roles,
+					);
+					if ( isset( $event['view_entries_forms'] ) ) {
+						$event['view_entries_forms'] = array_merge( $event['view_entries_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
+					$old_view_entries_others_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_view_entries_others_forms_roles,
+					);
+					if ( isset( $event['view_entries_others_forms'] ) ) {
+						$event['view_entries_others_forms'] = array_merge( $event['view_entries_others_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
+					$old_edit_entries_own_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_edit_entries_own_forms_roles,
+					);
+					if ( isset( $event['edit_entries_forms'] ) ) {
+						$event['edit_entries_forms'] = array_merge( $event['edit_entries_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
+					$old_edit_entries_others_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_edit_entries_others_forms_roles,
+					);
+					if ( isset( $event['edit_entries_others_forms'] ) ) {
+						$event['edit_entries_others_forms'] = array_merge( $event['edit_entries_others_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
+					$old_delete_entries_own_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_delete_entries_own_forms_roles,
+					);
+					if ( isset( $event['delete_entries_forms'] ) ) {
+						$event['delete_entries_forms'] = array_merge( $event['delete_entries_forms'], $old_event );
+					}
+				}
+
+				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
+					$old_delete_entries_others_forms_roles .= $details['name']. ', ';
+					$old_event = array(
+						'old_value'    => $old_delete_entries_others_forms_roles,
+					);
+					if ( isset( $event['delete_entries_others_forms'] ) ) {
+						$event['delete_entries_others_forms'] = array_merge( $event['delete_entries_others_forms'], $old_event );
+					}
+				}
+
 			}
 
-			error_log( print_r( $event, true ) );
+			foreach ( $event as $event_details => $details ) {
 
-			foreach ( $event as $event => $details ) {
+				$old_value = isset( $details['old_value'] ) ? implode(', ',array_unique(explode(', ', $details['old_value']))) : ''; ;
+				$new_value = $details['new_value'];
 
-				if ( isset( $details['old_value'] ) ) {
-					$old_value = $details['old_value'];
-				} else {
-					$old_value = '';
-				}
-
-				if ( isset( $details['new_value'] ) ) {
-					$new_value = $details['new_value'];
-				} else {
-					break;
-				}
-
-				if ( $old_value == $details['new_value'] ) {
+				if ( $old_value === $new_value || $old_value == $new_value ) {
 					continue;
 				}
 
@@ -715,8 +946,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$variables = array(
 					'setting_name' => $details['setting_name'],
 					'setting_type' => $details['setting_type'],
-					'old_value'    => $old_value,
-					'new_value'    =>	$new_value
+					'old_value'    => substr( $old_value, 0, -2 ),
+					'new_value'    =>	substr( $new_value, 0, -2 )
 				);
 
 				$this->plugin->alerts->Trigger( $alert_code, $variables );
@@ -809,13 +1040,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	private function array_key_exists_recursive( $key, $array ) {
-		if (array_key_exists($key, $array)) {
+		if ( is_array( $array ) && array_key_exists($key, $array)) {
 			return true;
 		}
-		foreach($array as $k => $value) {
-			if (is_array($value) && $this->array_key_exists_recursive($key, $value)) {
-					return true;
-				}
+		if ( is_array( $array ) ) {
+			foreach($array as $k => $value) {
+				if (is_array($value) && $this->array_key_exists_recursive($key, $value)) {
+						return true;
+					}
+			}
 		}
 		return false;
 	}
