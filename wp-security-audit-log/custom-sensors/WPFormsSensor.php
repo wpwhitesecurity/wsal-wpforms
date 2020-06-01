@@ -95,7 +95,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
 			$has_alert_triggered = true;
 
-		// Handling form rename. Check if this is a form and if an old title is set.
+			// Handling form rename. Check if this is a form and if an old title is set.
 		} elseif ( isset( $this->_old_post->post_title ) && $this->_old_post->post_title !== $post->post_title && 'wpforms' === $post->post_type && $update ) {
 
 			// Checking to ensure this is not a draft or fresh form.
@@ -223,7 +223,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
-					// Check new content size determine if something has been removed.
+						// Check new content size determine if something has been removed.
 					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
 						$alert_code = 5503;
 						foreach ( $removed_items as $notification ) {
@@ -242,7 +242,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
-					// Compare old post and new post to see if the notifications have been disabled.
+						// Compare old post and new post to see if the notifications have been disabled.
 					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
 						$alert_code = 5505;
 						$variables  = array(
@@ -265,7 +265,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 
-					// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
+						// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
 					} elseif ( $changed_items ) {
 
 						// Check time and also if there is an actual change in the post content.
@@ -321,12 +321,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					$old_form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
 
 					// Compare the 2 arrays and create array of added items.
-					if( $form_content_array !== $old_form_content_array  ) {
+					if ( $form_content_array !== $old_form_content_array ) {
 						$compare_added_items = array_diff(
 							array_map( 'serialize', $form_content_array ),
 							array_map( 'serialize', $old_form_content_array )
 						);
-						$added_items = array_map( 'unserialize', $compare_added_items );
+						$added_items         = array_map( 'unserialize', $compare_added_items );
 					} else {
 						$added_items = $form_content_array;
 					}
@@ -375,7 +375,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						foreach ( $removed_items as $fields => $value ) {
 
 							if ( ! empty( $changed_items ) ) {
-								if( ! $changed_items[$fields] ) {
+								if ( ! $changed_items[ $fields ] ) {
 									$variables = array(
 										'EventType'      => 'deleted',
 										'field_name'     => sanitize_text_field( $value['label'] ),
@@ -397,12 +397,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 								$has_alert_triggered = true;
 							}
-
 						}
 					}
 
 					// Check content to see if anything has been modified.
-					if ( $changed_items && ! $this->was_triggered_recently( 5500 )) {
+					if ( $changed_items && ! $this->was_triggered_recently( 5500 ) ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
 							$variables = array(
@@ -417,7 +416,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						}
 					}
 
-				// Now we shall check if we have just a single new field thats been added.
+					// Now we shall check if we have just a single new field thats been added.
 				} elseif ( isset( $form_content->fields ) && ! isset( $old_form_content->fields ) ) {
 					// Create 2 arrays from the fields object for comparison later.
 					$form_content_array = json_decode( json_encode( $form_content->fields ), true );
@@ -434,7 +433,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$has_alert_triggered = true;
 					}
 
-				// Finally we shall check if we have just a single new field thats been removed.
+					// Finally we shall check if we have just a single new field thats been removed.
 				} elseif ( ! isset( $form_content->fields ) && isset( $old_form_content->fields ) ) {
 					// Create 2 arrays from the fields object for comparison later.
 					$form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
@@ -457,7 +456,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Finally, if all of the above didnt catch anything, but the form as still been modified in some way, lets handle that.
 		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $update && ! $this->was_triggered_recently( 5500 ) ) {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
-				$alert_code  = 5500;
+				$alert_code       = 5500;
 				$form_content     = json_decode( $form->post_content );
 				$old_form_content = json_decode( $this->_old_post->post_content );
 
@@ -536,8 +535,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
-		$entry = wpforms()->entry->get( $row_id );
-		$form  = get_post( $entry->form_id );
+		$entry      = wpforms()->entry->get( $row_id );
+		$form       = get_post( $entry->form_id );
 
 		// Grab from content.
 		$form_content = (string) $entry->fields;
@@ -580,45 +579,45 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 *
 	 * @since 1.0.3
 	 */
-	 public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
- 		$alert_code = 5507;
+	public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
+		$alert_code = 5507;
 
- 		$fields = json_decode( $entry->fields, true );
+		$fields = json_decode( $entry->fields, true );
 
- 		foreach ( $updated_fields as $updated_field ) {
+		foreach ( $updated_fields as $updated_field ) {
 
- 			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
+			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
 
- 			$editor_link = esc_url(
- 				add_query_arg(
- 					array(
- 						'view'     => 'edit',
- 						'entry_id' => $entry->entry_id,
- 					),
- 					admin_url( 'admin.php?page=wpforms-entries' )
- 				)
- 			);
+			$editor_link = esc_url(
+				add_query_arg(
+					array(
+						'view'     => 'edit',
+						'entry_id' => $entry->entry_id,
+					),
+					admin_url( 'admin.php?page=wpforms-entries' )
+				)
+			);
 
- 			if ( isset( $updated_field['name'] ) ) {
- 				$variables = array(
- 					'entry_id'         => $entry->entry_id,
- 					'form_name'        => $form_data['settings']['form_title'],
- 					'field_name'       => $updated_field['name'],
- 					'old_value'        => implode( $modified_value ),
- 					'new_value'        => $updated_field['value'],
- 					'EditorLinkEntry'  => $editor_link,
- 				);
+			if ( isset( $updated_field['name'] ) ) {
+				$variables = array(
+					'entry_id'        => $entry->entry_id,
+					'form_name'       => $form_data['settings']['form_title'],
+					'field_name'      => $updated_field['name'],
+					'old_value'       => implode( $modified_value ),
+					'new_value'       => $updated_field['value'],
+					'EditorLinkEntry' => $editor_link,
+				);
 
- 				$this->plugin->alerts->Trigger( $alert_code, $variables );
- 			}
- 		}
+				$this->plugin->alerts->Trigger( $alert_code, $variables );
+			}
+		}
 
- 	}
+	}
 
 	public function event_settings_updated( $option_name, $old_value, $value ) {
 
 		// For access settings, we need to check its the correct thing updateing.
-		if ( 'wp_user_roles' === $option_name  || $value !== $old_value ) {
+		if ( 'wp_user_roles' === $option_name || $value !== $old_value ) {
 
 			if ( ! is_array( $old_value ) || ! is_array( $value ) ) {
 				return;
@@ -629,7 +628,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				array_map( 'serialize', $old_value ),
 				array_map( 'serialize', $value )
 			);
-			$changed_items         = array_map( 'unserialize', $compare_changed_items  );
+			$changed_items         = array_map( 'unserialize', $compare_changed_items );
 
 			// Build empty var.
 			$event_details = array(
@@ -638,46 +637,46 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				'old_value'    => '',
 				'new_value'    => '',
 			);
-			$create_forms_roles   = '';
-			$view_own_forms_roles = '';
-			$view_others_forms_roles = '';
-			$edit_own_forms_roles = '';
-			$edit_others_forms_roles = '';
-			$delete_own_forms_roles = '';
-			$delete_others_forms_roles = '';
-			$view_entries_own_forms_roles = '';
-			$view_entries_others_forms_roles = '';
-			$edit_entries_own_forms_roles = '';
-			$edit_entries_others_forms_roles = '';
-			$delete_entries_own_forms_roles = '';
-			$delete_entries_others_forms_roles = '';
 
-			$old_create_forms_roles   = '';
-			$old_view_own_forms_roles = '';
-			$old_view_others_forms_roles = '';
-			$old_edit_own_forms_roles = '';
-			$old_edit_others_forms_roles = '';
-			$old_delete_own_forms_roles = '';
-			$old_delete_others_forms_roles = '';
-			$old_view_entries_own_forms_roles = '';
-			$old_view_entries_others_forms_roles = '';
-			$old_edit_entries_own_forms_roles = '';
-			$old_edit_entries_others_forms_roles = '';
-			$old_delete_entries_own_forms_roles = '';
+			$create_forms_roles                    = '';
+			$view_own_forms_roles                  = '';
+			$view_others_forms_roles               = '';
+			$edit_own_forms_roles                  = '';
+			$edit_others_forms_roles               = '';
+			$delete_own_forms_roles                = '';
+			$delete_others_forms_roles             = '';
+			$view_entries_own_forms_roles          = '';
+			$view_entries_others_forms_roles       = '';
+			$edit_entries_own_forms_roles          = '';
+			$edit_entries_others_forms_roles       = '';
+			$delete_entries_own_forms_roles        = '';
+			$delete_entries_others_forms_roles     = '';
+			$old_create_forms_roles                = '';
+			$old_view_own_forms_roles              = '';
+			$old_view_others_forms_roles           = '';
+			$old_edit_own_forms_roles              = '';
+			$old_edit_others_forms_roles           = '';
+			$old_delete_own_forms_roles            = '';
+			$old_delete_others_forms_roles         = '';
+			$old_view_entries_own_forms_roles      = '';
+			$old_view_entries_others_forms_roles   = '';
+			$old_edit_entries_own_forms_roles      = '';
+			$old_edit_entries_others_forms_roles   = '';
+			$old_delete_entries_own_forms_roles    = '';
 			$old_delete_entries_others_forms_roles = '';
 
-			$values_done = false;
+			$values_done     = false;
 			$old_values_done = false;
-			$size = count( $value );
-			$counter = 0;
-			$event = array();
+			$size            = count( $value );
+			$counter         = 0;
+			$event           = array();
 
 			// Gather new info
 			foreach ( $value as $role => $details ) {
 
 				// Create Forms.
 				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$create_forms_roles .= $details['name']. ', ';
+					$create_forms_roles   .= $details['name'] . ', ';
 					$event['create_forms'] = array(
 						'setting_name' => __( 'Create Forms', 'wp-security-audit-log' ),
 						'setting_type' => __( 'N/A', 'wp-security-audit-log' ),
@@ -686,8 +685,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
-					$view_own_forms_roles .= $details['name']. ', ';
-					$event['view_forms'] = array(
+					$view_own_forms_roles .= $details['name'] . ', ';
+					$event['view_forms']   = array(
 						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
 						'new_value'    => $view_own_forms_roles,
@@ -695,7 +694,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
-					$view_others_forms_roles .= $details['name']. ', ';
+					$view_others_forms_roles   .= $details['name'] . ', ';
 					$event['view_others_forms'] = array(
 						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
@@ -704,8 +703,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
-					$edit_own_forms_roles .= $details['name']. ', ';
-					$event['edit_forms'] = array(
+					$edit_own_forms_roles .= $details['name'] . ', ';
+					$event['edit_forms']   = array(
 						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
 						'new_value'    => $edit_own_forms_roles,
@@ -713,7 +712,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
-					$edit_others_forms_roles .= $details['name']. ', ';
+					$edit_others_forms_roles   .= $details['name'] . ', ';
 					$event['edit_others_forms'] = array(
 						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
@@ -722,8 +721,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
-					$delete_own_forms_roles .= $details['name']. ', ';
-					$event['delete_forms'] = array(
+					$delete_own_forms_roles .= $details['name'] . ', ';
+					$event['delete_forms']   = array(
 						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
 						'new_value'    => $edit_own_forms_roles,
@@ -731,7 +730,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
-					$delete_others_forms_roles .= $details['name']. ', ';
+					$delete_others_forms_roles   .= $details['name'] . ', ';
 					$event['delete_others_forms'] = array(
 						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
@@ -740,8 +739,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
-					$view_entries_own_forms_roles .= $details['name']. ', ';
-					$event['view_entries_forms'] = array(
+					$view_entries_own_forms_roles .= $details['name'] . ', ';
+					$event['view_entries_forms']   = array(
 						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
 						'new_value'    => $view_entries_own_forms_roles,
@@ -749,17 +748,17 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
-					$view_entries_others_forms_roles .= $details['name']. ', ';
+					$view_entries_others_forms_roles   .= $details['name'] . ', ';
 					$event['view_entries_others_forms'] = array(
 						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $view_entries_others_forms_roles
+						'new_value'    => $view_entries_others_forms_roles,
 					);
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
-					$edit_entries_own_forms_roles .= $details['name']. ', ';
-					$event['edit_entries_forms'] = array(
+					$edit_entries_own_forms_roles .= $details['name'] . ', ';
+					$event['edit_entries_forms']   = array(
 						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
 						'new_value'    => $edit_entries_own_forms_roles,
@@ -767,17 +766,17 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
-					$edit_entries_others_forms_roles .= $details['name']. ', ';
+					$edit_entries_others_forms_roles   .= $details['name'] . ', ';
 					$event['edit_entries_others_forms'] = array(
 						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $edit_entries_others_forms_roles
+						'new_value'    => $edit_entries_others_forms_roles,
 					);
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
-					$delete_entries_own_forms_roles .= $details['name']. ', ';
-					$event['delete_entries_forms'] = array(
+					$delete_entries_own_forms_roles .= $details['name'] . ', ';
+					$event['delete_entries_forms']   = array(
 						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
 						'new_value'    => $delete_entries_own_forms_roles,
@@ -785,11 +784,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
-					$delete_entries_others_forms_roles .= $details['name']. ', ';
+					$delete_entries_others_forms_roles   .= $details['name'] . ', ';
 					$event['delete_entries_others_forms'] = array(
 						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
 						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $delete_entries_others_forms_roles
+						'new_value'    => $delete_entries_others_forms_roles,
 					);
 				}
 
@@ -797,14 +796,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 			}
 
-
-
 			// Gather old info
 			foreach ( $old_value as $role => $details ) {
 				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$old_create_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_create_forms_roles,
+					$old_create_forms_roles .= $details['name'] . ', ';
+					$old_event               = array(
+						'old_value' => $old_create_forms_roles,
 					);
 					if ( isset( $event['create_forms'] ) ) {
 						$event['create_forms'] = array_merge( $event['create_forms'], $old_event );
@@ -812,9 +809,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
-					$old_view_own_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_view_own_forms_roles,
+					$old_view_own_forms_roles .= $details['name'] . ', ';
+					$old_event                 = array(
+						'old_value' => $old_view_own_forms_roles,
 					);
 					if ( isset( $event['view_forms'] ) ) {
 						$event['view_forms'] = array_merge( $event['view_forms'], $old_event );
@@ -822,9 +819,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
-					$old_view_others_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_view_others_forms_roles,
+					$old_view_others_forms_roles .= $details['name'] . ', ';
+					$old_event                    = array(
+						'old_value' => $old_view_others_forms_roles,
 					);
 					if ( isset( $event['view_others_forms'] ) ) {
 						$event['view_others_forms'] = array_merge( $event['view_others_forms'], $old_event );
@@ -832,9 +829,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
-					$old_edit_own_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_edit_own_forms_roles,
+					$old_edit_own_forms_roles .= $details['name'] . ', ';
+					$old_event                 = array(
+						'old_value' => $old_edit_own_forms_roles,
 					);
 					if ( isset( $event['edit_forms'] ) ) {
 						$event['edit_forms'] = array_merge( $event['edit_forms'], $old_event );
@@ -842,9 +839,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
-					$old_edit_others_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_edit_others_forms_roles,
+					$old_edit_others_forms_roles .= $details['name'] . ', ';
+					$old_event                    = array(
+						'old_value' => $old_edit_others_forms_roles,
 					);
 					if ( isset( $event['edit_others_forms'] ) ) {
 						$event['edit_others_forms'] = array_merge( $event['edit_others_forms'], $old_event );
@@ -852,9 +849,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
-					$old_delete_own_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_delete_own_forms_roles,
+					$old_delete_own_forms_roles .= $details['name'] . ', ';
+					$old_event                   = array(
+						'old_value' => $old_delete_own_forms_roles,
 					);
 					if ( isset( $event['delete_forms'] ) ) {
 						$event['delete_forms'] = array_merge( $event['delete_forms'], $old_event );
@@ -862,9 +859,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
-					$old_delete_others_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_delete_others_forms_roles,
+					$old_delete_others_forms_roles .= $details['name'] . ', ';
+					$old_event                      = array(
+						'old_value' => $old_delete_others_forms_roles,
 					);
 					if ( isset( $event['delete_others_forms'] ) ) {
 						$event['delete_others_forms'] = array_merge( $event['delete_others_forms'], $old_event );
@@ -872,9 +869,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
-					$old_view_entries_own_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_view_entries_own_forms_roles,
+					$old_view_entries_own_forms_roles .= $details['name'] . ', ';
+					$old_event                         = array(
+						'old_value' => $old_view_entries_own_forms_roles,
 					);
 					if ( isset( $event['view_entries_forms'] ) ) {
 						$event['view_entries_forms'] = array_merge( $event['view_entries_forms'], $old_event );
@@ -882,9 +879,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
-					$old_view_entries_others_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_view_entries_others_forms_roles,
+					$old_view_entries_others_forms_roles .= $details['name'] . ', ';
+					$old_event                            = array(
+						'old_value' => $old_view_entries_others_forms_roles,
 					);
 					if ( isset( $event['view_entries_others_forms'] ) ) {
 						$event['view_entries_others_forms'] = array_merge( $event['view_entries_others_forms'], $old_event );
@@ -892,9 +889,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
-					$old_edit_entries_own_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_edit_entries_own_forms_roles,
+					$old_edit_entries_own_forms_roles .= $details['name'] . ', ';
+					$old_event                         = array(
+						'old_value' => $old_edit_entries_own_forms_roles,
 					);
 					if ( isset( $event['edit_entries_forms'] ) ) {
 						$event['edit_entries_forms'] = array_merge( $event['edit_entries_forms'], $old_event );
@@ -902,9 +899,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
-					$old_edit_entries_others_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_edit_entries_others_forms_roles,
+					$old_edit_entries_others_forms_roles .= $details['name'] . ', ';
+					$old_event                            = array(
+						'old_value' => $old_edit_entries_others_forms_roles,
 					);
 					if ( isset( $event['edit_entries_others_forms'] ) ) {
 						$event['edit_entries_others_forms'] = array_merge( $event['edit_entries_others_forms'], $old_event );
@@ -912,9 +909,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
-					$old_delete_entries_own_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_delete_entries_own_forms_roles,
+					$old_delete_entries_own_forms_roles .= $details['name'] . ', ';
+					$old_event                           = array(
+						'old_value' => $old_delete_entries_own_forms_roles,
 					);
 					if ( isset( $event['delete_entries_forms'] ) ) {
 						$event['delete_entries_forms'] = array_merge( $event['delete_entries_forms'], $old_event );
@@ -922,20 +919,19 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
-					$old_delete_entries_others_forms_roles .= $details['name']. ', ';
-					$old_event = array(
-						'old_value'    => $old_delete_entries_others_forms_roles,
+					$old_delete_entries_others_forms_roles .= $details['name'] . ', ';
+					$old_event                              = array(
+						'old_value' => $old_delete_entries_others_forms_roles,
 					);
 					if ( isset( $event['delete_entries_others_forms'] ) ) {
 						$event['delete_entries_others_forms'] = array_merge( $event['delete_entries_others_forms'], $old_event );
 					}
 				}
-
 			}
 
 			foreach ( $event as $event_details => $details ) {
 
-				$old_value = isset( $details['old_value'] ) ? implode(', ',array_unique(explode(', ', $details['old_value']))) : ''; ;
+				$old_value = isset( $details['old_value'] ) ? implode( ', ', array_unique( explode( ', ', $details['old_value'] ) ) ) : '';
 				$new_value = $details['new_value'];
 
 				if ( $old_value === $new_value || $old_value == $new_value ) {
@@ -943,11 +939,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				$alert_code = 5508;
-				$variables = array(
+				$variables  = array(
 					'setting_name' => $details['setting_name'],
 					'setting_type' => $details['setting_type'],
 					'old_value'    => substr( $old_value, 0, -2 ),
-					'new_value'    =>	substr( $new_value, 0, -2 )
+					'new_value'    => substr( $new_value, 0, -2 ),
 				);
 
 				$this->plugin->alerts->Trigger( $alert_code, $variables );
@@ -1001,7 +997,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	private function was_triggered_recently( $alert_id ) {
 		// if we have already checked this don't check again.
-		if ( isset( $this->cached_alert_checks ) && array_key_exists( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[$alert_id] ) {
+		if ( isset( $this->cached_alert_checks ) && array_key_exists( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[ $alert_id ] ) {
 			return true;
 		}
 		$query = new WSAL_Models_OccurrenceQuery();
@@ -1040,14 +1036,14 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	private function array_key_exists_recursive( $key, $array ) {
-		if ( is_array( $array ) && array_key_exists($key, $array)) {
+		if ( is_array( $array ) && array_key_exists( $key, $array ) ) {
 			return true;
 		}
 		if ( is_array( $array ) ) {
-			foreach($array as $k => $value) {
-				if (is_array($value) && $this->array_key_exists_recursive($key, $value)) {
+			foreach ( $array as $k => $value ) {
+				if ( is_array( $value ) && $this->array_key_exists_recursive( $key, $value ) ) {
 						return true;
-					}
+				}
 			}
 		}
 		return false;
