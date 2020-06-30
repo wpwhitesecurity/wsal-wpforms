@@ -52,7 +52,7 @@ $custom_alerts = array(
 			array(
 				5505,
 				WSAL_LOW,
-				__( 'Notifications were disabled for a form', 'wp-security-audit-log' ),
+				__( 'Notifications were enabled or disabled in a form', 'wp-security-audit-log' ),
 				__( 'All the notifications in the form. %LineBreak% Form name %form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%', 'wp-security-audit-log' ),
 				'wpforms_notifications',
 				'deleted',
