@@ -6,7 +6,7 @@ License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Activity Log extension, activity logs
 Requires at least: 3.6
 Tested up to: 5.4.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 Requires PHP: 5.6
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
@@ -39,8 +39,9 @@ Below are some of the user and plugin changes you can keep a log of when you ins
 * Modifies, duplicates, renames or deletes a form
 * Adds a new field in a form
 * Modifies, or deletes a field from a form
-* Deletes an entry (lead)
+* Deletes or modifies an entry (lead)
 * Adds, enables, modifies or disable notifications in forms
+* Changes in the access plugin's control settings
 
 Refer to the [activity logs event IDs for WPForms](https://wpactivitylog.com/support/kb/list-wordpress-activity-log-event-ids/#wpforms?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)) for a complete list of the changes the plugin can keep a log of.
 
@@ -77,17 +78,30 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 
 == Changelog ==
 
+= 1.0.3 (2020-06-30) =
+
+Release notes: [Logs for changes in WPForms entries & access control settings](https://wpactivitylog.com/wpforms-1-0-3/)
+
+* **New features**
+	* Improved activity log coverage.
+	* Logs for when user modifies an entry. Plugim also reports what was changed in the entry (Event ID: 5507).
+	* Plugin keeps a log of access control settings changes (Event ID: 5508) in the activity log.
+	
+* **Bug fixes**
+	* "Unknown object" reported in event ID 5501 instead of "Fields in WPForms"
+	* "Unknown object" reported in event ID 5505 instead of "Notifications in WPForms"
+	
 = 1.0.2 (2020-05-20) =
 
-**Main plugin rename update**
+* **Main plugin rename update**
 	*[WP Security Audit Log has been renamed to WP Activity Log](https://wpactivitylog.com/wp-security-audit-log-renamed-wp-activity-log/).
 
 = 1.0.1 (2020-03-06) =
 
-**New event ID**
+* **New event ID**
 	*Event ID 5504: user deleted a lead / entry (refer to the [complete list of activity log event IDs](https://wpactivitylog.com/support/kb/list-wordpress-activity-log-event-ids/#wpforms) for more info).
 
-**Improvements**
+* **Improvements**
 	* Plugin now keeps a log of multiple changes done together in one form save / change.
 	* Plugin notifications only shown to super administrators on multisite network.
 	* Extension specific [activity log objects](https://wpactivitylog.com/support/kb/objects-event-types-wordpress-activity-log/) can now be declared in the main plugin, WP Activity Log.
