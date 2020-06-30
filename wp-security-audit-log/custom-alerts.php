@@ -70,7 +70,7 @@ $custom_alerts = array(
 			array(
 				5507,
 				WSAL_LOW,
-				__( 'A form was renamed', 'wp-security-audit-log' ),
+				__( 'An entry was modified', 'wp-security-audit-log' ),
 				__( 'Entry ID: %entry_id% %LineBreak% From form: %form_name% %LineBreak% Modified field name: %field_name% %LineBreak% Old value: %old_value% %LineBreak% New Value: %new_value% %LineBreak% %EditorLinkEntry%', 'wp-security-audit-log' ),
 				'wpforms_entries',
 				'modified',
