@@ -204,10 +204,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					);
 					$changed_items         = array_map( 'unserialize', $compare_removed_items );
 
-
-					error_log( print_r( $old_form_content->settings->notification_enable, true ) );
-					error_log( print_r( $form_content->settings->notification_enable , true ) );
-
 					// Check new content size determine if something has been added.
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
 						$alert_code = 5503;
