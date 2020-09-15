@@ -960,6 +960,49 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 				$this->plugin->alerts->Trigger( $alert_code, $variables );
 			}
+
+			// Event 5510 (Integration enabled/disabled).
+			if ( 'wpforms_providers' === $option_name ) {
+
+				$providers = array(
+					'mailchimpv3',
+					'aweber',
+					'constant-contact',
+					'zapier',
+					'getresponse',
+					'drip',
+					'campaign-monitor'
+				);
+
+				foreach ( $providers as $provider ) {
+					if ( isset( $value[$provider] ) ) {
+						if ( ! empty( $value[$provider] ) && empty( $old_value[$provider] ) ) {
+							$event_type = 'added';
+							$connection_label = array_column( $value[$provider], 'label' );
+						} else {
+							$event_type = 'deleted';
+							$connection_label = array_column( $old_value[$provider], 'label' );
+						}
+
+						// Tidy labels up.
+						if ( 'mailchimpv3' === $provider ) {
+							$provider = __( 'Mailchimp', 'wsal-wpforms' );
+						} elseif ( 'getresponse' === $provider ) {
+							$provider = __( 'GetResponse', 'wsal-wpforms' );
+						}
+
+						$alert_code       = 5510;
+						$connection_name  = ! empty( $connection_label ) ? $connection_label[0] : null;
+						$variables        = array(
+							'EventType'       => $event_type,
+							'service_name'    => ucwords( str_replace( '-', ' ', $provider ) ),
+							'connection_name' => $connection_name
+						);
+						$this->plugin->alerts->Trigger( $alert_code, $variables );
+					}
+				}
+
+			}
 		}
 
 	}

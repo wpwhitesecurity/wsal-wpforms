@@ -94,6 +94,15 @@ $custom_alerts = array(
 				'modified',
 			),
 
+			array(
+				5510,
+				WSAL_HIGH,
+				__( 'A service integration was added or deleted.', 'wsal-wpforms' ),
+				__( 'A service integration %LineBreak% Service: %service_name% %LineBreak% Connection name: %connection_name%', 'wsal-wpforms' ),
+				'wpforms',
+				'added',
+			),
+
 		),
 	),
 );
