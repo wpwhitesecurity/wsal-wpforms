@@ -623,331 +623,436 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				return;
 			}
 
-			// Compare the 2 arrays and create array of changed.
-			$compare_changed_items = array_diff_assoc(
-				array_map( 'serialize', $old_value ),
-				array_map( 'serialize', $value )
-			);
-			$changed_items         = array_map( 'unserialize', $compare_changed_items );
+			$roles               = wp_roles()->get_names();
+			$wpforms_caps        = array( 'wpforms_create_forms', 'wpforms_view_own_forms', 'wpforms_view_others_forms', 'wpforms_edit_own_forms', 'wpforms_edit_others_forms', 'wpforms_delete_own_forms', 'wpforms_delete_others_forms', 'wpforms_view_entries_own_forms', 'wpforms_view_entries_others_forms', 'wpforms_edit_entries_own_forms', 'wpforms_edit_entries_others_forms', 'wpforms_delete_entries_own_forms', 'wpforms_delete_entries_others_forms' );
 
-			// Build empty var.
-			$event_details = array(
-				'setting_name' => '',
-				'setting_type' => '',
-				'old_value'    => '',
-				'new_value'    => '',
-			);
+			$updated_new = array();
+			$updated_old = array();
 
-			$create_forms_roles                    = '';
-			$view_own_forms_roles                  = '';
-			$view_others_forms_roles               = '';
-			$edit_own_forms_roles                  = '';
-			$edit_others_forms_roles               = '';
-			$delete_own_forms_roles                = '';
-			$delete_others_forms_roles             = '';
-			$view_entries_own_forms_roles          = '';
-			$view_entries_others_forms_roles       = '';
-			$edit_entries_own_forms_roles          = '';
-			$edit_entries_others_forms_roles       = '';
-			$delete_entries_own_forms_roles        = '';
-			$delete_entries_others_forms_roles     = '';
-			$old_create_forms_roles                = '';
-			$old_view_own_forms_roles              = '';
-			$old_view_others_forms_roles           = '';
-			$old_edit_own_forms_roles              = '';
-			$old_edit_others_forms_roles           = '';
-			$old_delete_own_forms_roles            = '';
-			$old_delete_others_forms_roles         = '';
-			$old_view_entries_own_forms_roles      = '';
-			$old_view_entries_others_forms_roles   = '';
-			$old_edit_entries_own_forms_roles      = '';
-			$old_edit_entries_others_forms_roles   = '';
-			$old_delete_entries_own_forms_roles    = '';
-			$old_delete_entries_others_forms_roles = '';
-
-			$values_done     = false;
-			$old_values_done = false;
-			$size            = count( $value );
-			$counter         = 0;
-			$event           = array();
-
-			// Gather new info
-			foreach ( $value as $role => $details ) {
-
-				// Create Forms.
-				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$create_forms_roles   .= $details['name'] . ', ';
-					$event['create_forms'] = array(
-						'setting_name' => __( 'Create Forms', 'wsal-wpforms' ),
-						'setting_type' => __( 'N/A', 'wsal-wpforms' ),
-						'new_value'    => $create_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
-					$view_own_forms_roles .= $details['name'] . ', ';
-					$event['view_forms']   = array(
-						'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
-						'setting_type' => __( 'Own', 'wsal-wpforms' ),
-						'new_value'    => $view_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
-					$view_others_forms_roles   .= $details['name'] . ', ';
-					$event['view_others_forms'] = array(
-						'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
-						'setting_type' => __( 'Others', 'wsal-wpforms' ),
-						'new_value'    => $view_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
-					$edit_own_forms_roles .= $details['name'] . ', ';
-					$event['edit_forms']   = array(
-						'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
-						'setting_type' => __( 'Own', 'wsal-wpforms' ),
-						'new_value'    => $edit_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
-					$edit_others_forms_roles   .= $details['name'] . ', ';
-					$event['edit_others_forms'] = array(
-						'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
-						'setting_type' => __( 'Others', 'wsal-wpforms' ),
-						'new_value'    => $edit_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
-					$delete_own_forms_roles .= $details['name'] . ', ';
-					$event['delete_forms']   = array(
-						'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
-						'setting_type' => __( 'Own', 'wsal-wpforms' ),
-						'new_value'    => $edit_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
-					$delete_others_forms_roles   .= $details['name'] . ', ';
-					$event['delete_others_forms'] = array(
-						'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
-						'setting_type' => __( 'Others', 'wsal-wpforms' ),
-						'new_value'    => $delete_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
-					$view_entries_own_forms_roles .= $details['name'] . ', ';
-					$event['view_entries_forms']   = array(
-						'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
-						'setting_type' => __( 'Own', 'wsal-wpforms' ),
-						'new_value'    => $view_entries_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
-					$view_entries_others_forms_roles   .= $details['name'] . ', ';
-					$event['view_entries_others_forms'] = array(
-						'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
-						'setting_type' => __( 'Others', 'wsal-wpforms' ),
-						'new_value'    => $view_entries_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
-					$edit_entries_own_forms_roles .= $details['name'] . ', ';
-					$event['edit_entries_forms']   = array(
-						'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
-						'setting_type' => __( 'Own', 'wsal-wpforms' ),
-						'new_value'    => $edit_entries_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
-					$edit_entries_others_forms_roles   .= $details['name'] . ', ';
-					$event['edit_entries_others_forms'] = array(
-						'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
-						'setting_type' => __( 'Others', 'wsal-wpforms' ),
-						'new_value'    => $edit_entries_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
-					$delete_entries_own_forms_roles .= $details['name'] . ', ';
-					$event['delete_entries_forms']   = array(
-						'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
-						'setting_type' => __( 'Own', 'wsal-wpforms' ),
-						'new_value'    => $delete_entries_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
-					$delete_entries_others_forms_roles   .= $details['name'] . ', ';
-					$event['delete_entries_others_forms'] = array(
-						'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
-						'setting_type' => __( 'Others', 'wsal-wpforms' ),
-						'new_value'    => $delete_entries_others_forms_roles,
-					);
-				}
-
-				$counter++;
-
-			}
-
-			// Gather old info
-			foreach ( $old_value as $role => $details ) {
-				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$old_create_forms_roles .= $details['name'] . ', ';
-					$old_event               = array(
-						'old_value' => $old_create_forms_roles,
-					);
-					if ( isset( $event['create_forms'] ) ) {
-						$event['create_forms'] = array_merge( $event['create_forms'], $old_event );
+			foreach ( $roles as $role_index_name => $role_label ) {
+				if ( isset( $value[$role_index_name] ) ) {
+					foreach ( $wpforms_caps as $capability ) {
+						if ( $this->array_key_exists_recursive( $capability, $value[$role_index_name] ) ) {
+							$roles = isset( $updated_new[$capability]['roles'] ) ? $updated_new[$capability]['roles'] . ', ' . $value[$role_index_name]['name'] : $value[$role_index_name]['name'];
+							$updated_new[$capability] = array(
+								'roles' => $roles
+							);
+						}
 					}
 				}
 
-				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
-					$old_view_own_forms_roles .= $details['name'] . ', ';
-					$old_event                 = array(
-						'old_value' => $old_view_own_forms_roles,
-					);
-					if ( isset( $event['view_forms'] ) ) {
-						$event['view_forms'] = array_merge( $event['view_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
-					$old_view_others_forms_roles .= $details['name'] . ', ';
-					$old_event                    = array(
-						'old_value' => $old_view_others_forms_roles,
-					);
-					if ( isset( $event['view_others_forms'] ) ) {
-						$event['view_others_forms'] = array_merge( $event['view_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
-					$old_edit_own_forms_roles .= $details['name'] . ', ';
-					$old_event                 = array(
-						'old_value' => $old_edit_own_forms_roles,
-					);
-					if ( isset( $event['edit_forms'] ) ) {
-						$event['edit_forms'] = array_merge( $event['edit_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
-					$old_edit_others_forms_roles .= $details['name'] . ', ';
-					$old_event                    = array(
-						'old_value' => $old_edit_others_forms_roles,
-					);
-					if ( isset( $event['edit_others_forms'] ) ) {
-						$event['edit_others_forms'] = array_merge( $event['edit_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
-					$old_delete_own_forms_roles .= $details['name'] . ', ';
-					$old_event                   = array(
-						'old_value' => $old_delete_own_forms_roles,
-					);
-					if ( isset( $event['delete_forms'] ) ) {
-						$event['delete_forms'] = array_merge( $event['delete_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
-					$old_delete_others_forms_roles .= $details['name'] . ', ';
-					$old_event                      = array(
-						'old_value' => $old_delete_others_forms_roles,
-					);
-					if ( isset( $event['delete_others_forms'] ) ) {
-						$event['delete_others_forms'] = array_merge( $event['delete_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
-					$old_view_entries_own_forms_roles .= $details['name'] . ', ';
-					$old_event                         = array(
-						'old_value' => $old_view_entries_own_forms_roles,
-					);
-					if ( isset( $event['view_entries_forms'] ) ) {
-						$event['view_entries_forms'] = array_merge( $event['view_entries_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
-					$old_view_entries_others_forms_roles .= $details['name'] . ', ';
-					$old_event                            = array(
-						'old_value' => $old_view_entries_others_forms_roles,
-					);
-					if ( isset( $event['view_entries_others_forms'] ) ) {
-						$event['view_entries_others_forms'] = array_merge( $event['view_entries_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
-					$old_edit_entries_own_forms_roles .= $details['name'] . ', ';
-					$old_event                         = array(
-						'old_value' => $old_edit_entries_own_forms_roles,
-					);
-					if ( isset( $event['edit_entries_forms'] ) ) {
-						$event['edit_entries_forms'] = array_merge( $event['edit_entries_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
-					$old_edit_entries_others_forms_roles .= $details['name'] . ', ';
-					$old_event                            = array(
-						'old_value' => $old_edit_entries_others_forms_roles,
-					);
-					if ( isset( $event['edit_entries_others_forms'] ) ) {
-						$event['edit_entries_others_forms'] = array_merge( $event['edit_entries_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
-					$old_delete_entries_own_forms_roles .= $details['name'] . ', ';
-					$old_event                           = array(
-						'old_value' => $old_delete_entries_own_forms_roles,
-					);
-					if ( isset( $event['delete_entries_forms'] ) ) {
-						$event['delete_entries_forms'] = array_merge( $event['delete_entries_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
-					$old_delete_entries_others_forms_roles .= $details['name'] . ', ';
-					$old_event                              = array(
-						'old_value' => $old_delete_entries_others_forms_roles,
-					);
-					if ( isset( $event['delete_entries_others_forms'] ) ) {
-						$event['delete_entries_others_forms'] = array_merge( $event['delete_entries_others_forms'], $old_event );
+				if ( isset( $old_value[$role_index_name] ) ) {
+					foreach ( $wpforms_caps as $capability ) {
+						if ( $this->array_key_exists_recursive( $capability, $old_value[$role_index_name] ) ) {
+							$roles = isset( $updated_old[$capability]['roles'] ) ? $updated_new[$capability]['roles'] . ', ' . $old_value[$role_index_name]['name'] : $old_value[$role_index_name]['name'];
+							$updated_old[$capability] = array(
+								'roles' => $roles
+							);
+						}
 					}
 				}
 			}
 
-			foreach ( $event as $event_details => $details ) {
+			error_log( print_r( $updated_new, true ) );
+			error_log( print_r( $updated_old, true ) );
 
-				$old_value = isset( $details['old_value'] ) ? implode( ', ', array_unique( explode( ', ', $details['old_value'] ) ) ) : '';
-				$new_value = $details['new_value'];
-
-				if ( $old_value === $new_value || $old_value == $new_value ) {
-					continue;
-				}
-
-				$alert_code = 5508;
-				$variables  = array(
-					'setting_name' => $details['setting_name'],
-					'setting_type' => $details['setting_type'],
-					'old_value'    => substr( $old_value, 0, -2 ),
-					'new_value'    => substr( $new_value, 0, -2 ),
-				);
-
-				$this->plugin->alerts->Trigger( $alert_code, $variables );
-			}
+			// // Build empty var.
+			// $event_details = array(
+			// 	'setting_name' => '',
+			// 	'setting_type' => '',
+			// 	'old_value'    => '',
+			// 	'new_value'    => '',
+			// );
+			//
+			// $create_forms_roles                    = '';
+			// $view_own_forms_roles                  = '';
+			// $view_others_forms_roles               = '';
+			// $edit_own_forms_roles                  = '';
+			// $edit_others_forms_roles               = '';
+			// $delete_own_forms_roles                = '';
+			// $delete_others_forms_roles             = '';
+			// $view_entries_own_forms_roles          = '';
+			// $view_entries_others_forms_roles       = '';
+			// $edit_entries_own_forms_roles          = '';
+			// $edit_entries_others_forms_roles       = '';
+			// $delete_entries_own_forms_roles        = '';
+			// $delete_entries_others_forms_roles     = '';
+			// $old_create_forms_roles                = '';
+			// $old_view_own_forms_roles              = '';
+			// $old_view_others_forms_roles           = '';
+			// $old_edit_own_forms_roles              = '';
+			// $old_edit_others_forms_roles           = '';
+			// $old_delete_own_forms_roles            = '';
+			// $old_delete_others_forms_roles         = '';
+			// $old_view_entries_own_forms_roles      = '';
+			// $old_view_entries_others_forms_roles   = '';
+			// $old_edit_entries_own_forms_roles      = '';
+			// $old_edit_entries_others_forms_roles   = '';
+			// $old_delete_entries_own_forms_roles    = '';
+			// $old_delete_entries_others_forms_roles = '';
+			//
+			// $values_done     = false;
+			// $old_values_done = false;
+			// $size            = count( $value );
+			// $counter         = 0;
+			// $event           = array();
+			// $old_event       = array();
+			//
+			// // Gather new info
+			// foreach ( $value as $role => $details ) {
+			//
+			// 	// Create Forms.
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
+			// 		$create_forms_roles   .= $details['name'] . ', ';
+			// 		$event['create_forms'] = array(
+			// 			'setting_name' => __( 'Create Forms', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'N/A', 'wsal-wpforms' ),
+			// 			'new_value'    => $create_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
+			// 		$view_own_forms_roles .= $details['name'] . ', ';
+			// 		$event['view_forms']   = array(
+			// 			'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 			'new_value'    => $view_own_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
+			// 		$view_others_forms_roles   .= $details['name'] . ', ';
+			// 		$event['view_others_forms'] = array(
+			// 			'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 			'new_value'    => $view_others_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
+			// 		$edit_own_forms_roles .= $details['name'] . ', ';
+			// 		$event['edit_forms']   = array(
+			// 			'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 			'new_value'    => $edit_own_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
+			// 		$edit_others_forms_roles   .= $details['name'] . ', ';
+			// 		$event['edit_others_forms'] = array(
+			// 			'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 			'new_value'    => $edit_others_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
+			// 		$delete_own_forms_roles .= $details['name'] . ', ';
+			// 		$event['delete_forms']   = array(
+			// 			'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 			'new_value'    => $edit_own_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
+			// 		$delete_others_forms_roles   .= $details['name'] . ', ';
+			// 		$event['delete_others_forms'] = array(
+			// 			'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 			'new_value'    => $delete_others_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
+			// 		$view_entries_own_forms_roles .= $details['name'] . ', ';
+			// 		$event['view_entries_forms']   = array(
+			// 			'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 			'new_value'    => $view_entries_own_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
+			// 		$view_entries_others_forms_roles   .= $details['name'] . ', ';
+			// 		$event['view_entries_others_forms'] = array(
+			// 			'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 			'new_value'    => $view_entries_others_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
+			// 		$edit_entries_own_forms_roles .= $details['name'] . ', ';
+			// 		$event['edit_entries_forms']   = array(
+			// 			'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 			'new_value'    => $edit_entries_own_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
+			// 		$edit_entries_others_forms_roles   .= $details['name'] . ', ';
+			// 		$event['edit_entries_others_forms'] = array(
+			// 			'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 			'new_value'    => $edit_entries_others_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
+			// 		$delete_entries_own_forms_roles .= $details['name'] . ', ';
+			// 		$event['delete_entries_forms']   = array(
+			// 			'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 			'new_value'    => $delete_entries_own_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
+			// 		$delete_entries_others_forms_roles   .= $details['name'] . ', ';
+			// 		$event['delete_entries_others_forms'] = array(
+			// 			'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
+			// 			'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 			'new_value'    => $delete_entries_others_forms_roles,
+			// 		);
+			// 	}
+			//
+			// 	$counter++;
+			//
+			// }
+			//
+			// // Gather old info
+			// foreach ( $old_value as $role => $details ) {
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
+			// 		$old_create_forms_roles .= $details['name'] . ', ';
+			// 		$old_event               = array(
+			// 			'old_value' => $old_create_forms_roles,
+			// 		);
+			// 		if ( isset( $event['create_forms'] ) ) {
+			// 			$event['create_forms'] = array_merge( $event['create_forms'], $old_event );
+			// 		} else {
+			// 			$event['create_forms'] = array(
+			// 				'setting_name' => __( 'Create Forms', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'N/A', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_create_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
+			// 		$old_view_own_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                 = array(
+			// 			'old_value' => $old_view_own_forms_roles,
+			// 		);
+			// 		if ( isset( $event['view_forms'] ) ) {
+			// 			$event['view_forms'] = array_merge( $event['view_forms'], $old_event );
+			// 		} else {
+			// 			$event['view_forms'] = array(
+			// 				'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_view_own_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
+			// 		$old_view_others_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                    = array(
+			// 			'old_value' => $old_view_others_forms_roles,
+			// 		);
+			// 		if ( isset( $event['view_others_forms'] ) ) {
+			// 			$event['view_others_forms'] = array_merge( $event['view_others_forms'], $old_event );
+			// 		} else {
+			// 			$event['view_others_forms'] = array(
+			// 				'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_view_others_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
+			// 		$old_edit_own_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                 = array(
+			// 			'old_value' => $old_edit_own_forms_roles,
+			// 		);
+			// 		if ( isset( $event['edit_forms'] ) ) {
+			// 			$event['edit_forms'] = array_merge( $event['edit_forms'], $old_event );
+			// 		} else {
+			// 			$event['edit_forms'] = array(
+			// 				'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_edit_own_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
+			// 		$old_edit_others_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                    = array(
+			// 			'old_value' => $old_edit_others_forms_roles,
+			// 		);
+			// 		if ( isset( $event['edit_others_forms'] ) ) {
+			// 			$event['edit_others_forms'] = array_merge( $event['edit_others_forms'], $old_event );
+			// 		} else {
+			// 			$event['edit_others_forms'] = array(
+			// 				'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_edit_others_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
+			// 		$old_delete_own_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                   = array(
+			// 			'old_value' => $old_delete_own_forms_roles,
+			// 		);
+			// 		if ( isset( $event['delete_forms'] ) ) {
+			// 			$event['delete_forms'] = array_merge( $event['delete_forms'], $old_event );
+			// 		} else {
+			// 			$event['delete_forms'] = array(
+			// 				'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_delete_own_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
+			// 		$old_delete_others_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                      = array(
+			// 			'old_value' => $old_delete_others_forms_roles,
+			// 		);
+			// 		if ( isset( $event['delete_others_forms'] ) ) {
+			// 			$event['delete_others_forms'] = array_merge( $event['delete_others_forms'], $old_event );
+			// 		} else {
+			// 			$event['delete_others_forms'] = array(
+			// 				'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_delete_others_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
+			// 		$old_view_entries_own_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                         = array(
+			// 			'old_value' => $old_view_entries_own_forms_roles,
+			// 		);
+			// 		if ( isset( $event['view_entries_forms'] ) ) {
+			// 			$event['view_entries_forms'] = array_merge( $event['view_entries_forms'], $old_event );
+			// 		} else {
+			// 			$event['view_entries_forms'] = array(
+			// 				'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_view_entries_own_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
+			// 		$old_view_entries_others_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                            = array(
+			// 			'old_value' => $old_view_entries_others_forms_roles,
+			// 		);
+			// 		if ( isset( $event['view_entries_others_forms'] ) ) {
+			// 			$event['view_entries_others_forms'] = array_merge( $event['view_entries_others_forms'], $old_event );
+			// 		} else {
+			// 			$event['view_entries_others_forms'] = array(
+			// 				'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_view_entries_others_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
+			// 		$old_edit_entries_own_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                         = array(
+			// 			'old_value' => $old_edit_entries_own_forms_roles,
+			// 		);
+			// 		if ( isset( $event['edit_entries_forms'] ) ) {
+			// 			$event['edit_entries_forms'] = array_merge( $event['edit_entries_forms'], $old_event );
+			// 		} else {
+			// 			$event['edit_entries_forms'] = array(
+			// 				'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_edit_entries_own_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
+			// 		$old_edit_entries_others_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                            = array(
+			// 			'old_value' => $old_edit_entries_others_forms_roles,
+			// 		);
+			// 		if ( isset( $event['edit_entries_others_forms'] ) ) {
+			// 			$event['edit_entries_others_forms'] = array_merge( $event['edit_entries_others_forms'], $old_event );
+			// 		} else {
+			// 			$event['edit_entries_others_forms'] = array(
+			// 				'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_edit_entries_others_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
+			// 		$old_delete_entries_own_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                           = array(
+			// 			'old_value' => $old_delete_entries_own_forms_roles,
+			// 		);
+			// 		if ( isset( $event['delete_entries_forms'] ) ) {
+			// 			$event['delete_entries_forms'] = array_merge( $event['delete_entries_forms'], $old_event );
+			// 		} else {
+			// 			$event['delete_entries_forms'] = array(
+			// 				'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Own', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_delete_entries_own_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			//
+			// 	if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
+			// 		$old_delete_entries_others_forms_roles .= $details['name'] . ', ';
+			// 		$old_event                              = array(
+			// 			'old_value' => $old_delete_entries_others_forms_roles,
+			// 		);
+			// 		if ( isset( $event['delete_entries_others_forms'] ) ) {
+			// 			$event['delete_entries_others_forms'] = array_merge( $event['delete_entries_others_forms'], $old_event );
+			// 		} else {
+			// 			$event['delete_entries_others_forms'] = array(
+			// 				'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
+			// 				'setting_type' => __( 'Others', 'wsal-wpforms' ),
+			// 				'old_value'    => $old_delete_entries_others_forms_roles,
+			// 			);
+			// 		}
+			// 	}
+			// }
+			//
+			// foreach ( $event as $event_details => $details ) {
+			//
+			// 	$old_value = isset( $details['old_value'] ) ? implode( ', ', array_unique( explode( ', ', $details['old_value'] ) ) ) : '';
+			// 	$new_value = isset( $details['new_value'] ) ? $details['new_value'] : '';
+			//
+			// 	if ( $old_value === $new_value || $old_value == $new_value ) {
+			// 		continue;
+			// 	}
+			//
+			// 	$alert_code = 5508;
+			// 	$variables  = array(
+			// 		'setting_name' => $details['setting_name'],
+			// 		'setting_type' => $details['setting_type'],
+			// 		'old_value'    => substr( $old_value, 0, -2 ),
+			// 		'new_value'    => substr( $new_value, 0, -2 ),
+			// 	);
+			//
+			// 	$this->plugin->alerts->Trigger( $alert_code, $variables );
+			// }
 
 			// Event 5509 (Change of currency).
 			if ( 'wpforms_settings' === $option_name && isset( $value['currency'] ) && function_exists( 'wpforms_get_currencies' ) ) {
