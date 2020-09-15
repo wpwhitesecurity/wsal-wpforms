@@ -211,7 +211,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
-								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
 							$variables = array(
 								'EventType'        => 'created',
@@ -230,7 +230,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
-								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
 							$variables = array(
 								'EventType'        => 'deleted',
@@ -279,7 +279,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
-								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
 							$variables = array(
 								'EventType'        => 'modified',
@@ -550,7 +550,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		} elseif ( $email_address && ! is_array( $email_address ) ) {
 			$email_address = $email_address;
 		} else {
-			$email_address = esc_html__( 'No email provided', 'wp-security-audit-log' );
+			$email_address = esc_html__( 'No email provided', 'wsal-wpforms' );
 		}
 
 		$editor_link = esc_url(
@@ -678,8 +678,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
 					$create_forms_roles   .= $details['name'] . ', ';
 					$event['create_forms'] = array(
-						'setting_name' => __( 'Create Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'N/A', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Create Forms', 'wsal-wpforms' ),
+						'setting_type' => __( 'N/A', 'wsal-wpforms' ),
 						'new_value'    => $create_forms_roles,
 					);
 				}
@@ -687,8 +687,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
 					$view_own_forms_roles .= $details['name'] . ', ';
 					$event['view_forms']   = array(
-						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
+						'setting_type' => __( 'Own', 'wsal-wpforms' ),
 						'new_value'    => $view_own_forms_roles,
 					);
 				}
@@ -696,8 +696,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
 					$view_others_forms_roles   .= $details['name'] . ', ';
 					$event['view_others_forms'] = array(
-						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'setting_name' => __( 'View Forms', 'wsal-wpforms' ),
+						'setting_type' => __( 'Others', 'wsal-wpforms' ),
 						'new_value'    => $view_others_forms_roles,
 					);
 				}
@@ -705,8 +705,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
 					$edit_own_forms_roles .= $details['name'] . ', ';
 					$event['edit_forms']   = array(
-						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
+						'setting_type' => __( 'Own', 'wsal-wpforms' ),
 						'new_value'    => $edit_own_forms_roles,
 					);
 				}
@@ -714,8 +714,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
 					$edit_others_forms_roles   .= $details['name'] . ', ';
 					$event['edit_others_forms'] = array(
-						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Edit Forms', 'wsal-wpforms' ),
+						'setting_type' => __( 'Others', 'wsal-wpforms' ),
 						'new_value'    => $edit_others_forms_roles,
 					);
 				}
@@ -723,8 +723,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
 					$delete_own_forms_roles .= $details['name'] . ', ';
 					$event['delete_forms']   = array(
-						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
+						'setting_type' => __( 'Own', 'wsal-wpforms' ),
 						'new_value'    => $edit_own_forms_roles,
 					);
 				}
@@ -732,8 +732,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
 					$delete_others_forms_roles   .= $details['name'] . ', ';
 					$event['delete_others_forms'] = array(
-						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Delete Forms', 'wsal-wpforms' ),
+						'setting_type' => __( 'Others', 'wsal-wpforms' ),
 						'new_value'    => $delete_others_forms_roles,
 					);
 				}
@@ -741,8 +741,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
 					$view_entries_own_forms_roles .= $details['name'] . ', ';
 					$event['view_entries_forms']   = array(
-						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
+						'setting_type' => __( 'Own', 'wsal-wpforms' ),
 						'new_value'    => $view_entries_own_forms_roles,
 					);
 				}
@@ -750,8 +750,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
 					$view_entries_others_forms_roles   .= $details['name'] . ', ';
 					$event['view_entries_others_forms'] = array(
-						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'setting_name' => __( 'View Entries', 'wsal-wpforms' ),
+						'setting_type' => __( 'Others', 'wsal-wpforms' ),
 						'new_value'    => $view_entries_others_forms_roles,
 					);
 				}
@@ -759,8 +759,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
 					$edit_entries_own_forms_roles .= $details['name'] . ', ';
 					$event['edit_entries_forms']   = array(
-						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
+						'setting_type' => __( 'Own', 'wsal-wpforms' ),
 						'new_value'    => $edit_entries_own_forms_roles,
 					);
 				}
@@ -768,8 +768,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
 					$edit_entries_others_forms_roles   .= $details['name'] . ', ';
 					$event['edit_entries_others_forms'] = array(
-						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Edit Entries', 'wsal-wpforms' ),
+						'setting_type' => __( 'Others', 'wsal-wpforms' ),
 						'new_value'    => $edit_entries_others_forms_roles,
 					);
 				}
@@ -777,8 +777,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
 					$delete_entries_own_forms_roles .= $details['name'] . ', ';
 					$event['delete_entries_forms']   = array(
-						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
+						'setting_type' => __( 'Own', 'wsal-wpforms' ),
 						'new_value'    => $delete_entries_own_forms_roles,
 					);
 				}
@@ -786,8 +786,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
 					$delete_entries_others_forms_roles   .= $details['name'] . ', ';
 					$event['delete_entries_others_forms'] = array(
-						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
+						'setting_name' => __( 'Delete Entries', 'wsal-wpforms' ),
+						'setting_type' => __( 'Others', 'wsal-wpforms' ),
 						'new_value'    => $delete_entries_others_forms_roles,
 					);
 				}
