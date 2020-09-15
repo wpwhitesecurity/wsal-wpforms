@@ -85,6 +85,15 @@ $custom_alerts = array(
 				'modified',
 			),
 
+			array(
+				5509,
+				WSAL_LOW,
+				__( 'Currency settings were changed', 'wsal-wpforms' ),
+				__( 'Changed the currency %LineBreak% Old currency: %old_value% %LineBreak% New currency: %new_value%', 'wsal-wpforms' ),
+				'wpforms',
+				'modified',
+			),
+
 		),
 	),
 );

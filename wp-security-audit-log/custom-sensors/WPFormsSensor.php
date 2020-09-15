@@ -948,6 +948,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 				$this->plugin->alerts->Trigger( $alert_code, $variables );
 			}
+
+			// Event 5509 (Change of currency).
+			if ( 'wpforms_settings' === $option_name && isset( $value['currency'] ) && function_exists( 'wpforms_get_currencies' ) ) {
+				$wp_forms_currencies = wpforms_get_currencies();
+				$alert_code = 5509;
+				$variables  = array(
+					'old_value'    => $wp_forms_currencies[$old_value['currency']]['name'] . ' ('. $old_value['currency'] .')',
+					'new_value'    => $wp_forms_currencies[$value['currency']]['name'] . ' ('. $value['currency'] .')'
+				);
+
+				$this->plugin->alerts->Trigger( $alert_code, $variables );
+			}
 		}
 
 	}
