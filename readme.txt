@@ -5,7 +5,7 @@ License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Activity Log extension, activity logs
 Requires at least: 3.6
-Tested up to: 5.4.1
+Tested up to: 5.5
 Stable tag: 1.0.3
 Requires PHP: 5.6
 
