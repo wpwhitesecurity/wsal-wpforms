@@ -9,7 +9,7 @@ $custom_alerts = array(
 				WSAL_LOW,
 				__( 'A form was created, modified or deleted', 'wsal-wpforms' ),
 				__( 'Form name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkForm%', 'wsal-wpforms' ),
-				'wpforms',
+				'wpforms_forms',
 				'created',
 			),
 
@@ -27,7 +27,7 @@ $custom_alerts = array(
 				WSAL_MEDIUM,
 				__( 'A form was duplicated', 'wsal-wpforms' ),
 				__( 'Source form %OldPostTitle% %LineBreak% New form name %PostTitle% %LineBreak% Source form ID %SourceID% %LineBreak% New form ID: %PostID% %LineBreak% %EditorLinkForm%', 'wsal-wpforms' ),
-				'wpforms',
+				'wpforms_forms',
 				'duplicated',
 			),
 
@@ -63,13 +63,13 @@ $custom_alerts = array(
 				WSAL_LOW,
 				__( 'A form was renamed', 'wsal-wpforms' ),
 				__( 'New form name %new_form_name% %LineBreak% Old form name %old_form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%', 'wsal-wpforms' ),
-				'wpforms',
+				'wpforms_forms',
 				'renamed',
 			),
 
 			array(
 				5507,
-				WSAL_LOW,
+				WSAL_MEDIUM,
 				__( 'An entry was modified', 'wsal-wpforms' ),
 				__( 'Entry ID: %entry_id% %LineBreak% From form: %form_name% %LineBreak% Modified field name: %field_name% %LineBreak% Old value: %old_value% %LineBreak% New Value: %new_value% %LineBreak% %EditorLinkEntry%', 'wsal-wpforms' ),
 				'wpforms_entries',
@@ -78,7 +78,7 @@ $custom_alerts = array(
 
 			array(
 				5508,
-				WSAL_LOW,
+				WSAL_HIGH,
 				__( 'Plugin access settings were changed', 'wsal-wpforms' ),
 				__( 'Access setting: %setting_name% %LineBreak% Type: %setting_type% %LineBreak% Old privileges: %old_value% %LineBreak% New privileges: %new_value%', 'wsal-wpforms' ),
 				'wpforms',
@@ -87,7 +87,7 @@ $custom_alerts = array(
 
 			array(
 				5509,
-				WSAL_LOW,
+				WSAL_HIGH,
 				__( 'Currency settings were changed', 'wsal-wpforms' ),
 				__( 'Changed the currency %LineBreak% Old currency: %old_value% %LineBreak% New currency: %new_value%', 'wsal-wpforms' ),
 				'wpforms',
