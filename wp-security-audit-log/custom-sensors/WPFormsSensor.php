@@ -763,31 +763,26 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	public function addon_plugin_activated( $plugin ) {
-		$alert_code       = 5511;
-		$tidy_plugin_name = preg_replace("/\.[^.]+$/", "", basename($plugin) );
-		$variables        = array(
-			'EventType'       => 'activated',
-			'addon_name'      => ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ),
-		);
-		$this->plugin->alerts->Trigger( $alert_code, $variables );
+		$event_type = 'activated';
+		$this->generate_addon_event( $plugin, $event_type );
 	}
 
 	public function addon_plugin_deactivated( $plugin ) {
-		$alert_code       = 5511;
-		$tidy_plugin_name = preg_replace("/\.[^.]+$/", "", basename($plugin) );
-		$variables        = array(
-			'EventType'       => 'deactivated',
-			'addon_name'      => ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ),
-		);
-		$this->plugin->alerts->Trigger( $alert_code, $variables );
+		$event_type = 'deactivated';
+		$this->generate_addon_event( $plugin, $event_type );
 	}
 
 	public function addon_plugin_installed( $plugin ) {
+		$event_type = 'installed';
+		$this->generate_addon_event( $plugin, $event_type );
+	}
+
+	public function generate_addon_event( $plugin, $event_type ) {
 		$alert_code       = 5511;
-		$tidy_plugin_name = preg_replace("/\.[^.]+$/", "", basename($plugin) );
+		$tidy_plugin_name = preg_replace( "/\.[^.]+$/", "", basename( $plugin ) );
 		$variables        = array(
-			'EventType'       => 'installed',
-			'addon_name'      => ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ),
+			'EventType'       => $event_type,
+			'addon_name'      => str_replace( 'Wpforms', 'WPForms', ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ) ),
 		);
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
