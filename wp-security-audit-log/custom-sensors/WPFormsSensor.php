@@ -34,7 +34,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 		add_action( 'wpforms_pro_admin_entries_edit_submit_completed', array( $this, 'event_entry_modified' ), 5, 4 );
 		add_action( 'updated_option', array( $this, 'event_settings_updated' ), 10, 3 );
-
+		add_action( 'wpforms_plugin_activated', array( $this, 'addon_plugin_activated' ), 10, 1 );
+		add_action( 'wpforms_plugin_deactivated', array( $this, 'addon_plugin_deactivated' ), 10, 1 );
+		add_action( 'wpforms_plugin_installed', array( $this, 'addon_plugin_installed' ), 10, 1 );
 	}
 
 	/**
@@ -616,88 +618,90 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	public function event_settings_updated( $option_name, $old_value, $value ) {
 
-		// For access settings, we need to check its the correct thing updateing.
-		if ( 'wp_user_roles' === $option_name || $value !== $old_value ) {
+		if ( $value !== $old_value ) {
 
 			if ( ! is_array( $old_value ) || ! is_array( $value ) ) {
 				return;
 			}
 
-			// Gather role names as we need them later.
-			$roles = wp_roles()->get_names();
-			// Array of possible capabilities which wpforms can add/remove from a role.
-			$wpforms_caps = array( 'wpforms_create_forms', 'wpforms_view_own_forms', 'wpforms_view_others_forms', 'wpforms_edit_own_forms', 'wpforms_edit_others_forms', 'wpforms_delete_own_forms', 'wpforms_delete_others_forms', 'wpforms_view_entries_own_forms', 'wpforms_view_entries_others_forms', 'wpforms_edit_entries_own_forms', 'wpforms_edit_entries_others_forms', 'wpforms_delete_entries_own_forms', 'wpforms_delete_entries_others_forms' );
-			// Create empty arrays to be filled later.
-			$updated_new = array();
-			$updated_old = array();
+			// For access settings, we need to check its the correct thing updateing.
+			if ( 'wp_user_roles' === $option_name ) {
+				// Gather role names as we need them later.
+				$roles = wp_roles()->get_names();
+				// Array of possible capabilities which wpforms can add/remove from a role.
+				$wpforms_caps = array( 'wpforms_create_forms', 'wpforms_view_own_forms', 'wpforms_view_others_forms', 'wpforms_edit_own_forms', 'wpforms_edit_others_forms', 'wpforms_delete_own_forms', 'wpforms_delete_others_forms', 'wpforms_view_entries_own_forms', 'wpforms_view_entries_others_forms', 'wpforms_edit_entries_own_forms', 'wpforms_edit_entries_others_forms', 'wpforms_delete_entries_own_forms', 'wpforms_delete_entries_others_forms' );
+				// Create empty arrays to be filled later.
+				$updated_new = array();
+				$updated_old = array();
 
-			// Loop through each availble role and build a simple array of the available
-			// wpforms capabilities, assiging applicable roles to each as we find them.
-			foreach ( $roles as $role_index_name => $role_label ) {
+				// Loop through each availble role and build a simple array of the available
+				// wpforms capabilities, assiging applicable roles to each as we find them.
+				foreach ( $roles as $role_index_name => $role_label ) {
 
-				// Create array of current values.
-				if ( isset( $value[ $role_index_name ] ) ) {
-					foreach ( $wpforms_caps as $capability ) {
-						if ( $this->array_key_exists_recursive( $capability, $value[ $role_index_name ] ) ) {
-							$roles = isset( $updated_new[ $capability ]['roles'] ) ? $updated_new[ $capability ]['roles'] . ', ' . $value[ $role_index_name ]['name'] : $value[ $role_index_name ]['name'];
-							// Ensure we only have unique values, to avoid duplicated being added when looping.
-							$updated_new[ $capability ] = array(
-								'roles' => $roles,
-							);
+					// Create array of current values.
+					if ( isset( $value[ $role_index_name ] ) ) {
+						foreach ( $wpforms_caps as $capability ) {
+							if ( $this->array_key_exists_recursive( $capability, $value[ $role_index_name ] ) ) {
+								$roles = isset( $updated_new[ $capability ]['roles'] ) ? $updated_new[ $capability ]['roles'] . ', ' . $value[ $role_index_name ]['name'] : $value[ $role_index_name ]['name'];
+								// Ensure we only have unique values, to avoid duplicated being added when looping.
+								$updated_new[ $capability ] = array(
+									'roles' => $roles,
+								);
+							}
+							// Fill up array with capability anyway, even if its blank.
+							if ( ! isset( $updated_new[ $capability ] ) ) {
+								$updated_new[ $capability ] = array(
+									'roles' => '',
+								);
+							}
 						}
-						// Fill up array with capability anyway, even if its blank.
-						if ( ! isset( $updated_new[ $capability ] ) ) {
-							$updated_new[ $capability ] = array(
-								'roles' => '',
-							);
+					}
+
+					// Create array of old values for comparison.
+					if ( isset( $old_value[ $role_index_name ] ) ) {
+						foreach ( $wpforms_caps as $capability ) {
+							if ( $this->array_key_exists_recursive( $capability, $old_value[ $role_index_name ] ) ) {
+								$roles = isset( $updated_old[ $capability ]['roles'] ) ? $updated_old[ $capability ]['roles'] . ', ' . $old_value[ $role_index_name ]['name'] : $old_value[ $role_index_name ]['name'];
+								// Ensure we only have unique values, to avoid duplicated being added when looping.
+								$updated_old[ $capability ] = array(
+									'roles' => $roles
+								);
+							}
+							// Fill up array with capability anyway, even if its blank.
+							if ( ! isset( $updated_old[ $capability ] ) ) {
+								$updated_old[ $capability ] = array(
+									'roles' => '',
+								);
+							}
 						}
 					}
 				}
 
-				// Create array of old values for comparison.
-				if ( isset( $old_value[ $role_index_name ] ) ) {
-					foreach ( $wpforms_caps as $capability ) {
-						if ( $this->array_key_exists_recursive( $capability, $old_value[ $role_index_name ] ) ) {
-							$roles = isset( $updated_old[ $capability ]['roles'] ) ? $updated_old[ $capability ]['roles'] . ', ' . $old_value[ $role_index_name ]['name'] : $old_value[ $role_index_name ]['name'];
-							// Ensure we only have unique values, to avoid duplicated being added when looping.
-							$updated_old[ $capability ] = array(
-								'roles' => $roles
-							);
+				// Detect changes for each wpforms capability and fire off 5508 if a change is found.
+				foreach ( $wpforms_caps as $wpforms_capability ) {
+					// Compare old and new to see if something has been tinkered with.
+					if ( isset( $updated_new[ $wpforms_capability ] ) && $updated_new[ $wpforms_capability ] !== $updated_old[ $wpforms_capability ] ) {
+						$alert_code = 5508;
+						// Tidy up name for event.
+						$setting_name = ucwords( str_replace( '_', ' ', str_replace( 'wpforms', '', $wpforms_capability ) ) );
+						// Determine the type of setting thats been changed.
+						if ( strpos( $wpforms_capability, 'own' ) !== false ) {
+							$setting_type = __( 'Own', 'wsal-wpforms' );
+						} elseif ( strpos( $wpforms_capability, 'other' ) !== false ) {
+							$setting_type = __( 'Other', 'wsal-wpforms' );
+						} else {
+							$setting_type = __( 'N/A', 'wsal-wpforms' );
 						}
-						// Fill up array with capability anyway, even if its blank.
-						if ( ! isset( $updated_old[ $capability ] ) ) {
-							$updated_old[ $capability ] = array(
-								'roles' => '',
-							);
-						}
+						// Setup event variables using above.
+						$variables = array(
+							'setting_name' => $setting_name,
+							'setting_type' => $setting_type,
+							'old_value'    => substr( implode( ',', array_unique( explode( ',', $updated_old[ $wpforms_capability ]['roles'] ) ) ), 2 ),
+							'new_value'    => substr( implode( ',', array_unique( explode( ',', $updated_new[ $wpforms_capability ]['roles'] ) ) ), 2 ),
+						);
+						// Fire off 5508.
+						$this->plugin->alerts->Trigger( $alert_code, $variables );
 					}
-				}
-			}
-
-			// Detect changes for each wpforms capability and fire off 5508 if a change is found.
-			foreach ( $wpforms_caps as $wpforms_capability ) {
-				// Compare old and new to see if something has been tinkered with.
-				if ( $updated_new[ $wpforms_capability ] !== $updated_old[ $wpforms_capability ] ) {
-					$alert_code = 5508;
-					// Tidy up name for event.
-					$setting_name = ucwords( str_replace( '_', ' ', str_replace( 'wpforms', '', $wpforms_capability ) ) );
-					// Determine the type of setting thats been changed.
-					if ( strpos( $wpforms_capability, 'own' ) !== false ) {
-						$setting_type = __( 'Own', 'wsal-wpforms' );
-					} elseif ( strpos( $wpforms_capability, 'other' ) !== false ) {
-						$setting_type = __( 'Other', 'wsal-wpforms' );
-					} else {
-						$setting_type = __( 'N/A', 'wsal-wpforms' );
-					}
-					// Setup event variables using above.
-					$variables = array(
-						'setting_name' => $setting_name,
-						'setting_type' => $setting_type,
-						'old_value'    => substr( implode( ',', array_unique( explode( ',', $updated_old[ $wpforms_capability ]['roles'] ) ) ), 2 ),
-						'new_value'    => substr( implode( ',', array_unique( explode( ',', $updated_new[ $wpforms_capability ]['roles'] ) ) ), 2 ),
-					);
-					// Fire off 5508.
-					$this->plugin->alerts->Trigger( $alert_code, $variables );
 				}
 			}
 
@@ -756,6 +760,36 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}
 		}
 
+	}
+
+	public function addon_plugin_activated( $plugin ) {
+		$alert_code       = 5511;
+		$tidy_plugin_name = preg_replace("/\.[^.]+$/", "", basename($plugin) );
+		$variables        = array(
+			'EventType'       => 'activated',
+			'addon_name'      => ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ),
+		);
+		$this->plugin->alerts->Trigger( $alert_code, $variables );
+	}
+
+	public function addon_plugin_deactivated( $plugin ) {
+		$alert_code       = 5511;
+		$tidy_plugin_name = preg_replace("/\.[^.]+$/", "", basename($plugin) );
+		$variables        = array(
+			'EventType'       => 'deactivated',
+			'addon_name'      => ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ),
+		);
+		$this->plugin->alerts->Trigger( $alert_code, $variables );
+	}
+
+	public function addon_plugin_installed( $plugin ) {
+		$alert_code       = 5511;
+		$tidy_plugin_name = preg_replace("/\.[^.]+$/", "", basename($plugin) );
+		$variables        = array(
+			'EventType'       => 'installed',
+			'addon_name'      => ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ),
+		);
+		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
 
 	public function check_other_changes( WSAL_AlertManager $manager ) {
