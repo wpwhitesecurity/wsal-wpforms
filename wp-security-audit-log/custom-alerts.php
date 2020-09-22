@@ -16,7 +16,7 @@ $custom_alerts = array(
 			array(
 				5501,
 				WSAL_MEDIUM,
-				__( 'A field was created, deleted or modified', 'wsal-wpforms' ),
+				__( 'A field was created, modified or deleted from a form.', 'wsal-wpforms' ),
 				__( 'Field name %field_name% %LineBreak% Form name %form_name% %LineBreak% Form ID: %PostID% %LineBreak% %EditorLinkForm%', 'wsal-wpforms' ),
 				'wpforms_fields',
 				'deleted',
