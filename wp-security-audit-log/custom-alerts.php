@@ -107,7 +107,7 @@ $custom_alerts = array(
 				5511,
 				WSAL_HIGH,
 				__( 'An addon was installed, activated or deactivated.', 'wsal-wpforms' ),
-				__( 'The add-on %addon_name%', 'wsal-wpforms' ),
+				__( 'The addon %addon_name%', 'wsal-wpforms' ),
 				'wpforms',
 				'activated',
 			),
