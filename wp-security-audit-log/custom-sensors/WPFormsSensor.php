@@ -34,7 +34,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 		add_action( 'wpforms_pro_admin_entries_edit_submit_completed', array( $this, 'event_entry_modified' ), 5, 4 );
 		add_action( 'updated_option', array( $this, 'event_settings_updated' ), 10, 3 );
-
+		add_action( 'added_option', array( $this, 'event_added_option' ), 10, 2 );
+		add_action( 'wpforms_plugin_activated', array( $this, 'addon_plugin_activated' ), 10, 1 );
+		add_action( 'wpforms_plugin_deactivated', array( $this, 'addon_plugin_deactivated' ), 10, 1 );
+		add_action( 'wpforms_plugin_installed', array( $this, 'addon_plugin_installed' ), 10, 1 );
 	}
 
 	/**
@@ -211,7 +214,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
-								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
 							$variables = array(
 								'EventType'        => 'created',
@@ -230,7 +233,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
-								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
 							$variables = array(
 								'EventType'        => 'deleted',
@@ -279,7 +282,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
-								$notification_name = esc_html__( 'Default Notification', 'wp-security-audit-log' );
+								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
 							$variables = array(
 								'EventType'        => 'modified',
@@ -550,7 +553,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		} elseif ( $email_address && ! is_array( $email_address ) ) {
 			$email_address = $email_address;
 		} else {
-			$email_address = esc_html__( 'No email provided', 'wp-security-audit-log' );
+			$email_address = esc_html__( 'No email provided', 'wsal-wpforms' );
 		}
 
 		$editor_link = esc_url(
@@ -616,340 +619,194 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	public function event_settings_updated( $option_name, $old_value, $value ) {
 
-		// For access settings, we need to check its the correct thing updateing.
-		if ( 'wp_user_roles' === $option_name || $value !== $old_value ) {
+		if ( $value !== $old_value ) {
 
 			if ( ! is_array( $old_value ) || ! is_array( $value ) ) {
 				return;
 			}
 
-			// Compare the 2 arrays and create array of changed.
-			$compare_changed_items = array_diff_assoc(
-				array_map( 'serialize', $old_value ),
-				array_map( 'serialize', $value )
-			);
-			$changed_items         = array_map( 'unserialize', $compare_changed_items );
+			// For access settings, we need to check its the correct thing updateing.
+			if ( 'wp_user_roles' === $option_name ) {
+				// Gather role names as we need them later.
+				$roles = wp_roles()->get_names();
+				// Array of possible capabilities which wpforms can add/remove from a role.
+				$wpforms_caps = array( 'wpforms_create_forms', 'wpforms_view_own_forms', 'wpforms_view_others_forms', 'wpforms_edit_own_forms', 'wpforms_edit_others_forms', 'wpforms_delete_own_forms', 'wpforms_delete_others_forms', 'wpforms_view_entries_own_forms', 'wpforms_view_entries_others_forms', 'wpforms_edit_entries_own_forms', 'wpforms_edit_entries_others_forms', 'wpforms_delete_entries_own_forms', 'wpforms_delete_entries_others_forms' );
+				// Create empty arrays to be filled later.
+				$updated_new = array();
+				$updated_old = array();
 
-			// Build empty var.
-			$event_details = array(
-				'setting_name' => '',
-				'setting_type' => '',
-				'old_value'    => '',
-				'new_value'    => '',
-			);
+				// Loop through each availble role and build a simple array of the available
+				// wpforms capabilities, assiging applicable roles to each as we find them.
+				foreach ( $roles as $role_index_name => $role_label ) {
 
-			$create_forms_roles                    = '';
-			$view_own_forms_roles                  = '';
-			$view_others_forms_roles               = '';
-			$edit_own_forms_roles                  = '';
-			$edit_others_forms_roles               = '';
-			$delete_own_forms_roles                = '';
-			$delete_others_forms_roles             = '';
-			$view_entries_own_forms_roles          = '';
-			$view_entries_others_forms_roles       = '';
-			$edit_entries_own_forms_roles          = '';
-			$edit_entries_others_forms_roles       = '';
-			$delete_entries_own_forms_roles        = '';
-			$delete_entries_others_forms_roles     = '';
-			$old_create_forms_roles                = '';
-			$old_view_own_forms_roles              = '';
-			$old_view_others_forms_roles           = '';
-			$old_edit_own_forms_roles              = '';
-			$old_edit_others_forms_roles           = '';
-			$old_delete_own_forms_roles            = '';
-			$old_delete_others_forms_roles         = '';
-			$old_view_entries_own_forms_roles      = '';
-			$old_view_entries_others_forms_roles   = '';
-			$old_edit_entries_own_forms_roles      = '';
-			$old_edit_entries_others_forms_roles   = '';
-			$old_delete_entries_own_forms_roles    = '';
-			$old_delete_entries_others_forms_roles = '';
+					// Create array of current values.
+					if ( isset( $value[ $role_index_name ] ) ) {
+						foreach ( $wpforms_caps as $capability ) {
+							if ( $this->array_key_exists_recursive( $capability, $value[ $role_index_name ] ) ) {
+								$roles = isset( $updated_new[ $capability ]['roles'] ) ? $updated_new[ $capability ]['roles'] . ', ' . $value[ $role_index_name ]['name'] : $value[ $role_index_name ]['name'];
+								// Ensure we only have unique values, to avoid duplicated being added when looping.
+								$updated_new[ $capability ] = array(
+									'roles' => $roles,
+								);
+							}
+							// Fill up array with capability anyway, even if its blank.
+							if ( ! isset( $updated_new[ $capability ] ) ) {
+								$updated_new[ $capability ] = array(
+									'roles' => '',
+								);
+							}
+						}
+					}
 
-			$values_done     = false;
-			$old_values_done = false;
-			$size            = count( $value );
-			$counter         = 0;
-			$event           = array();
-
-			// Gather new info
-			foreach ( $value as $role => $details ) {
-
-				// Create Forms.
-				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$create_forms_roles   .= $details['name'] . ', ';
-					$event['create_forms'] = array(
-						'setting_name' => __( 'Create Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'N/A', 'wp-security-audit-log' ),
-						'new_value'    => $create_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
-					$view_own_forms_roles .= $details['name'] . ', ';
-					$event['view_forms']   = array(
-						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
-						'new_value'    => $view_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
-					$view_others_forms_roles   .= $details['name'] . ', ';
-					$event['view_others_forms'] = array(
-						'setting_name' => __( 'View Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $view_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
-					$edit_own_forms_roles .= $details['name'] . ', ';
-					$event['edit_forms']   = array(
-						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
-						'new_value'    => $edit_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
-					$edit_others_forms_roles   .= $details['name'] . ', ';
-					$event['edit_others_forms'] = array(
-						'setting_name' => __( 'Edit Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $edit_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
-					$delete_own_forms_roles .= $details['name'] . ', ';
-					$event['delete_forms']   = array(
-						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
-						'new_value'    => $edit_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
-					$delete_others_forms_roles   .= $details['name'] . ', ';
-					$event['delete_others_forms'] = array(
-						'setting_name' => __( 'Delete Forms', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $delete_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
-					$view_entries_own_forms_roles .= $details['name'] . ', ';
-					$event['view_entries_forms']   = array(
-						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
-						'new_value'    => $view_entries_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
-					$view_entries_others_forms_roles   .= $details['name'] . ', ';
-					$event['view_entries_others_forms'] = array(
-						'setting_name' => __( 'View Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $view_entries_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
-					$edit_entries_own_forms_roles .= $details['name'] . ', ';
-					$event['edit_entries_forms']   = array(
-						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
-						'new_value'    => $edit_entries_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
-					$edit_entries_others_forms_roles   .= $details['name'] . ', ';
-					$event['edit_entries_others_forms'] = array(
-						'setting_name' => __( 'Edit Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $edit_entries_others_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
-					$delete_entries_own_forms_roles .= $details['name'] . ', ';
-					$event['delete_entries_forms']   = array(
-						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Own', 'wp-security-audit-log' ),
-						'new_value'    => $delete_entries_own_forms_roles,
-					);
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
-					$delete_entries_others_forms_roles   .= $details['name'] . ', ';
-					$event['delete_entries_others_forms'] = array(
-						'setting_name' => __( 'Delete Entries', 'wp-security-audit-log' ),
-						'setting_type' => __( 'Others', 'wp-security-audit-log' ),
-						'new_value'    => $delete_entries_others_forms_roles,
-					);
-				}
-
-				$counter++;
-
-			}
-
-			// Gather old info
-			foreach ( $old_value as $role => $details ) {
-				if ( $this->array_key_exists_recursive( 'wpforms_create_forms', $details ) ) {
-					$old_create_forms_roles .= $details['name'] . ', ';
-					$old_event               = array(
-						'old_value' => $old_create_forms_roles,
-					);
-					if ( isset( $event['create_forms'] ) ) {
-						$event['create_forms'] = array_merge( $event['create_forms'], $old_event );
+					// Create array of old values for comparison.
+					if ( isset( $old_value[ $role_index_name ] ) ) {
+						foreach ( $wpforms_caps as $capability ) {
+							if ( $this->array_key_exists_recursive( $capability, $old_value[ $role_index_name ] ) ) {
+								$roles = isset( $updated_old[ $capability ]['roles'] ) ? $updated_old[ $capability ]['roles'] . ', ' . $old_value[ $role_index_name ]['name'] : $old_value[ $role_index_name ]['name'];
+								// Ensure we only have unique values, to avoid duplicated being added when looping.
+								$updated_old[ $capability ] = array(
+									'roles' => $roles
+								);
+							}
+							// Fill up array with capability anyway, even if its blank.
+							if ( ! isset( $updated_old[ $capability ] ) ) {
+								$updated_old[ $capability ] = array(
+									'roles' => '',
+								);
+							}
+						}
 					}
 				}
 
-				if ( $this->array_key_exists_recursive( 'wpforms_view_own_forms', $details ) ) {
-					$old_view_own_forms_roles .= $details['name'] . ', ';
-					$old_event                 = array(
-						'old_value' => $old_view_own_forms_roles,
-					);
-					if ( isset( $event['view_forms'] ) ) {
-						$event['view_forms'] = array_merge( $event['view_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_others_forms', $details ) ) {
-					$old_view_others_forms_roles .= $details['name'] . ', ';
-					$old_event                    = array(
-						'old_value' => $old_view_others_forms_roles,
-					);
-					if ( isset( $event['view_others_forms'] ) ) {
-						$event['view_others_forms'] = array_merge( $event['view_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_own_forms', $details ) ) {
-					$old_edit_own_forms_roles .= $details['name'] . ', ';
-					$old_event                 = array(
-						'old_value' => $old_edit_own_forms_roles,
-					);
-					if ( isset( $event['edit_forms'] ) ) {
-						$event['edit_forms'] = array_merge( $event['edit_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_others_forms', $details ) ) {
-					$old_edit_others_forms_roles .= $details['name'] . ', ';
-					$old_event                    = array(
-						'old_value' => $old_edit_others_forms_roles,
-					);
-					if ( isset( $event['edit_others_forms'] ) ) {
-						$event['edit_others_forms'] = array_merge( $event['edit_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_own_forms', $details ) ) {
-					$old_delete_own_forms_roles .= $details['name'] . ', ';
-					$old_event                   = array(
-						'old_value' => $old_delete_own_forms_roles,
-					);
-					if ( isset( $event['delete_forms'] ) ) {
-						$event['delete_forms'] = array_merge( $event['delete_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_others_forms', $details ) ) {
-					$old_delete_others_forms_roles .= $details['name'] . ', ';
-					$old_event                      = array(
-						'old_value' => $old_delete_others_forms_roles,
-					);
-					if ( isset( $event['delete_others_forms'] ) ) {
-						$event['delete_others_forms'] = array_merge( $event['delete_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_own_forms', $details ) ) {
-					$old_view_entries_own_forms_roles .= $details['name'] . ', ';
-					$old_event                         = array(
-						'old_value' => $old_view_entries_own_forms_roles,
-					);
-					if ( isset( $event['view_entries_forms'] ) ) {
-						$event['view_entries_forms'] = array_merge( $event['view_entries_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_view_entries_others_forms', $details ) ) {
-					$old_view_entries_others_forms_roles .= $details['name'] . ', ';
-					$old_event                            = array(
-						'old_value' => $old_view_entries_others_forms_roles,
-					);
-					if ( isset( $event['view_entries_others_forms'] ) ) {
-						$event['view_entries_others_forms'] = array_merge( $event['view_entries_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_own_forms', $details ) ) {
-					$old_edit_entries_own_forms_roles .= $details['name'] . ', ';
-					$old_event                         = array(
-						'old_value' => $old_edit_entries_own_forms_roles,
-					);
-					if ( isset( $event['edit_entries_forms'] ) ) {
-						$event['edit_entries_forms'] = array_merge( $event['edit_entries_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_edit_entries_others_forms', $details ) ) {
-					$old_edit_entries_others_forms_roles .= $details['name'] . ', ';
-					$old_event                            = array(
-						'old_value' => $old_edit_entries_others_forms_roles,
-					);
-					if ( isset( $event['edit_entries_others_forms'] ) ) {
-						$event['edit_entries_others_forms'] = array_merge( $event['edit_entries_others_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_own_forms', $details ) ) {
-					$old_delete_entries_own_forms_roles .= $details['name'] . ', ';
-					$old_event                           = array(
-						'old_value' => $old_delete_entries_own_forms_roles,
-					);
-					if ( isset( $event['delete_entries_forms'] ) ) {
-						$event['delete_entries_forms'] = array_merge( $event['delete_entries_forms'], $old_event );
-					}
-				}
-
-				if ( $this->array_key_exists_recursive( 'wpforms_delete_entries_others_forms', $details ) ) {
-					$old_delete_entries_others_forms_roles .= $details['name'] . ', ';
-					$old_event                              = array(
-						'old_value' => $old_delete_entries_others_forms_roles,
-					);
-					if ( isset( $event['delete_entries_others_forms'] ) ) {
-						$event['delete_entries_others_forms'] = array_merge( $event['delete_entries_others_forms'], $old_event );
+				// Detect changes for each wpforms capability and fire off 5508 if a change is found.
+				foreach ( $wpforms_caps as $wpforms_capability ) {
+					// Compare old and new to see if something has been tinkered with.
+					if ( isset( $updated_new[ $wpforms_capability ] ) && $updated_new[ $wpforms_capability ] !== $updated_old[ $wpforms_capability ] ) {
+						$alert_code = 5508;
+						// Tidy up name for event.
+						$setting_name = ucwords( str_replace( '_', ' ', str_replace( 'wpforms', '', $wpforms_capability ) ) );
+						// Determine the type of setting thats been changed.
+						if ( strpos( $wpforms_capability, 'own' ) !== false ) {
+							$setting_type = __( 'Own', 'wsal-wpforms' );
+						} elseif ( strpos( $wpforms_capability, 'other' ) !== false ) {
+							$setting_type = __( 'Other', 'wsal-wpforms' );
+						} else {
+							$setting_type = __( 'N/A', 'wsal-wpforms' );
+						}
+						// Setup event variables using above.
+						$variables = array(
+							'setting_name' => $setting_name,
+							'setting_type' => $setting_type,
+							'old_value'    => substr( implode( ',', array_unique( explode( ',', $updated_old[ $wpforms_capability ]['roles'] ) ) ), 2 ),
+							'new_value'    => substr( implode( ',', array_unique( explode( ',', $updated_new[ $wpforms_capability ]['roles'] ) ) ), 2 ),
+						);
+						// Fire off 5508.
+						$this->plugin->alerts->Trigger( $alert_code, $variables );
 					}
 				}
 			}
 
-			foreach ( $event as $event_details => $details ) {
-
-				$old_value = isset( $details['old_value'] ) ? implode( ', ', array_unique( explode( ', ', $details['old_value'] ) ) ) : '';
-				$new_value = $details['new_value'];
-
-				if ( $old_value === $new_value || $old_value == $new_value ) {
-					continue;
-				}
-
-				$alert_code = 5508;
-				$variables  = array(
-					'setting_name' => $details['setting_name'],
-					'setting_type' => $details['setting_type'],
-					'old_value'    => substr( $old_value, 0, -2 ),
-					'new_value'    => substr( $new_value, 0, -2 ),
+			// Event 5509 (Change of currency).
+			if ( 'wpforms_settings' === $option_name && isset( $value['currency'] ) && function_exists( 'wpforms_get_currencies' ) ) {
+				$wp_forms_currencies = wpforms_get_currencies();
+				$alert_code          = 5509;
+				$variables           = array(
+					'old_value' => $wp_forms_currencies[ $old_value['currency'] ]['name'] . ' (' . $old_value['currency'] . ')',
+					'new_value' => $wp_forms_currencies[ $value['currency'] ]['name'] . ' (' . $value['currency'] . ')',
 				);
 
 				$this->plugin->alerts->Trigger( $alert_code, $variables );
 			}
+
+			// Event 5510 (Integration enabled/disabled).
+			if ( 'wpforms_providers' === $option_name ) {
+
+				$providers = array(
+					'mailchimpv3',
+					'aweber',
+					'constant-contact',
+					'zapier',
+					'getresponse',
+					'drip',
+					'campaign-monitor',
+				);
+
+				foreach ( $providers as $provider ) {
+					if ( isset( $value[ $provider ] ) ) {
+						if ( ! empty( $value[ $provider ] ) && empty( $old_value[ $provider ] ) ) {
+							$event_type       = 'added';
+							$connection_label = array_column( $value[ $provider ], 'label' );
+						} else {
+							$event_type       = 'deleted';
+							$connection_label = array_column( $old_value[ $provider ], 'label' );
+						}
+
+						// Tidy labels up.
+						if ( 'mailchimpv3' === $provider ) {
+							$provider = __( 'Mailchimp', 'wsal-wpforms' );
+						} elseif ( 'getresponse' === $provider ) {
+							$provider = __( 'GetResponse', 'wsal-wpforms' );
+						}
+
+						$alert_code      = 5510;
+						$connection_name = ! empty( $connection_label ) ? $connection_label[0] : null;
+						$variables       = array(
+							'EventType'       => $event_type,
+							'service_name'    => ucwords( str_replace( '-', ' ', $provider ) ),
+							'connection_name' => $connection_name,
+						);
+						$this->plugin->alerts->Trigger( $alert_code, $variables );
+					}
+				}
+			}
 		}
 
+	}
+
+	/**
+	 * Detect initial changes to WPforms option. These typically use the "added_option"
+	 * hook as no previous option is present to update.
+	 *
+	 * @param  string $option_name Name of option being changed.
+	 * @param  array  $value       New values.
+	 */
+	public function event_added_option( $option_name, $value ) {
+		// Event 5509 (Initial change of currency).
+		if ( 'wpforms_settings' === $option_name && isset( $value['currency'] ) && function_exists( 'wpforms_get_currencies' ) ) {
+			$wp_forms_currencies = wpforms_get_currencies();
+			$alert_code          = 5509;
+			$variables           = array(
+				'old_value' => $wp_forms_currencies['USD']['name'] . ' (USD)',
+				'new_value' => $wp_forms_currencies[ $value['currency'] ]['name'] . ' (' . $value['currency'] . ')',
+			);
+
+			$this->plugin->alerts->Trigger( $alert_code, $variables );
+		}
+	}
+
+	public function addon_plugin_activated( $plugin ) {
+		$event_type = 'activated';
+		$this->generate_addon_event( $plugin, $event_type );
+	}
+
+	public function addon_plugin_deactivated( $plugin ) {
+		$event_type = 'deactivated';
+		$this->generate_addon_event( $plugin, $event_type );
+	}
+
+	public function addon_plugin_installed( $plugin ) {
+		$event_type = 'installed';
+		$this->generate_addon_event( $plugin, $event_type );
+	}
+
+	public function generate_addon_event( $plugin, $event_type ) {
+		$alert_code       = 5511;
+		$tidy_plugin_name = preg_replace( "/\.[^.]+$/", "", basename( $plugin ) );
+		$variables        = array(
+			'EventType'       => $event_type,
+			'addon_name'      => str_replace( 'Wpforms', 'WPForms', ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ) ),
+		);
+		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
 
 	public function check_other_changes( WSAL_AlertManager $manager ) {
