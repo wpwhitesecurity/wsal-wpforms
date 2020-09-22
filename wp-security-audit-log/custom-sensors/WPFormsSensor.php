@@ -34,6 +34,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 		add_action( 'wpforms_pro_admin_entries_edit_submit_completed', array( $this, 'event_entry_modified' ), 5, 4 );
 		add_action( 'updated_option', array( $this, 'event_settings_updated' ), 10, 3 );
+		add_action( 'added_option', array( $this, 'event_added_option' ), 10, 2 );
 		add_action( 'wpforms_plugin_activated', array( $this, 'addon_plugin_activated' ), 10, 1 );
 		add_action( 'wpforms_plugin_deactivated', array( $this, 'addon_plugin_deactivated' ), 10, 1 );
 		add_action( 'wpforms_plugin_installed', array( $this, 'addon_plugin_installed' ), 10, 1 );
@@ -760,6 +761,27 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}
 		}
 
+	}
+
+	/**
+	 * Detect initial changes to WPforms option. These typically use the "added_option"
+	 * hook as no previous option is present to update.
+	 *
+	 * @param  string $option_name Name of option being changed.
+	 * @param  array  $value       New values.
+	 */
+	public function event_added_option( $option_name, $value ) {
+		// Event 5509 (Initial change of currency).
+		if ( 'wpforms_settings' === $option_name && isset( $value['currency'] ) && function_exists( 'wpforms_get_currencies' ) ) {
+			$wp_forms_currencies = wpforms_get_currencies();
+			$alert_code          = 5509;
+			$variables           = array(
+				'old_value' => $wp_forms_currencies['USD']['name'] . ' (USD)',
+				'new_value' => $wp_forms_currencies[ $value['currency'] ]['name'] . ' (' . $value['currency'] . ')',
+			);
+
+			$this->plugin->alerts->Trigger( $alert_code, $variables );
+		}
 	}
 
 	public function addon_plugin_activated( $plugin ) {

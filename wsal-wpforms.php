@@ -8,6 +8,7 @@
  * Author URI: http://www.wpwhitesecurity.com/
  * Version: 1.0.3
  * License: GPL2
+ * Network: true
  *
  * @package Wsal
  * @subpackage Wsal Custom Events Loader
