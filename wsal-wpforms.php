@@ -96,7 +96,15 @@ function wsal_wpforms_add_custom_meta_format( $value, $name ) {
 	$check_value = (string) $value;
 	if ( '%EditorLinkForm%' === $name ) {
 		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in the editor', 'wsal-wpforms' ) . '</a>';
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in editor', 'wsal-wpforms' ) . '</a>';
+		} else {
+			return '';
+		}
+	}
+
+	if ( '%EditorLinkFormDuplicated%' === $name ) {
+		if ( 'NULL' !== $check_value ) {
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View new duplicated form in editor', 'wsal-wpforms' ) . '</a>';
 		} else {
 			return '';
 		}
@@ -104,7 +112,7 @@ function wsal_wpforms_add_custom_meta_format( $value, $name ) {
 
 	if ( '%EditorLinkEntry%' === $name ) {
 		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in the editor', 'wsal-wpforms' ) . '</a>';
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in editor', 'wsal-wpforms' ) . '</a>';
 		} else {
 			return '';
 		}
@@ -122,7 +130,15 @@ function wsal_wpforms_add_custom_meta_format_value( $value, $name ) {
 	$check_value = (string) $value;
 	if ( '%EditorLinkForm%' === $name ) {
 		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in the editor', 'wsal-wpforms' ) . '</a>';
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in editor', 'wsal-wpforms' ) . '</a>';
+		} else {
+			return '';
+		}
+	}
+
+	if ( '%EditorLinkFormDuplicated%' === $name ) {
+		if ( 'NULL' !== $check_value ) {
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View new duplicated form in editor', 'wsal-wpforms' ) . '</a>';
 		} else {
 			return '';
 		}
@@ -130,7 +146,7 @@ function wsal_wpforms_add_custom_meta_format_value( $value, $name ) {
 
 	if ( '%EditorLinkEntry%' === $name ) {
 		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in the editor', 'wsal-wpforms' ) . '</a>';
+			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in editor', 'wsal-wpforms' ) . '</a>';
 		} else {
 			return '';
 		}
