@@ -120,44 +120,6 @@ function wsal_wpforms_add_custom_meta_format( $value, $name ) {
 	return $value;
 }
 
-/**
- * Adds new meta formatting for our plugion
- *
- * @method wsal_wpforms_add_custom_meta_format_value
- * @since  1.0.0
- */
-function wsal_wpforms_add_custom_meta_format_value( $value, $name ) {
-	$check_value = (string) $value;
-	if ( '%EditorLinkForm%' === $name ) {
-		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in editor', 'wsal-wpforms' ) . '</a>';
-		} else {
-			return '';
-		}
-	}
-
-	if ( '%EditorLinkFormDuplicated%' === $name ) {
-		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View new duplicated form in editor', 'wsal-wpforms' ) . '</a>';
-		} else {
-			return '';
-		}
-	}
-
-	if ( '%EditorLinkEntry%' === $name ) {
-		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in editor', 'wsal-wpforms' ) . '</a>';
-		} else {
-			return '';
-		}
-	}
-	return $value;
-}
-
-/**
- * Add our filters.
- */
-add_filter( 'wsal_link_filter', 'wsal_wpforms_add_custom_meta_format_value', 10, 2 );
 add_filter( 'wsal_meta_formatter_custom_formatter', 'wsal_wpforms_add_custom_meta_format', 10, 2 );
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
 add_filter( 'wsal_ignored_custom_post_types', 'wsal_wpforms_add_custom_ignored_cpt' );
