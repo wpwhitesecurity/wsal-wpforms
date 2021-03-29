@@ -39,14 +39,14 @@ $custom_alerts = [
                 5502,
                 WSAL_MEDIUM,
                 __( 'A form was duplicated', 'wsal-wpforms' ),
-                __( 'Source form: %OldPostTitle%', 'wsal-wpforms' ),
+                __( 'Form <strong>%OldPostTitle%</strong> was duplicated', 'wsal-wpforms' ),
                 [
-                    __( 'New form name%PostTitle%', 'wsal-wpforms' ),
+                    __( 'Source form, 'wsal-wpforms' ) => '%OldPostTitle%',
                     __( 'Source form ID', 'wsal-wpforms' ) => '%SourceID%',
-                    __( 'New form ID%PostID%', 'wsal-wpforms' ) => '%PostID%',
+                    __( 'New form ID', 'wsal-wpforms' ) => '%PostID%',
                 ],
                 [
-                    '%EditorLinkFormDuplicated%',
+                    __( 'View form in the editor', 'wsal-wpforms' ) => '%EditorLinkFormDuplicated%',
                 ],
                 'wpforms_forms',
                 'duplicated',
