@@ -177,7 +177,7 @@ $custom_alerts = [
                 __( 'A service integration was added or deleted.', 'wsal-wpforms' ),
                 __( 'A service integration with %service_name%', 'wsal-wpforms' ),
                 [
-                    __( 'Connection name', 'wsal-wpforms' ) => '%connection_name%',
+                    __( 'Service', 'wsal-wpforms' ) => '%service_name%',
                 ],
                 [],
                 'wpforms',
