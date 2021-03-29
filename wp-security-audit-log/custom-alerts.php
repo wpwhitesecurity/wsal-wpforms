@@ -8,9 +8,10 @@ $custom_alerts = [
                 5500,
                 WSAL_LOW,
                 __( 'A form was created, modified or deleted', 'wsal-wpforms' ),
-                __( 'Form name: %PostTitle%', 'wsal-wpforms' ),
+                __( 'A form was created, modified or deleted', 'wsal-wpforms' ),
                 [
-                    __( 'Form ID', 'wsal-wpforms' ) => '%PostID%',
+                    __( 'Form name', 'wsal-wpforms' ) => '%PostTitle%',
+                    __( 'Form ID', 'wsal-wpforms' )   => '%PostID%',
                 ],
                 [
                     __( 'View form in the editor', 'wsal-wpforms' ) => '%EditorLinkForm%',
@@ -23,10 +24,11 @@ $custom_alerts = [
                 5501,
                 WSAL_MEDIUM,
                 __( 'A field was created, modified or deleted from a form.', 'wsal-wpforms' ),
-                __( 'Field name: %field_name%', 'wsal-wpforms' ),
+                __( 'A field was created, modified or deleted from a form.', 'wsal-wpforms' ),
                 [
-                    __( 'Form name', 'wsal-wpforms' ) => '%form_name%',
-                    __( 'Form ID', 'wsal-wpforms' )   => '%PostID%',
+                    __( 'Field name', 'wsal-wpforms' ) => '%field_name%',
+                    __( 'Form name', 'wsal-wpforms' )  => '%form_name%',
+                    __( 'Form ID', 'wsal-wpforms' )    => '%PostID%',
                 ],
                 [
                     __( 'View form in the editor', 'wsal-wpforms' ) => '%EditorLinkForm%',
@@ -41,9 +43,9 @@ $custom_alerts = [
                 __( 'A form was duplicated', 'wsal-wpforms' ),
                 __( 'Form <strong>%OldPostTitle%</strong> was duplicated', 'wsal-wpforms' ),
                 [
-                    __( 'Source form, 'wsal-wpforms' ) => '%OldPostTitle%',
+                    __( 'Source form', 'wsal-wpforms' )    => '%OldPostTitle%',
                     __( 'Source form ID', 'wsal-wpforms' ) => '%SourceID%',
-                    __( 'New form ID', 'wsal-wpforms' ) => '%PostID%',
+                    __( 'New form ID', 'wsal-wpforms' )    => '%PostID%',
                 ],
                 [
                     __( 'View form in the editor', 'wsal-wpforms' ) => '%EditorLinkFormDuplicated%',
@@ -56,8 +58,9 @@ $custom_alerts = [
                 5503,
                 WSAL_LOW,
                 __( 'A notification was added to a form, enabled or modified', 'wsal-wpforms' ),
-                __( 'Notification name: %notifiation_name%', 'wsal-wpforms' ),
+                __( 'A notification was added to a form, enabled or modified', 'wsal-wpforms' ),
                 [
+                    __( 'Notification name', 'wsal-wpforms' ) => '%notifiation_name%',
                     __( 'Form name', 'wsal-wpforms' ) => '%form_name%',
                     __( 'Form ID', 'wsal-wpforms' )   => '%PostID%',
                 ],
@@ -72,8 +75,9 @@ $custom_alerts = [
                 5504,
                 WSAL_MEDIUM,
                 __( 'An entry was deleted', 'wsal-wpforms' ),
-                __( 'Entry email address: %entry_email%', 'wsal-wpforms' ),
+                __( 'An entry was deleted', 'wsal-wpforms' ),
                 [
+                    __( 'Entry email address', 'wsal-wpforms' ) => '%entry_email%',
                     __( 'Entry ID', 'wsal-wpforms' )  => '%entry_id%',
                     __( 'Form name', 'wsal-wpforms' ) => '%form_name%',
                     __( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
@@ -89,8 +93,9 @@ $custom_alerts = [
                 5505,
                 WSAL_LOW,
                 __( 'Notifications were enabled or disabled in a form', 'wsal-wpforms' ),
-                __( 'All the notifications in the form %form_name%', 'wsal-wpforms' ),
+                __( 'Notifications were enabled or disabled in a form', 'wsal-wpforms' ),
                 [
+                    __( 'All the notifications in the form ', 'wsal-wpforms' ) => '%form_name%',
                     __( 'Form ID', 'wsal-wpforms' ) => '%PostID%',
                 ],
                 [
@@ -104,8 +109,9 @@ $custom_alerts = [
                 5506,
                 WSAL_LOW,
                 __( 'A form was renamed', 'wsal-wpforms' ),
-                __( 'Previous form name: %old_form_name%', 'wsal-wpforms' ),
+                __( 'A form was renamed', 'wsal-wpforms' ),
                 [
+                    __( 'Previous form name', 'wsal-wpforms' ) => '%old_form_name%',
                     __( 'New form name', 'wsal-wpforms' ) => '%new_form_name%',
                     __( 'Form ID', 'wsal-wpforms' )       => '%PostID%',
                 ],
@@ -120,8 +126,9 @@ $custom_alerts = [
                 5507,
                 WSAL_MEDIUM,
                 __( 'An entry was modified', 'wsal-wpforms' ),
-                __( 'Entry ID: %entry_id%', 'wsal-wpforms' ),
+                __( 'An entry was modified', 'wsal-wpforms' ),
                 [
+                    __( 'Entry ID', 'wsal-wpforms' )       => '%entry_id%',
                     __( 'From form', 'wsal-wpforms' )      => '%form_name%',
                     __( 'Modified field name', 'wsal-wpforms' ) => '%field_name%',
                     __( 'Previous value', 'wsal-wpforms' ) => '%old_value%',
@@ -138,8 +145,9 @@ $custom_alerts = [
                 5508,
                 WSAL_HIGH,
                 __( 'Plugin access settings were changed', 'wsal-wpforms' ),
-                __( 'Access setting: %setting_name%', 'wsal-wpforms' ),
+                __( 'Plugin access settings were changed', 'wsal-wpforms' ),
                 [
+                    __( 'Access setting', 'wsal-wpforms' ) => '%setting_name%',
                     __( 'Type', 'wsal-wpforms' )           => '%setting_type%',
                     __( 'Previous privileges', 'wsal-wpforms' ) => '%old_value%',
                     __( 'New privileges', 'wsal-wpforms' ) => '%new_value%',
@@ -180,8 +188,9 @@ $custom_alerts = [
                 5511,
                 WSAL_HIGH,
                 __( 'An addon was installed, activated or deactivated.', 'wsal-wpforms' ),
-                __( 'The addon %addon_name%', 'wsal-wpforms' ),
-                [],
+                [
+                    __( 'The addon', 'wsal-wpforms' ) => '%addon_name%',
+                ],
                 [],
                 'wpforms',
                 'activated',
