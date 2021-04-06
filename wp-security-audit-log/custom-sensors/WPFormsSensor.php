@@ -643,16 +643,21 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( isset( $value[ $role_index_name ] ) ) {
 						foreach ( $wpforms_caps as $capability ) {
 							if ( $this->array_key_exists_recursive( $capability, $value[ $role_index_name ] ) ) {
-								$roles = isset( $updated_new[ $capability ]['roles'] ) ? $updated_new[ $capability ]['roles'] . ', ' . $value[ $role_index_name ]['name'] : $value[ $role_index_name ]['name'];
-								// Ensure we only have unique values, to avoid duplicated being added when looping.
-								$updated_new[ $capability ] = array(
-									'roles' => $roles,
-								);
+
+								$role =
+									$value[ $role_index_name ]['name'];
+
+								if ( ! isset( $updated_new[ $capability ]['roles'] ) ) {
+									$updated_new[ $capability ]['roles'] = [];
+								}
+								$updated_new[ $capability ]['roles'] +=
+									[ $role => $role ]
+								;
 							}
 							// Fill up array with capability anyway, even if its blank.
 							if ( ! isset( $updated_new[ $capability ] ) ) {
 								$updated_new[ $capability ] = array(
-									'roles' => '',
+									'roles' => [],
 								);
 							}
 						}
@@ -662,16 +667,21 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( isset( $old_value[ $role_index_name ] ) ) {
 						foreach ( $wpforms_caps as $capability ) {
 							if ( $this->array_key_exists_recursive( $capability, $old_value[ $role_index_name ] ) ) {
-								$roles = isset( $updated_old[ $capability ]['roles'] ) ? $updated_old[ $capability ]['roles'] . ', ' . $old_value[ $role_index_name ]['name'] : $old_value[ $role_index_name ]['name'];
-								// Ensure we only have unique values, to avoid duplicated being added when looping.
-								$updated_old[ $capability ] = array(
-									'roles' => $roles
-								);
+
+								$role =
+									$value[ $role_index_name ]['name'];
+
+								if ( ! isset( $updated_old[ $capability ]['roles'] ) ) {
+									$updated_old[ $capability ]['roles'] = [];
+								}
+								$updated_old[ $capability ]['roles'] +=
+									[ $role => $role ]
+								;
 							}
 							// Fill up array with capability anyway, even if its blank.
 							if ( ! isset( $updated_old[ $capability ] ) ) {
 								$updated_old[ $capability ] = array(
-									'roles' => '',
+									'roles' => [],
 								);
 							}
 						}
@@ -697,8 +707,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$variables = array(
 							'setting_name' => $setting_name,
 							'setting_type' => $setting_type,
-							'old_value'    => substr( implode( ',', array_unique( explode( ',', $updated_old[ $wpforms_capability ]['roles'] ) ) ), 2 ),
-							'new_value'    => substr( implode( ',', array_unique( explode( ',', $updated_new[ $wpforms_capability ]['roles'] ) ) ), 2 ),
+							'old_value'    => implode( ', ', $updated_old[ $wpforms_capability ]['roles']),
+							'new_value'    => implode( ', ', $updated_new[ $wpforms_capability ]['roles']),
 						);
 						// Fire off 5508.
 						$this->plugin->alerts->Trigger( $alert_code, $variables );
