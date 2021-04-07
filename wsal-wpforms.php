@@ -35,12 +35,7 @@
  REQUIRED. Here we include and fire up the main core class. This will be needed regardless so be sure to leave line 37-39 in tact.
 */
 require_once plugin_dir_path( __FILE__ ) . 'core/class-extension-core.php';
-$core_settings = array(
-	'text_domain'      => 'wsal-wpforms',
-	'custom_alert_path' => trailingslashit( dirname( __FILE__ ) ) . 'wp-security-audit-log',
-	'custom_sensor_path' => trailingslashit( trailingslashit( dirname( __FILE__ ) ) . 'wp-security-audit-log' . DIRECTORY_SEPARATOR . 'custom-sensors' ),
-);
-$wsal_extension = new WPWhiteSecurity\ActivityLog\Extensions\Common\Core( $core_settings );
+$wsal_extension = new WPWhiteSecurity\ActivityLog\Extensions\Common\Core( __FILE__, 'wsal-wpforms' );
 
 /**
  * Adds new custom event objects for our plugin
@@ -87,39 +82,7 @@ function wsal_wpforms_add_custom_ignored_cpt( $post_types ) {
 }
 
 /**
- * Adds new meta formatting for our plugion
- *
- * @method wsal_wpforms_add_custom_meta_format
- * @since  1.0.0
+ * Add our filters.
  */
-function wsal_wpforms_add_custom_meta_format( $value, $name ) {
-	$check_value = (string) $value;
-	if ( '%EditorLinkForm%' === $name ) {
-		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View form in editor', 'wsal-wpforms' ) . '</a>';
-		} else {
-			return '';
-		}
-	}
-
-	if ( '%EditorLinkFormDuplicated%' === $name ) {
-		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View new duplicated form in editor', 'wsal-wpforms' ) . '</a>';
-		} else {
-			return '';
-		}
-	}
-
-	if ( '%EditorLinkEntry%' === $name ) {
-		if ( 'NULL' !== $check_value ) {
-			return '<a target="_blank" href="' . esc_url( $value ) . '">' . __( 'View entry in editor', 'wsal-wpforms' ) . '</a>';
-		} else {
-			return '';
-		}
-	}
-	return $value;
-}
-
-add_filter( 'wsal_meta_formatter_custom_formatter', 'wsal_wpforms_add_custom_meta_format', 10, 2 );
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
 add_filter( 'wsal_ignored_custom_post_types', 'wsal_wpforms_add_custom_ignored_cpt' );
