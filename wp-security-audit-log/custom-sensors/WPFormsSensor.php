@@ -538,10 +538,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
-		$entry      = wpforms()->entry->get( $row_id );
-		$form       = get_post( $entry->form_id );
+		$entry		= wpforms()->entry->get( $row_id );
 
-		// Grab from content.
+		if ( is_null( $entry ) ) {
+			return;
+		}
+
+		$form 		= get_post( $entry->form_id );
+
+        // Grab from content.
 		$form_content = (string) $entry->fields;
 
 		// Search it for any email address
