@@ -546,11 +546,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		$form 		= get_post( $entry->form_id );
 
-		if ( is_null( $entry ) ) {
-			return;
-		}
-
-		// Grab from content.
+        // Grab from content.
 		$form_content = (string) $entry->fields;
 
 		// Search it for any email address
