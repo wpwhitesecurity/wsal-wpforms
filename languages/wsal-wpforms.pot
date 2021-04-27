@@ -1,15 +1,15 @@
-# Copyright (C) 2020 WP White Security
+# Copyright (C) 2021 WP White Security
 # This file is distributed under the same license as the WP Activity Log for WPForms plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Activity Log for WPForms 1.1\n"
+"Project-Id-Version: WP Activity Log for WPForms 1.1.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wsal-wpforms\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-09-22T15:00:31+01:00\n"
+"POT-Creation-Date: 2021-04-27T11:14:53+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: wsal-wpforms\n"
@@ -35,7 +35,7 @@ msgid "http://www.wpwhitesecurity.com/"
 msgstr ""
 
 #: wp-security-audit-log/custom-alerts.php:4
-#: wsal-wpforms.php:55
+#: wsal-wpforms.php:50
 msgid "WPForms"
 msgstr ""
 
@@ -48,95 +48,174 @@ msgid "A form was created, modified or deleted"
 msgstr ""
 
 #: wp-security-audit-log/custom-alerts.php:11
-msgid "Form name %PostTitle% %LineBreak% ID: %PostID% %LineBreak% %EditorLinkForm%"
+msgid "The Form called %PostTitle%."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:19
+#: wp-security-audit-log/custom-alerts.php:13
+#: wp-security-audit-log/custom-alerts.php:28
+#: wp-security-audit-log/custom-alerts.php:59
+#: wp-security-audit-log/custom-alerts.php:76
+#: wp-security-audit-log/custom-alerts.php:91
+#: wp-security-audit-log/custom-alerts.php:106
+msgid "Form ID"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:16
+#: wp-security-audit-log/custom-alerts.php:31
+#: wp-security-audit-log/custom-alerts.php:47
+#: wp-security-audit-log/custom-alerts.php:62
+#: wp-security-audit-log/custom-alerts.php:79
+#: wp-security-audit-log/custom-alerts.php:94
+#: wp-security-audit-log/custom-alerts.php:109
+msgid "View form in the editor"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:25
 msgid "A field was created, modified or deleted from a form."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:20
-msgid "Field name %field_name% %LineBreak% Form name %form_name% %LineBreak% Form ID: %PostID% %LineBreak% %EditorLinkForm%"
+#: wp-security-audit-log/custom-alerts.php:26
+msgid "The Field called %field_name% in the form %form_name%."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:28
+#: wp-security-audit-log/custom-alerts.php:40
 msgid "A form was duplicated"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:29
-msgid "Source form %OldPostTitle% %LineBreak% New form name %PostTitle% %LineBreak% Source form ID %SourceID% %LineBreak% New form ID: %PostID% %LineBreak% %EditorLinkForm%"
+#: wp-security-audit-log/custom-alerts.php:41
+msgid "Duplicated the form %OldPostTitle%."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:37
-msgid "A notification was added to a form, enabled or modified"
+#: wp-security-audit-log/custom-alerts.php:43
+msgid "Source form ID"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:38
-msgid "Notification name %notifiation_name% %LineBreak% Form name %form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%"
-msgstr ""
-
-#: wp-security-audit-log/custom-alerts.php:46
-msgid "An entry was deleted"
-msgstr ""
-
-#: wp-security-audit-log/custom-alerts.php:47
-msgid "Entry email address: %entry_email% %LineBreak% Entry ID: %entry_id% %LineBreak% Form name: %form_name% %LineBreak% Form ID: %form_id% %LineBreak% %EditorLinkForm%"
-msgstr ""
-
-#: wp-security-audit-log/custom-alerts.php:55
-msgid "Notifications were enabled or disabled in a form"
+#: wp-security-audit-log/custom-alerts.php:44
+msgid "New form ID"
 msgstr ""
 
 #: wp-security-audit-log/custom-alerts.php:56
-msgid "All the notifications in the form. %LineBreak% Form name %form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%"
+msgid "A notification was added to a form, enabled or modified"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:64
-msgid "A form was renamed"
+#: wp-security-audit-log/custom-alerts.php:57
+msgid "The Notification called %notifiation_name% in the form %form_name%."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:65
-msgid "New form name %new_form_name% %LineBreak% Old form name %old_form_name% %LineBreak% Form ID %PostID% %LineBreak% %EditorLinkForm%"
+#: wp-security-audit-log/custom-alerts.php:71
+msgid "An entry was deleted"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:73
-msgid "An entry was modified"
+#: wp-security-audit-log/custom-alerts.php:72
+msgid "Deleted the Entry with the email address %entry_email%."
 msgstr ""
 
 #: wp-security-audit-log/custom-alerts.php:74
-msgid "Entry ID: %entry_id% %LineBreak% From form: %form_name% %LineBreak% Modified field name: %field_name% %LineBreak% Old value: %old_value% %LineBreak% New Value: %new_value% %LineBreak% %EditorLinkEntry%"
+msgid "Entry ID"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:82
+#: wp-security-audit-log/custom-alerts.php:75
+msgid "Form name"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:88
+msgid "Notifications were enabled or disabled in a form"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:89
+msgid "Changed the status of all the notifications in the form %form_name%."
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:103
+msgid "A form was renamed"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:104
+msgid "Renamed the form %old_form_name% to %new_form_name%."
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:118
+msgid "An entry was modified"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:119
+msgid "Modified the Entry with ID %entry_id%."
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:121
+msgid "From form"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:122
+msgid "Modified field name"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:123
+msgid "Previous value"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:124
+msgid "New Value"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:127
+msgid "View entry in the editor"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:136
 msgid "Plugin access settings were changed"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:83
-msgid "Access setting: %setting_name% %LineBreak% Type: %setting_type% %LineBreak% Old privileges: %old_value% %LineBreak% New privileges: %new_value%"
+#: wp-security-audit-log/custom-alerts.php:137
+msgid "Changed the WPForms access setting %setting_name%."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:91
+#: wp-security-audit-log/custom-alerts.php:139
+msgid "Type"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:140
+msgid "Previous privileges"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:141
+msgid "New privileges"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:151
 msgid "Currency settings were changed"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:92
-msgid "Changed the currency %LineBreak% Old currency: %old_value% %LineBreak% New currency: %new_value%"
+#: wp-security-audit-log/custom-alerts.php:152
+msgid "Changed the <strong>currency</strong> to %new_value%."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:100
-msgid "A service integration was added or deleted."
+#: wp-security-audit-log/custom-alerts.php:154
+msgid "Previous currency"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:101
-msgid "A service integration %LineBreak% Service: %service_name% %LineBreak% Connection name: %connection_name%"
+#: wp-security-audit-log/custom-alerts.php:164
+msgid "A service integration was added or deleted"
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:109
+#: wp-security-audit-log/custom-alerts.php:165
+msgid "A service integration with %service_name%."
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:167
+msgid "Connection name"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:168
+msgid "Service"
+msgstr ""
+
+#: wp-security-audit-log/custom-alerts.php:178
 msgid "An addon was installed, activated or deactivated."
 msgstr ""
 
-#: wp-security-audit-log/custom-alerts.php:110
-msgid "The addon %addon_name%"
+#: wp-security-audit-log/custom-alerts.php:179
+msgid "The addon %addon_name%."
 msgstr ""
 
 #: wp-security-audit-log/custom-sensors/WPFormsSensor.php:217
@@ -145,55 +224,45 @@ msgstr ""
 msgid "Default Notification"
 msgstr ""
 
-#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:556
+#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:561
 msgid "No email provided"
 msgstr ""
 
-#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:690
+#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:705
 msgid "Own"
 msgstr ""
 
-#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:692
+#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:707
 msgid "Other"
 msgstr ""
 
-#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:694
+#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:709
 msgid "N/A"
 msgstr ""
 
-#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:746
+#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:761
 msgid "Mailchimp"
 msgstr ""
 
-#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:748
+#: wp-security-audit-log/custom-sensors/WPFormsSensor.php:763
 msgid "GetResponse"
 msgstr ""
 
-#: wsal-wpforms.php:56
-#: wsal-wpforms.php:57
+#: wsal-wpforms.php:51
+#: wsal-wpforms.php:52
 msgid "Notifications in WPForms"
 msgstr ""
 
-#: wsal-wpforms.php:58
-#: wsal-wpforms.php:59
+#: wsal-wpforms.php:53
+#: wsal-wpforms.php:54
 msgid "Entries in WPForms"
 msgstr ""
 
-#: wsal-wpforms.php:60
-#: wsal-wpforms.php:61
+#: wsal-wpforms.php:55
+#: wsal-wpforms.php:56
 msgid "Fields in WPForms"
 msgstr ""
 
-#: wsal-wpforms.php:62
+#: wsal-wpforms.php:57
 msgid "Forms in WPForms"
-msgstr ""
-
-#: wsal-wpforms.php:99
-#: wsal-wpforms.php:125
-msgid "View form in the editor"
-msgstr ""
-
-#: wsal-wpforms.php:107
-#: wsal-wpforms.php:133
-msgid "View entry in the editor"
 msgstr ""
