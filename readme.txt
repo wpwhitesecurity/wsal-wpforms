@@ -80,7 +80,7 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 
 = 1.1.1 (2021-04-21) =
 
-Release notes: [Major update of all the activity log extensions](https://wpactivitylog.com/major-core-update-extensions/)
+Release notes: [Major update of all the activity log extensions](https://wpactivitylog.com/core-update-extensions-2-0/)
 
 * **Improvement**
 	* Events now use the latest event format used in [WP Activity Log](https://wpactivitylog.com).
