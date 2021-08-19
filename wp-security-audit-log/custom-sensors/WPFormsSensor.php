@@ -360,9 +360,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( $added_items && $added_items !== $changed_items ) {
 						$alert_code = 5501;
 						foreach ( $added_items as $fields ) {
+							$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 							$variables = array(
 								'EventType'      => 'created',
-								'field_name'     => sanitize_text_field( $fields['label'] ),
+								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
 								'PostID'         => $post_id,
 								'EditorLinkForm' => $editor_link,
@@ -379,9 +380,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 							if ( ! empty( $changed_items ) ) {
 								if ( ! $changed_items[ $fields ] ) {
+									$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 									$variables = array(
 										'EventType'      => 'deleted',
-										'field_name'     => sanitize_text_field( $value['label'] ),
+										'field_name'     => $field_name,
 										'form_name'      => sanitize_text_field( $form->post_title ),
 										'PostID'         => $post_id,
 										'EditorLinkForm' => $editor_link,
@@ -390,9 +392,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 									$has_alert_triggered = true;
 								}
 							} else {
+								$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 								$variables = array(
 									'EventType'      => 'deleted',
-									'field_name'     => sanitize_text_field( $value['label'] ),
+									'field_name'     => $field_name,
 									'form_name'      => sanitize_text_field( $form->post_title ),
 									'PostID'         => $post_id,
 									'EditorLinkForm' => $editor_link,
@@ -407,9 +410,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( $changed_items && ! $this->was_triggered_recently( 5500 ) ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
+							$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 							$variables = array(
 								'EventType'      => 'modified',
-								'field_name'     => sanitize_text_field( $fields['label'] ),
+								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
 								'PostID'         => $post_id,
 								'EditorLinkForm' => $editor_link,
