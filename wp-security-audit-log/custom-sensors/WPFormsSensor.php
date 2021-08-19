@@ -150,11 +150,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 				if ( isset( $old_form_content->id ) ) {
 					$variables = array(
-						'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
-						'PostTitle'      => sanitize_text_field( $form->post_title ),
-						'SourceID'       => sanitize_text_field( $old_form_content->id ),
-						'PostID'         => $post_id,
-						'EditorLinkForm' => $editor_link,
+						'OldPostTitle'             => sanitize_text_field( $this->_old_post->post_title ),
+						'PostTitle'                => sanitize_text_field( $form->post_title ),
+						'SourceID'                 => sanitize_text_field( $old_form_content->id ),
+						'PostID'                   => $post_id,
+						'EditorLinkFormDuplicated' => $editor_link,
 					);
 					$this->plugin->alerts->Trigger( $alert_code, $variables );
 					$has_alert_triggered = true;
