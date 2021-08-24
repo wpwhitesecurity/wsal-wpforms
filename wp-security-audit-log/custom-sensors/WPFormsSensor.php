@@ -359,8 +359,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					// Check new content size determine if something has been added.
 					if ( $added_items && $added_items !== $changed_items ) {
 						$alert_code = 5501;
-						foreach ( $added_items as $fields ) {
-							$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
+						foreach ( $added_items as $fields ) {							
+							$field_name = $this->get_type_if_field_has_no_name( $fields );
 							$variables = array(
 								'EventType'      => 'created',
 								'field_name'     => $field_name,
@@ -380,7 +380,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 							if ( ! empty( $changed_items ) ) {
 								if ( ! $changed_items[ $fields ] ) {
-									$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
+									$field_name = $this->get_type_if_field_has_no_name( $value );
 									$variables = array(
 										'EventType'      => 'deleted',
 										'field_name'     => $field_name,
@@ -392,7 +392,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 									$has_alert_triggered = true;
 								}
 							} else {
-								$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
+								$field_name = $this->get_type_if_field_has_no_name( $value );
 								$variables = array(
 									'EventType'      => 'deleted',
 									'field_name'     => $field_name,
@@ -410,7 +410,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( $changed_items && ! $this->was_triggered_recently( 5500 ) ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
-							$field_name = ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
+							$field_name = $this->get_type_if_field_has_no_name( $fields );
 							$variables = array(
 								'EventType'      => 'modified',
 								'field_name'     => $field_name,
@@ -923,6 +923,16 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Return the fields type if it has no provided label to display.
+	 *
+	 * @param array $fields
+	 * @return string
+	 */
+	private function get_type_if_field_has_no_name( $fields ) {
+		return ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 	}
 
 }
