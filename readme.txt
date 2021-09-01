@@ -88,7 +88,7 @@ Release notes: [Activity log extensions for Yoast SEO, WooCommerce & WPForms get
 * **Bug fixes**
 	* Fixed: Extension logs multiple non-relevant events in the log when a new form is created.
 	* Fixed: "View form" link in event ID 5502 (when a form is duplicated) is malformed.
-
+  
 = 1.1.1 (2021-04-27) =
 
 Release notes: [Major update of all the activity log extensions](https://wpactivitylog.com/core-update-extensions-2-0/)
