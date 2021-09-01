@@ -6,8 +6,8 @@ License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Activity Log extension, activity logs
 Requires at least: 4.5
 Tested up to: 5.8
-Stable tag: 1.1.1
-Requires PHP: 5.6
+Stable tag: 1.1.2
+Requires PHP: 7.0
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
 
@@ -77,6 +77,17 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 1. Forms, entries, notifications and other WPForms plugin changes reported in the WordPress activity log.
 
 == Changelog ==
+
+= 1.1.2 (2021-09-01) =
+
+Release notes: [Activity log extensions for Yoast SEO, WooCommerce & WPForms get a maintenance update](https://wpactivitylog.com/extensions-september-2021-update/)
+
+* **Improvement**
+	* Updated extension with latest core update (more efficient way of how sensors are loaded).
+	
+* **Bug fixes**
+	* Fixed: Extension logs multiple non-relevant events in the log when a new form is created.
+	* Fixed: "View form" link in event ID 5502 (when a form is duplicated) is malformed.
 
 = 1.1.1 (2021-04-27) =
 
