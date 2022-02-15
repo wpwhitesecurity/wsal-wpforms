@@ -182,6 +182,61 @@ $custom_alerts = array(
 				'wpforms',
 				'activated',
 			),
+
+            array(
+				5513,
+				WSAL_HIGH,
+				__( 'Changed the status of the setting Enable anti-spam protection', 'wsal-wpforms' ),
+				__( 'Changed the status of the setting <strong>Enable anti-spam protection.</strong>', 'wsal-wpforms' ),
+				array(
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_forms',
+				'enabled',
+			),
+
+            array(
+				5514,
+				WSAL_HIGH,
+				__( 'Changed the status of the setting Enable dynamic fields population', 'wsal-wpforms' ),
+				__( 'Changed the status of the setting <strong>Enable dynamic fields population.</strong>', 'wsal-wpforms' ),
+				array(
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_forms',
+				'enabled',
+			),
+
+            array(
+				5515,
+				WSAL_HIGH,
+				__( 'Changed the status of the setting Enable AJAX form submission.', 'wsal-wpforms' ),
+				__( 'Changed the status of the setting <strong>Enable AJAX form submission.</strong>', 'wsal-wpforms' ),
+				array(
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_forms',
+				'enabled',
+			),
+
+            array(
+				5516,
+				WSAL_HIGH,
+				__( 'A notification name was renamed', 'wsal-wpforms' ),
+				__( 'Renamed the notification %old_name% to %new_name%.', 'wsal-wpforms' ),
+				array(
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_notifications',
+				'renamed',
+			),
 		),
 	),
 );

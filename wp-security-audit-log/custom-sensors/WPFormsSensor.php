@@ -164,6 +164,55 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}
 		}
 
+        if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) ) {
+            if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
+				$form_content     = json_decode( $form->post_content );
+				$old_form_content = json_decode( $this->_old_post->post_content );
+				$post_created     = new DateTime( $post->post_date_gmt );
+				$post_modified    = new DateTime( $post->post_modified_gmt );
+				$editor_link      = esc_url(
+					add_query_arg(
+						array(
+							'view'    => 'fields',
+							'form_id' => $post_id,
+						),
+						admin_url( 'admin.php?page=wpforms-builder' )
+					)
+				);
+
+                if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
+                    $alert_code = 5513;
+                    $variables = array(
+                        'EventType'        => ( $form_content->settings->antispam ) ? 'enabled' : 'disabled',
+                        'form_name'        => sanitize_text_field( $form->post_title ),
+                        'form_id'          => $post_id,
+                        'EditorLinkForm'   => $editor_link,
+                    );
+                    $this->plugin->alerts->Trigger( $alert_code, $variables );
+                }
+                if ( isset( $form_content->settings->dynamic_population ) && ! isset( $old_form_content->settings->dynamic_population ) || ! isset( $form_content->settings->dynamic_population ) && isset( $old_form_content->settings->dynamic_population ) ) {
+                    $alert_code = 5514;
+                    $variables = array(
+                        'EventType'        => ( $form_content->settings->dynamic_population) ? 'enabled' : 'disabled',
+                        'form_name'        => sanitize_text_field( $form->post_title ),
+                        'form_id'          => $post_id,
+                        'EditorLinkForm'   => $editor_link,
+                    );
+                    $this->plugin->alerts->Trigger( $alert_code, $variables );
+                }
+                if ( isset( $form_content->settings->ajax_submit ) && ! isset( $old_form_content->settings->ajax_submit ) || ! isset( $form_content->settings->ajax_submit ) && isset( $old_form_content->settings->ajax_submit ) ) {
+                    $alert_code = 5515;
+                    $variables = array(
+                        'EventType'        => ( $form_content->settings->ajax_submit ) ? 'enabled' : 'disabled',
+                        'form_name'        => sanitize_text_field( $form->post_title ),
+                        'form_id'          => $post_id,
+                        'EditorLinkForm'   => $editor_link,
+                    );
+                    $this->plugin->alerts->Trigger( $alert_code, $variables );
+                }
+            }
+        }
+
 		// Handling form notifications.
 		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
@@ -181,7 +230,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						admin_url( 'admin.php?page=wpforms-builder' )
 					)
 				);
-
+                
 				// Create 2 arrays from the notification object for comparison later.
 				if ( isset( $form_content->settings->notifications ) && isset( $old_form_content->settings->notifications ) ) {
 					$form_content_array     = json_decode( json_encode( $form_content->settings->notifications ), true );
@@ -279,19 +328,35 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						}
 
 						$alert_code = 5503;
-						foreach ( $removed_items as $notification ) {
+						foreach ( $changed_items as $key => $notification ) {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
 								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
-							$variables = array(
-								'EventType'        => 'modified',
-								'notifiation_name' => sanitize_text_field( $notification_name ),
-								'form_name'        => sanitize_text_field( $form->post_title ),
-								'PostID'           => $post_id,
-								'EditorLinkForm'   => $editor_link,
-							);
+
+                            $new_array = (array) $form_content->settings->notifications;
+                            $new_changed_item = (array) $new_array[$key];
+                            $new_name = $new_changed_item['notification_name'];
+
+                            if ( $notification_name !== $new_name ) {
+                                $alert_code = 5516;
+                                $variables = array(
+                                    'EventType'        => 'modified',
+                                    'old_name'         => sanitize_text_field( $notification_name ),
+                                    'new_name'         => sanitize_text_field( $new_name ),
+                                    'form_id'          => $post_id,
+                                    'EditorLinkForm'   => $editor_link,
+                                );
+                            } else {
+                                $variables = array(
+                                    'EventType'        => 'modified',
+                                    'notifiation_name' => sanitize_text_field( $notification_name ),
+                                    'form_name'        => sanitize_text_field( $form->post_title ),
+                                    'PostID'           => $post_id,
+                                    'EditorLinkForm'   => $editor_link,
+                                );
+                            }
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
