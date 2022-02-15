@@ -1,4 +1,5 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+
 /**
  * Custom Sensors for WPForms
  *
@@ -359,9 +360,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					// Check new content size determine if something has been added.
 					if ( $added_items && $added_items !== $changed_items ) {
 						$alert_code = 5501;
-						foreach ( $added_items as $fields ) {							
+						foreach ( $added_items as $fields ) {
 							$field_name = $this->get_type_if_field_has_no_name( $fields );
-							$variables = array(
+							$variables  = array(
 								'EventType'      => 'created',
 								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
@@ -381,7 +382,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( ! empty( $changed_items ) ) {
 								if ( ! $changed_items[ $fields ] ) {
 									$field_name = $this->get_type_if_field_has_no_name( $value );
-									$variables = array(
+									$variables  = array(
 										'EventType'      => 'deleted',
 										'field_name'     => $field_name,
 										'form_name'      => sanitize_text_field( $form->post_title ),
@@ -393,7 +394,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								}
 							} else {
 								$field_name = $this->get_type_if_field_has_no_name( $value );
-								$variables = array(
+								$variables  = array(
 									'EventType'      => 'deleted',
 									'field_name'     => $field_name,
 									'form_name'      => sanitize_text_field( $form->post_title ),
@@ -411,7 +412,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
 							$field_name = $this->get_type_if_field_has_no_name( $fields );
-							$variables = array(
+							$variables  = array(
 								'EventType'      => 'modified',
 								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
@@ -542,15 +543,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
-		$entry		= wpforms()->entry->get( $row_id );
+		$entry      = wpforms()->entry->get( $row_id );
 
 		if ( is_null( $entry ) ) {
 			return;
 		}
 
-		$form 		= get_post( $entry->form_id );
+		$form = get_post( $entry->form_id );
 
-        // Grab from content.
+		// Grab from content.
 		$form_content = (string) $entry->fields;
 
 		// Search it for any email address
@@ -598,7 +599,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		foreach ( $updated_fields as $updated_field ) {
 
-			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
+			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ), true ) );
 
 			$editor_link = esc_url(
 				add_query_arg(
@@ -657,16 +658,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 									$value[ $role_index_name ]['name'];
 
 								if ( ! isset( $updated_new[ $capability ]['roles'] ) ) {
-									$updated_new[ $capability ]['roles'] = [];
+									$updated_new[ $capability ]['roles'] = array();
 								}
 								$updated_new[ $capability ]['roles'] +=
-									[ $role => $role ]
-								;
+									array( $role => $role );
 							}
 							// Fill up array with capability anyway, even if its blank.
 							if ( ! isset( $updated_new[ $capability ] ) ) {
 								$updated_new[ $capability ] = array(
-									'roles' => [],
+									'roles' => array(),
 								);
 							}
 						}
@@ -681,16 +681,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 									$value[ $role_index_name ]['name'];
 
 								if ( ! isset( $updated_old[ $capability ]['roles'] ) ) {
-									$updated_old[ $capability ]['roles'] = [];
+									$updated_old[ $capability ]['roles'] = array();
 								}
 								$updated_old[ $capability ]['roles'] +=
-									[ $role => $role ]
-								;
+									array( $role => $role );
 							}
 							// Fill up array with capability anyway, even if its blank.
 							if ( ! isset( $updated_old[ $capability ] ) ) {
 								$updated_old[ $capability ] = array(
-									'roles' => [],
+									'roles' => array(),
 								);
 							}
 						}
@@ -716,8 +715,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$variables = array(
 							'setting_name' => $setting_name,
 							'setting_type' => $setting_type,
-							'old_value'    => implode( ', ', $updated_old[ $wpforms_capability ]['roles']),
-							'new_value'    => implode( ', ', $updated_new[ $wpforms_capability ]['roles']),
+							'old_value'    => implode( ', ', $updated_old[ $wpforms_capability ]['roles'] ),
+							'new_value'    => implode( ', ', $updated_new[ $wpforms_capability ]['roles'] ),
 						);
 						// Fire off 5508.
 						$this->plugin->alerts->Trigger( $alert_code, $variables );
@@ -820,10 +819,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	public function generate_addon_event( $plugin, $event_type ) {
 		$alert_code       = 5511;
-		$tidy_plugin_name = preg_replace( "/\.[^.]+$/", "", basename( $plugin ) );
+		$tidy_plugin_name = preg_replace( '/\.[^.]+$/', '', basename( $plugin ) );
 		$variables        = array(
-			'EventType'       => $event_type,
-			'addon_name'      => str_replace( 'Wpforms', 'WPForms', ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ) ),
+			'EventType'  => $event_type,
+			'addon_name' => str_replace( 'Wpforms', 'WPForms', ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ) ),
 		);
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
@@ -924,7 +923,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Return the fields type if it has no provided label to display.
 	 *
