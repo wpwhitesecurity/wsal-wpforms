@@ -231,6 +231,22 @@ $custom_alerts = array(
 				__( 'A notification name was renamed', 'wsal-wpforms' ),
 				__( 'Renamed the notification %old_name% to %new_name%.', 'wsal-wpforms' ),
 				array(
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_notifications',
+				'renamed',
+			),
+
+            array(
+				5517,
+				WSAL_HIGH,
+				__( 'A notification name was renamed', 'wsal-wpforms' ),
+				__( 'Changed the %metadata_name% to %new_value% in %notification_name%.', 'wsal-wpforms' ),
+				array(
+					__( 'Previous value', 'wsal-wpforms' ) => '%old_value%',
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
 					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
                 ),
 				array(),

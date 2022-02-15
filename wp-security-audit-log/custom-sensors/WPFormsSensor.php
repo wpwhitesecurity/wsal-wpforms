@@ -210,6 +210,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
                     );
                     $this->plugin->alerts->Trigger( $alert_code, $variables );
                 }
+
+                error_log( print_r( $form_content->settings->confirmations, true ) );
+                if ( isset( $form_content->settings->confirmations ) && isset( $old_form_content->settings->confirmations ) ) {
+
+                }
             }
         }
 
@@ -339,12 +344,41 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
                             $new_changed_item = (array) $new_array[$key];
                             $new_name = $new_changed_item['notification_name'];
 
+                            $notification_metas = array(
+                                'email',
+                                'subject',
+                                'sender_name',
+                                'sender_address',
+                                'replyto',
+                                'message',
+                            );
+
+                            foreach ( $notification_metas as $metas ) {
+                                if ( $new_changed_item[$metas] !== $changed_items[$key][$metas] ) {
+                                    $alert_code = 5517;
+                                    $variables = array(
+                                        'EventType'        => 'modified',
+                                        'metadata_name'    => $metas,
+                                        'old_value'        => $changed_items[$key][$metas],
+                                        'new_value'        => $new_changed_item[$metas],
+                                        'form_name'         => sanitize_text_field( $form->post_title ),
+                                        'notification_name' => $notification_name ,
+                                       
+                                        'form_id'          => $post_id,
+                                        'EditorLinkForm'   => $editor_link,
+                                    );
+                                    $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                                    $alert_code = null;
+                                }
+                            }
+
                             if ( $notification_name !== $new_name ) {
                                 $alert_code = 5516;
                                 $variables = array(
                                     'EventType'        => 'modified',
                                     'old_name'         => sanitize_text_field( $notification_name ),
                                     'new_name'         => sanitize_text_field( $new_name ),
+                                    'form_name'        => sanitize_text_field( $form->post_title ),
                                     'form_id'          => $post_id,
                                     'EditorLinkForm'   => $editor_link,
                                 );
@@ -357,7 +391,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
                                     'EditorLinkForm'   => $editor_link,
                                 );
                             }
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                            if ( $alert_code ) {
+                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                            }
 							$has_alert_triggered = true;
 						}
 					}
