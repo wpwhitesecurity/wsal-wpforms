@@ -79,15 +79,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Handling form creation. First lets check an old post was set and its not flagged as an update, then finally check its not a duplicate.
 		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $post->post_type ) {
 			$alert_code  = 5500;
-			$editor_link = esc_url(
-				add_query_arg(
-					array(
-						'view'    => 'fields',
-						'form_id' => $post_id,
-					),
-					admin_url( 'admin.php?page=wpforms-builder' )
-				)
-			);
+            $editor_link = create_form_post_editor_link( $post_id );
 
 			$variables = array(
 				'EventType'      => 'created',
@@ -106,15 +98,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code  = 5506;
 				$post        = get_post( $post_id );
-				$editor_link = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link = create_form_post_editor_link( $post_id );
 
 				$variables = array(
 					'EventType'      => 'renamed',
@@ -139,15 +123,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			if ( $form->post_date_gmt === $form->post_modified_gmt ) {
 				// Grab old form ID from its post content.
 				$old_form_content = json_decode( $this->_old_post->post_content );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link = create_form_post_editor_link( $post_id );
 
 				if ( isset( $old_form_content->id ) ) {
 					$variables = array(
@@ -170,15 +146,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = create_form_post_editor_link( $post_id );
 
                 if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
                     $alert_code = 5513;
@@ -263,57 +231,35 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
                             $new_array = (array) $form_content->settings->confirmations;
                             $new_changed_item = (array) $new_array[$key];
 
-                            if ( $new_changed_item['type'] !== $confirmation['type'] ) {
-                                $alert_code = 5519;
-                                $variables  = array(
-                                    'confirmation_name' => $new_changed_item['name'],
-                                    'old_type'          => $confirmation['type'],
-                                    'new_type'          => $new_changed_item['type'],
-                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
-                                    'form_id'            => $post_id,
-                                    'EditorLinkForm'    => $editor_link,
-                                );
-                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-                                $has_alert_triggered = true;
-                            }
-                            if ( $new_changed_item['page'] !== $confirmation['page'] ) {
-                                $alert_code = 5520;
-                                $variables  = array(
-                                    'confirmation_name' => $new_changed_item['name'],
-                                    'old_page'          => get_the_title( $confirmation['page'] ),
-                                    'new_page'          => get_the_title( $new_changed_item['page'] ),
-                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
-                                    'form_id'            => $post_id,
-                                    'EditorLinkForm'    => $editor_link,
-                                );
-                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-                                $has_alert_triggered = true;
-                            }
-                            if ( $new_changed_item['redirect'] !== $confirmation['redirect'] ) {
-                                $alert_code = 5521;
-                                $variables  = array(
-                                    'confirmation_name' => $new_changed_item['redirect'],
-                                    'old_URL'          => $confirmation['redirect'],
-                                    'new_URL'          => $new_changed_item['redirect'],
-                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
-                                    'form_id'            => $post_id,
-                                    'EditorLinkForm'    => $editor_link,
-                                );
-                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-                                $has_alert_triggered = true;
-                            }
-                            if ( $new_changed_item['message'] !== $confirmation['message'] ) {
-                                $alert_code = 5522;
-                                $variables  = array(
-                                    'confirmation_name' => $new_changed_item['message'],
-                                    'old_type'          => $confirmation['message'],
-                                    'new_type'          => $new_changed_item['message'],
-                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
-                                    'form_id'            => $post_id,
-                                    'EditorLinkForm'    => $editor_link,
-                                );
-                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
-                                $has_alert_triggered = true;
+                            $confirmation_changes = array(
+                                'type',
+                                'page',
+                                'redirect',
+                                'message',
+                            );
+
+                            foreach ( $confirmation_changes as $change_type ) {
+                                if ( $new_changed_item[$change_type] !== $confirmation[$change_type] ) {
+                                    if ( 'type' === $change_type ) {
+                                        $alert_code = 5519;
+                                    } elseif ( 'tpage' === $change_type ) {
+                                        $alert_code = 5520;
+                                    } elseif ( 'redirect' === $change_type ) {
+                                        $alert_code = 5521;
+                                    } elseif ( 'message' === $change_type ) {
+                                        $alert_code = 5522;
+                                    }
+                                    $variables  = array(
+                                        'confirmation_name' => $new_changed_item[$change_type],
+                                        'old_value'         => $confirmation[$change_type],
+                                        'new_value'         => $new_changed_item[$change_type],
+                                        'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+                                        'form_id'           => $post_id,
+                                        'EditorLinkForm'    => $editor_link,
+                                    );
+                                    $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                                    $has_alert_triggered = true;
+                                }
                             }
                         }
                     }
@@ -329,15 +275,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = create_form_post_editor_link( $post_id );
                 
 				// Create 2 arrays from the notification object for comparison later.
 				if ( isset( $form_content->settings->notifications ) && isset( $old_form_content->settings->notifications ) ) {
@@ -449,8 +387,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
                                         'old_value'        => $changed_items[$key][$metas],
                                         'new_value'        => $new_changed_item[$metas],
                                         'form_name'         => sanitize_text_field( $form->post_title ),
-                                        'notification_name' => $notification_name ,
-                                       
+                                        'notification_name' => $notification_name ,                                       
                                         'form_id'          => $post_id,
                                         'EditorLinkForm'   => $editor_link,
                                     );
@@ -496,15 +433,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = create_form_post_editor_link( $post_id );
 
 				// First lets see if we have BOTH old and new content to compare.
 				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) && serialize( $form_content->fields ) !== serialize( $old_form_content->fields ) ) {
@@ -588,7 +517,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					}
 
 					// Check content to see if anything has been modified.
-					if ( $changed_items && ! $this->was_triggered_recently( 5500 ) ) {
+					if ( ! empty( $changed_items ) && ! $this->was_triggered_recently( 5500 ) ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
 							$field_name = $this->get_type_if_field_has_no_name( $fields );
@@ -664,15 +593,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 					// Now lets check if anything has been added to our array, if it has, somethings changed so lets alert.
 					if ( $changed_items ) {
-						$editor_link = esc_url(
-							add_query_arg(
-								array(
-									'view'    => 'fields',
-									'form_id' => $post_id,
-								),
-								admin_url( 'admin.php?page=wpforms-builder' )
-							)
-						);
+						$editor_link = create_form_post_editor_link( $post_id );
 
 						$variables = array(
 							'EventType'      => 'modified',
@@ -746,15 +667,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$email_address = esc_html__( 'No email provided', 'wsal-wpforms' );
 		}
 
-		$editor_link = esc_url(
-			add_query_arg(
-				array(
-					'view'    => 'fields',
-					'form_id' => $entry->form_id,
-				),
-				admin_url( 'admin.php?page=wpforms-builder' )
-			)
-		);
+        $editor_link = create_form_post_editor_link( $entry->form_id );
 
 		$variables = array(
 			'entry_email'    => sanitize_text_field( $email_address ),
@@ -1145,5 +1058,19 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
         $result['modified']    = $changed_items;
 
         return $result;
+    }
+
+    private function create_form_post_editor_link( $post_id ) {
+        $editor_link = esc_url(
+            add_query_arg(
+                array(
+                    'view'    => 'fields',
+                    'form_id' => $post_id,
+                ),
+                admin_url( 'admin.php?page=wpforms-builder' )
+            )
+        );
+
+        return $editor_link;
     }
 }
