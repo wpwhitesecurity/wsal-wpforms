@@ -211,9 +211,128 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
                     $this->plugin->alerts->Trigger( $alert_code, $variables );
                 }
 
-                error_log( print_r( $form_content->settings->confirmations, true ) );
                 if ( isset( $form_content->settings->confirmations ) && isset( $old_form_content->settings->confirmations ) ) {
+					$form_content_array     = json_decode( json_encode( $form_content->settings->confirmations ), true );
+					$old_form_content_array = json_decode( json_encode( $old_form_content->settings->confirmations ), true );
 
+					// Compare the 2 arrays and create array of added items.
+					$compare_added_items = array_diff(
+						array_map( 'serialize', $form_content_array ),
+						array_map( 'serialize', $old_form_content_array )
+					);
+					$added_items         = array_map( 'unserialize', $compare_added_items );
+
+					// Compare the 2 arrays and create array of removed items.
+					$compare_removed_items = array_diff(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$removed_items         = array_map( 'unserialize', $compare_removed_items );
+
+                    // Compare the 2 arrays and create array of changed.
+					$compare_changed_items = array_diff_assoc(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$changed_items         = array_map( 'unserialize', $compare_removed_items );
+
+                    // Check new content size determine if something has been added.
+					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
+						$alert_code = 5518;
+						foreach ( $added_items as $confirmation ) {
+							if ( isset( $confirmation['notification_name'] ) ) {
+								$confirmation_name = $confirmation->name;
+							} else {
+								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+							}
+							$variables = array(
+								'EventType'         => 'added',
+								'confirmation_name' => sanitize_text_field( $confirmation_name ),
+								'form_name'         => sanitize_text_field( $form->post_title ),
+								'PostID'            => $post_id,
+								'EditorLinkForm'    => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$has_alert_triggered = true;
+						}
+						// Check new content size determine if something has been removed.
+					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
+						$alert_code = 5518;
+						foreach ( $removed_items as $confirmation ) {
+							if ( isset( $confirmation['notification_name'] ) ) {
+								$confirmation_name = $confirmation->name;
+							} else {
+								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+							}
+							$variables = array(
+								'EventType'         => 'deleted',
+								'confirmation_name' => sanitize_text_field( $confirmation_name ),
+								'form_name'         => sanitize_text_field( $form->post_title ),
+								'PostID'            => $post_id,
+								'EditorLinkForm'    => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$has_alert_triggered = true;
+						}
+					} elseif ( $changed_items ) {
+                        foreach ( $changed_items as $key => $confirmation ) {
+                            $new_array = (array) $form_content->settings->confirmations;
+                            $new_changed_item = (array) $new_array[$key];
+
+                            if ( $new_changed_item['type'] !== $confirmation['type'] ) {
+                                $alert_code = 5519;
+                                $variables  = array(
+                                    'confirmation_name' => $new_changed_item['name'],
+                                    'old_type'          => $confirmation['type'],
+                                    'new_type'          => $new_changed_item['type'],
+                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+                                    'form_id'            => $post_id,
+                                    'EditorLinkForm'    => $editor_link,
+                                );
+                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                                $has_alert_triggered = true;
+                            }
+                            if ( $new_changed_item['page'] !== $confirmation['page'] ) {
+                                $alert_code = 5520;
+                                $variables  = array(
+                                    'confirmation_name' => $new_changed_item['name'],
+                                    'old_page'          => get_the_title( $confirmation['page'] ),
+                                    'new_page'          => get_the_title( $new_changed_item['page'] ),
+                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+                                    'form_id'            => $post_id,
+                                    'EditorLinkForm'    => $editor_link,
+                                );
+                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                                $has_alert_triggered = true;
+                            }
+                            if ( $new_changed_item['redirect'] !== $confirmation['redirect'] ) {
+                                $alert_code = 5521;
+                                $variables  = array(
+                                    'confirmation_name' => $new_changed_item['redirect'],
+                                    'old_URL'          => $confirmation['redirect'],
+                                    'new_URL'          => $new_changed_item['redirect'],
+                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+                                    'form_id'            => $post_id,
+                                    'EditorLinkForm'    => $editor_link,
+                                );
+                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                                $has_alert_triggered = true;
+                            }
+                            if ( $new_changed_item['message'] !== $confirmation['message'] ) {
+                                $alert_code = 5522;
+                                $variables  = array(
+                                    'confirmation_name' => $new_changed_item['message'],
+                                    'old_type'          => $confirmation['message'],
+                                    'new_type'          => $new_changed_item['message'],
+                                    'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+                                    'form_id'            => $post_id,
+                                    'EditorLinkForm'    => $editor_link,
+                                );
+                                $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+                                $has_alert_triggered = true;
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -242,7 +242,7 @@ $custom_alerts = array(
             array(
 				5517,
 				WSAL_HIGH,
-				__( 'A notification name was renamed', 'wsal-wpforms' ),
+				__( 'A notifications metadata was modified', 'wsal-wpforms' ),
 				__( 'Changed the %metadata_name% to %new_value% in %notification_name%.', 'wsal-wpforms' ),
 				array(
 					__( 'Previous value', 'wsal-wpforms' ) => '%old_value%',
@@ -251,7 +251,82 @@ $custom_alerts = array(
                 ),
 				array(),
 				'wpforms_notifications',
-				'renamed',
+				'modified',
+			),
+
+            array(
+				5518,
+				WSAL_HIGH,
+				__( 'A confirmation was added / removed', 'wsal-wpforms' ),
+				__( 'The confirmation %confirmation_name%.', 'wsal-wpforms' ),
+				array(
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_confirmations',
+				'added',
+			),
+
+            array(
+				5519,
+				WSAL_HIGH,
+				__( 'A confirmation type was modified', 'wsal-wpforms' ),
+				__( 'Changed the Confirmation Type of the confirmation %confirmation_name%.', 'wsal-wpforms' ),
+				array(
+					__( 'New Confirmation Type', 'wsal-wpforms' ) => '%new_type%',
+					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_type%',
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_confirmations',
+				'modified',
+			),
+
+            array(
+				5520,
+				WSAL_HIGH,
+				__( 'A confirmation type was modified', 'wsal-wpforms' ),
+				__( 'Changed the Confirmation Page to %new_page%', 'wsal-wpforms' ),
+				array(
+					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_page%',
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_confirmations',
+				'modified',
+			),
+
+            array(
+				5521,
+				WSAL_HIGH,
+				__( 'A confirmation type was modified', 'wsal-wpforms' ),
+				__( 'Changed the Confirmation Redirect URL to %new_URL%', 'wsal-wpforms' ),
+				array(
+					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_URL%',
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_confirmations',
+				'modified',
+			),
+
+            array(
+				5522,
+				WSAL_HIGH,
+				__( 'A confirmation type was modified', 'wsal-wpforms' ),
+				__( 'Changed the Confirmation Message to %new_message%', 'wsal-wpforms' ),
+				array(
+					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_type%',
+					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
+					__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
+                ),
+				array(),
+				'wpforms_confirmations',
+				'modified',
 			),
 		),
 	),
