@@ -79,7 +79,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Handling form creation. First lets check an old post was set and its not flagged as an update, then finally check its not a duplicate.
 		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $post->post_type ) {
 			$alert_code  = 5500;
-			$editor_link = create_form_post_editor_link( $post_id );
+			$editor_link = $this->create_form_post_editor_link( $post_id );
 
 			$variables = array(
 				'EventType'      => 'created',
@@ -98,7 +98,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code  = 5506;
 				$post        = get_post( $post_id );
-				$editor_link = create_form_post_editor_link( $post_id );
+				$editor_link = $this->create_form_post_editor_link( $post_id );
 
 				$variables = array(
 					'EventType'      => 'renamed',
@@ -123,7 +123,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			if ( $form->post_date_gmt === $form->post_modified_gmt ) {
 				// Grab old form ID from its post content.
 				$old_form_content = json_decode( $this->_old_post->post_content );
-				$editor_link      = create_form_post_editor_link( $post_id );
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				if ( isset( $old_form_content->id ) ) {
 					$variables = array(
@@ -146,7 +146,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = create_form_post_editor_link( $post_id );
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
 					$alert_code = 5513;
@@ -275,7 +275,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = create_form_post_editor_link( $post_id );
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				// Create 2 arrays from the notification object for comparison later.
 				if ( isset( $form_content->settings->notifications ) && isset( $old_form_content->settings->notifications ) ) {
@@ -433,7 +433,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = create_form_post_editor_link( $post_id );
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				// First lets see if we have BOTH old and new content to compare.
 				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) && serialize( $form_content->fields ) !== serialize( $old_form_content->fields ) ) {
@@ -593,7 +593,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 					// Now lets check if anything has been added to our array, if it has, somethings changed so lets alert.
 					if ( $changed_items ) {
-						$editor_link = create_form_post_editor_link( $post_id );
+						$editor_link = $this->create_form_post_editor_link( $post_id );
 
 						$variables = array(
 							'EventType'      => 'modified',
@@ -667,7 +667,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$email_address = esc_html__( 'No email provided', 'wsal-wpforms' );
 		}
 
-		$editor_link = create_form_post_editor_link( $entry->form_id );
+		$editor_link = $this->create_form_post_editor_link( $entry->form_id );
 
 		$variables = array(
 			'entry_email'    => sanitize_text_field( $email_address ),
