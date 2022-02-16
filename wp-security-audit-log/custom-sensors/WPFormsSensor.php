@@ -215,26 +215,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					$form_content_array     = json_decode( json_encode( $form_content->settings->confirmations ), true );
 					$old_form_content_array = json_decode( json_encode( $old_form_content->settings->confirmations ), true );
 
-					// Compare the 2 arrays and create array of added items.
-					$compare_added_items = array_diff(
-						array_map( 'serialize', $form_content_array ),
-						array_map( 'serialize', $old_form_content_array )
-					);
-					$added_items         = array_map( 'unserialize', $compare_added_items );
-
-					// Compare the 2 arrays and create array of removed items.
-					$compare_removed_items = array_diff(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$removed_items         = array_map( 'unserialize', $compare_removed_items );
-
-                    // Compare the 2 arrays and create array of changed.
-					$compare_changed_items = array_diff_assoc(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$changed_items         = array_map( 'unserialize', $compare_removed_items );
+                    $changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+                    $added_items   = $changes['added'];
+                    $removed_items = $changes['deleted'];
+                    $changed_items = $changes['modified'];
 
                     // Check new content size determine if something has been added.
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
@@ -274,7 +258,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
-					} elseif ( $changed_items ) {
+					} elseif ( ! empty( $changed_items ) ) {
                         foreach ( $changed_items as $key => $confirmation ) {
                             $new_array = (array) $form_content->settings->confirmations;
                             $new_changed_item = (array) $new_array[$key];
@@ -360,26 +344,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					$form_content_array     = json_decode( json_encode( $form_content->settings->notifications ), true );
 					$old_form_content_array = json_decode( json_encode( $old_form_content->settings->notifications ), true );
 
-					// Compare the 2 arrays and create array of added items.
-					$compare_added_items = array_diff(
-						array_map( 'serialize', $form_content_array ),
-						array_map( 'serialize', $old_form_content_array )
-					);
-					$added_items         = array_map( 'unserialize', $compare_added_items );
-
-					// Compare the 2 arrays and create array of removed items.
-					$compare_removed_items = array_diff(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$removed_items         = array_map( 'unserialize', $compare_removed_items );
-
-					// Compare the 2 arrays and create array of changed.
-					$compare_changed_items = array_diff_assoc(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$changed_items         = array_map( 'unserialize', $compare_removed_items );
+                    $changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+                    $added_items   = $changes['added'];
+                    $removed_items = $changes['deleted'];
+                    $changed_items = $changes['modified'];
 
 					// Check new content size determine if something has been added.
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
@@ -443,7 +411,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$has_alert_triggered = true;
 
 						// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
-					} elseif ( $changed_items ) {
+					} elseif ( ! empty( $changed_items ) ) {
 
 						// Check time and also if there is an actual change in the post content.
 						if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ) {
@@ -555,19 +523,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$added_items = $form_content_array;
 					}
 
-					// Compare the 2 arrays and create array of removed items.
-					$compare_removed_items = array_diff(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$removed_items         = array_map( 'unserialize', $compare_removed_items );
-
-					$compare_changed_items = array_diff_assoc(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$changed_items         = array_map( 'unserialize', $compare_removed_items );
-					$changed_items         = array_intersect_key( $added_items, $changed_items );
+                    $changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+                    $added_items   = $changes['added'];
+                    $removed_items = $changes['deleted'];
+                    $changed_items = $changes['modified'];
+					$changed_items = array_intersect_key( $added_items, $changed_items );
 
 					if ( ! empty( $added_items ) ) {
 						$added_items = array_diff(
@@ -1154,4 +1114,36 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		return ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 	}
 
+    private function determine_added_removed_and_changed_items( $new_array, $old_array ) {
+        $result = array(
+            'added'    => array(),
+            'deleted'  => array(),
+            'modified' => array(),
+        );
+        // Compare the 2 arrays and create array of added items.
+        $compare_added_items = array_diff(
+            array_map( 'serialize', $new_array ),
+            array_map( 'serialize', $old_array )
+        );
+        $added_items         = array_map( 'unserialize', $compare_added_items );
+        $result['added']     = $added_items;
+
+        // Compare the 2 arrays and create array of removed items.
+        $compare_removed_items = array_diff(
+            array_map( 'serialize', $old_array ),
+            array_map( 'serialize', $new_array )
+        );
+        $removed_items         = array_map( 'unserialize', $compare_removed_items );
+        $result['deleted']     = $removed_items;
+
+        // Compare the 2 arrays and create array of changed.
+        $compare_changed_items = array_diff_assoc(
+            array_map( 'serialize', $old_array ),
+            array_map( 'serialize', $new_array )
+        );
+        $changed_items         = array_map( 'unserialize', $compare_removed_items );
+        $result['modified']    = $changed_items;
+
+        return $result;
+    }
 }

@@ -199,7 +199,7 @@ $custom_alerts = array(
 
             array(
 				5514,
-				WSAL_HIGH,
+				WSAL_MEDIUM,
 				__( 'Changed the status of the setting Enable dynamic fields population', 'wsal-wpforms' ),
 				__( 'Changed the status of the setting <strong>Enable dynamic fields population.</strong>', 'wsal-wpforms' ),
 				array(
@@ -213,7 +213,7 @@ $custom_alerts = array(
 
             array(
 				5515,
-				WSAL_HIGH,
+				WSAL_MEDIUM,
 				__( 'Changed the status of the setting Enable AJAX form submission.', 'wsal-wpforms' ),
 				__( 'Changed the status of the setting <strong>Enable AJAX form submission.</strong>', 'wsal-wpforms' ),
 				array(
@@ -227,7 +227,7 @@ $custom_alerts = array(
 
             array(
 				5516,
-				WSAL_HIGH,
+				WSAL_MEDIUM,
 				__( 'A notification name was renamed', 'wsal-wpforms' ),
 				__( 'Renamed the notification %old_name% to %new_name%.', 'wsal-wpforms' ),
 				array(
@@ -241,7 +241,7 @@ $custom_alerts = array(
 
             array(
 				5517,
-				WSAL_HIGH,
+				WSAL_MEDIUM,
 				__( 'A notifications metadata was modified', 'wsal-wpforms' ),
 				__( 'Changed the %metadata_name% to %new_value% in %notification_name%.', 'wsal-wpforms' ),
 				array(
@@ -256,7 +256,7 @@ $custom_alerts = array(
 
             array(
 				5518,
-				WSAL_HIGH,
+				WSAL_MEDIUM,
 				__( 'A confirmation was added / removed', 'wsal-wpforms' ),
 				__( 'The confirmation %confirmation_name%.', 'wsal-wpforms' ),
 				array(
@@ -270,9 +270,9 @@ $custom_alerts = array(
 
             array(
 				5519,
-				WSAL_HIGH,
-				__( 'A confirmation type was modified', 'wsal-wpforms' ),
-				__( 'Changed the Confirmation Type of the confirmation %confirmation_name%.', 'wsal-wpforms' ),
+				WSAL_MEDIUM,
+				__( 'A Confirmation Type type was modified', 'wsal-wpforms' ),
+				__( 'Changed the <strong>Confirmation Type</strong> of the confirmation %confirmation_name%.', 'wsal-wpforms' ),
 				array(
 					__( 'New Confirmation Type', 'wsal-wpforms' ) => '%new_type%',
 					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_type%',
@@ -286,9 +286,9 @@ $custom_alerts = array(
 
             array(
 				5520,
-				WSAL_HIGH,
-				__( 'A confirmation type was modified', 'wsal-wpforms' ),
-				__( 'Changed the Confirmation Page to %new_page%', 'wsal-wpforms' ),
+				WSAL_MEDIUM,
+				__( 'A Confirmation Page type was modified', 'wsal-wpforms' ),
+				__( 'Changed the <strong>Confirmation Page</strong> to %new_page%', 'wsal-wpforms' ),
 				array(
 					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_page%',
 					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
@@ -301,9 +301,9 @@ $custom_alerts = array(
 
             array(
 				5521,
-				WSAL_HIGH,
-				__( 'A confirmation type was modified', 'wsal-wpforms' ),
-				__( 'Changed the Confirmation Redirect URL to %new_URL%', 'wsal-wpforms' ),
+				WSAL_MEDIUM,
+				__( 'A Confirmation Redirecttype was modified', 'wsal-wpforms' ),
+				__( 'Changed the <strong>Confirmation Redirect URL</strong> to %new_URL%', 'wsal-wpforms' ),
 				array(
 					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_URL%',
 					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
@@ -316,9 +316,9 @@ $custom_alerts = array(
 
             array(
 				5522,
-				WSAL_HIGH,
-				__( 'A confirmation type was modified', 'wsal-wpforms' ),
-				__( 'Changed the Confirmation Message to %new_message%', 'wsal-wpforms' ),
+				WSAL_MEDIUM,
+				__( 'A Confirmation Message type was modified', 'wsal-wpforms' ),
+				__( 'Changed the <strong>Confirmation Message</strong> to %new_message%', 'wsal-wpforms' ),
 				array(
 					__( 'Previous Confirmation Type', 'wsal-wpforms' )   => '%old_type%',
 					__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
