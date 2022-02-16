@@ -39,6 +39,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'wpforms_plugin_activated', array( $this, 'addon_plugin_activated' ), 10, 1 );
 		add_action( 'wpforms_plugin_deactivated', array( $this, 'addon_plugin_deactivated' ), 10, 1 );
 		add_action( 'wpforms_plugin_installed', array( $this, 'addon_plugin_installed' ), 10, 1 );
+        add_action( 'wpforms_process_complete', array( $this, 'event_entry_added' ), 10, 4 );
+        add_action( 'wpforms_post_delete_entry', array( $this, 'event_entry_deleted' ), 10, 1 );
+        
 	}
 
 	/**
@@ -59,6 +62,50 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$this->_old_post = $post;
 		}
 	}
+
+    function event_entry_added( $fields, $entry, $form_data, $entry_id ) {
+
+        $alert_code  = 5523;
+        $form        = get_post( $entry['post_id'] );
+        $editor_link = esc_url(
+            add_query_arg(
+                array(
+                    'view'     => 'edit',
+                    'entry_id' => $entry_id,
+                ),
+                admin_url( 'admin.php?page=wpforms-entries' )
+            )
+        );
+
+        // Grab from content.
+        $form_content = '';
+        $field_values = array_values( $fields );
+        foreach ( $field_values as $value ) {
+            $form_content .= implode( ',', $value );
+        }
+
+		// Search it for any email address
+		$email_address = $this->extract_emails( $form_content );
+
+		// Now lets see if we have more than one email present, if so, just grab the 1st one,
+		if ( $email_address && is_array( $email_address ) ) {
+			$email_address = $email_address[0];
+		} elseif ( $email_address && ! is_array( $email_address ) ) {
+			$email_address = $email_address;
+		} else {
+			$email_address = esc_html__( 'No email provided', 'wsal-wpforms' );
+		}
+
+        $variables = array(
+            'EventType'       => 'created',
+            'form_name'       => sanitize_text_field( $form->post_title ),
+            'entry_id'        => $entry_id,
+            'entry_email'     => $email_address,
+            'EditorLinkEntry' => $editor_link,
+        );
+
+        $this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
+    }
 
 	/**
 	 * Form renamed event.

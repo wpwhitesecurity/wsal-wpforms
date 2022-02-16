@@ -130,6 +130,22 @@ $custom_alerts = array(
 				'modified',
 			),
 
+            array(
+				5523,
+				WSAL_MEDIUM,
+				__( 'An entry was created', 'wsal-wpforms' ),
+				__( 'An entry was created the Entry with ID %entry_id%.', 'wsal-wpforms' ),
+				array(
+					__( 'Entry email', 'wsal-wpforms' )  => '%entry_email%',
+					__( 'From form', 'wsal-wpforms' )  => '%form_name%',
+				),
+				array(
+					__( 'View entry in the editor', 'wsal-wpforms' ) => '%EditorLinkEntry%',
+				),
+				'wpforms_entries',
+				'created',
+			),
+
 			array(
 				5508,
 				WSAL_HIGH,
