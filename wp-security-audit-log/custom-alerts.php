@@ -133,8 +133,8 @@ $custom_alerts = array(
             array(
 				5523,
 				WSAL_MEDIUM,
-				__( 'An entry was created', 'wsal-wpforms' ),
-				__( 'An entry was created the Entry with ID %entry_id%.', 'wsal-wpforms' ),
+				__( 'An Entry was created', 'wsal-wpforms' ),
+				__( 'An Entry was created with the ID %entry_id%.', 'wsal-wpforms' ),
 				array(
 					__( 'Entry email', 'wsal-wpforms' )  => '%entry_email%',
 					__( 'From form', 'wsal-wpforms' )  => '%form_name%',
