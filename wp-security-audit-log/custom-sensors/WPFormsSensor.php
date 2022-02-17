@@ -1,4 +1,5 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+
 /**
  * Custom Sensors for WPForms
  *
@@ -78,15 +79,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Handling form creation. First lets check an old post was set and its not flagged as an update, then finally check its not a duplicate.
 		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $post->post_type ) {
 			$alert_code  = 5500;
-			$editor_link = esc_url(
-				add_query_arg(
-					array(
-						'view'    => 'fields',
-						'form_id' => $post_id,
-					),
-					admin_url( 'admin.php?page=wpforms-builder' )
-				)
-			);
+			$editor_link = $this->create_form_post_editor_link( $post_id );
 
 			$variables = array(
 				'EventType'      => 'created',
@@ -105,15 +98,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code  = 5506;
 				$post        = get_post( $post_id );
-				$editor_link = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link = $this->create_form_post_editor_link( $post_id );
 
 				$variables = array(
 					'EventType'      => 'renamed',
@@ -138,15 +123,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			if ( $form->post_date_gmt === $form->post_modified_gmt ) {
 				// Grab old form ID from its post content.
 				$old_form_content = json_decode( $this->_old_post->post_content );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				if ( isset( $old_form_content->id ) ) {
 					$variables = array(
@@ -163,6 +140,133 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}
 		}
 
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) ) {
+			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
+				$form_content     = json_decode( $form->post_content );
+				$old_form_content = json_decode( $this->_old_post->post_content );
+				$post_created     = new DateTime( $post->post_date_gmt );
+				$post_modified    = new DateTime( $post->post_modified_gmt );
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
+
+				if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
+					$alert_code = 5513;
+					$variables  = array(
+						'EventType'      => ( $form_content->settings->antispam ) ? 'enabled' : 'disabled',
+						'form_name'      => sanitize_text_field( $form->post_title ),
+						'form_id'        => $post_id,
+						'EditorLinkForm' => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
+				}
+				if ( isset( $form_content->settings->dynamic_population ) && ! isset( $old_form_content->settings->dynamic_population ) || ! isset( $form_content->settings->dynamic_population ) && isset( $old_form_content->settings->dynamic_population ) ) {
+					$alert_code = 5514;
+					$variables  = array(
+						'EventType'      => ( $form_content->settings->dynamic_population ) ? 'enabled' : 'disabled',
+						'form_name'      => sanitize_text_field( $form->post_title ),
+						'form_id'        => $post_id,
+						'EditorLinkForm' => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
+				}
+				if ( isset( $form_content->settings->ajax_submit ) && ! isset( $old_form_content->settings->ajax_submit ) || ! isset( $form_content->settings->ajax_submit ) && isset( $old_form_content->settings->ajax_submit ) ) {
+					$alert_code = 5515;
+					$variables  = array(
+						'EventType'      => ( $form_content->settings->ajax_submit ) ? 'enabled' : 'disabled',
+						'form_name'      => sanitize_text_field( $form->post_title ),
+						'form_id'        => $post_id,
+						'EditorLinkForm' => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
+				}
+
+				if ( isset( $form_content->settings->confirmations ) && isset( $old_form_content->settings->confirmations ) ) {
+					$form_content_array     = json_decode( json_encode( $form_content->settings->confirmations ), true );
+					$old_form_content_array = json_decode( json_encode( $old_form_content->settings->confirmations ), true );
+
+					$changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+					$added_items   = $changes['added'];
+					$removed_items = $changes['deleted'];
+					$changed_items = $changes['modified'];
+
+					// Check new content size determine if something has been added.
+					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
+						$alert_code = 5518;
+						foreach ( $added_items as $confirmation ) {
+							if ( isset( $confirmation['notification_name'] ) ) {
+								$confirmation_name = $confirmation->name;
+							} else {
+								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+							}
+							$variables = array(
+								'EventType'         => 'added',
+								'confirmation_name' => sanitize_text_field( $confirmation_name ),
+								'form_name'         => sanitize_text_field( $form->post_title ),
+								'PostID'            => $post_id,
+								'EditorLinkForm'    => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$has_alert_triggered = true;
+						}
+						// Check new content size determine if something has been removed.
+					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
+						$alert_code = 5518;
+						foreach ( $removed_items as $confirmation ) {
+							if ( isset( $confirmation['notification_name'] ) ) {
+								$confirmation_name = $confirmation->name;
+							} else {
+								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+							}
+							$variables = array(
+								'EventType'         => 'deleted',
+								'confirmation_name' => sanitize_text_field( $confirmation_name ),
+								'form_name'         => sanitize_text_field( $form->post_title ),
+								'PostID'            => $post_id,
+								'EditorLinkForm'    => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$has_alert_triggered = true;
+						}
+					} elseif ( ! empty( $changed_items ) ) {
+						foreach ( $changed_items as $key => $confirmation ) {
+							$new_array        = (array) $form_content->settings->confirmations;
+							$new_changed_item = (array) $new_array[ $key ];
+
+							$confirmation_changes = array(
+								'type',
+								'page',
+								'redirect',
+								'message',
+							);
+
+							foreach ( $confirmation_changes as $change_type ) {
+								if ( $new_changed_item[ $change_type ] !== $confirmation[ $change_type ] ) {
+									if ( 'type' === $change_type ) {
+										$alert_code = 5519;
+									} elseif ( 'tpage' === $change_type ) {
+										$alert_code = 5520;
+									} elseif ( 'redirect' === $change_type ) {
+										$alert_code = 5521;
+									} elseif ( 'message' === $change_type ) {
+										$alert_code = 5522;
+									}
+									$variables = array(
+										'confirmation_name' => $new_changed_item[ $change_type ],
+										'old_value'      => $confirmation[ $change_type ],
+										'new_value'      => $new_changed_item[ $change_type ],
+										'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
+										'form_id'        => $post_id,
+										'EditorLinkForm' => $editor_link,
+									);
+									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+									$has_alert_triggered = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		// Handling form notifications.
 		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
@@ -171,41 +275,17 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				// Create 2 arrays from the notification object for comparison later.
 				if ( isset( $form_content->settings->notifications ) && isset( $old_form_content->settings->notifications ) ) {
 					$form_content_array     = json_decode( json_encode( $form_content->settings->notifications ), true );
 					$old_form_content_array = json_decode( json_encode( $old_form_content->settings->notifications ), true );
 
-					// Compare the 2 arrays and create array of added items.
-					$compare_added_items = array_diff(
-						array_map( 'serialize', $form_content_array ),
-						array_map( 'serialize', $old_form_content_array )
-					);
-					$added_items         = array_map( 'unserialize', $compare_added_items );
-
-					// Compare the 2 arrays and create array of removed items.
-					$compare_removed_items = array_diff(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$removed_items         = array_map( 'unserialize', $compare_removed_items );
-
-					// Compare the 2 arrays and create array of changed.
-					$compare_changed_items = array_diff_assoc(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$changed_items         = array_map( 'unserialize', $compare_removed_items );
+					$changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+					$added_items   = $changes['added'];
+					$removed_items = $changes['deleted'];
+					$changed_items = $changes['modified'];
 
 					// Check new content size determine if something has been added.
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
@@ -269,7 +349,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$has_alert_triggered = true;
 
 						// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
-					} elseif ( $changed_items ) {
+					} elseif ( ! empty( $changed_items ) ) {
 
 						// Check time and also if there is an actual change in the post content.
 						if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ) {
@@ -278,20 +358,66 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						}
 
 						$alert_code = 5503;
-						foreach ( $removed_items as $notification ) {
+						foreach ( $changed_items as $key => $notification ) {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
 								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
-							$variables = array(
-								'EventType'        => 'modified',
-								'notifiation_name' => sanitize_text_field( $notification_name ),
-								'form_name'        => sanitize_text_field( $form->post_title ),
-								'PostID'           => $post_id,
-								'EditorLinkForm'   => $editor_link,
+
+							$new_array        = (array) $form_content->settings->notifications;
+							$new_changed_item = (array) $new_array[ $key ];
+							$new_name         = $new_changed_item['notification_name'];
+
+							$notification_metas = array(
+								'email',
+								'subject',
+								'sender_name',
+								'sender_address',
+								'replyto',
+								'message',
 							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+
+							foreach ( $notification_metas as $metas ) {
+								if ( $new_changed_item[ $metas ] !== $changed_items[ $key ][ $metas ] ) {
+									$alert_code = 5517;
+									$variables  = array(
+										'EventType'      => 'modified',
+										'metadata_name'  => $metas,
+										'old_value'      => $changed_items[ $key ][ $metas ],
+										'new_value'      => $new_changed_item[ $metas ],
+										'form_name'      => sanitize_text_field( $form->post_title ),
+										'notification_name' => $notification_name,
+										'form_id'        => $post_id,
+										'EditorLinkForm' => $editor_link,
+									);
+									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+									$alert_code = null;
+								}
+							}
+
+							if ( $notification_name !== $new_name ) {
+								$alert_code = 5516;
+								$variables  = array(
+									'EventType'      => 'modified',
+									'old_name'       => sanitize_text_field( $notification_name ),
+									'new_name'       => sanitize_text_field( $new_name ),
+									'form_name'      => sanitize_text_field( $form->post_title ),
+									'form_id'        => $post_id,
+									'EditorLinkForm' => $editor_link,
+								);
+							} else {
+								$variables = array(
+									'EventType'        => 'modified',
+									'notifiation_name' => sanitize_text_field( $notification_name ),
+									'form_name'        => sanitize_text_field( $form->post_title ),
+									'PostID'           => $post_id,
+									'EditorLinkForm'   => $editor_link,
+								);
+							}
+							if ( $alert_code ) {
+								$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							}
 							$has_alert_triggered = true;
 						}
 					}
@@ -307,15 +433,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				// First lets see if we have BOTH old and new content to compare.
 				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) && serialize( $form_content->fields ) !== serialize( $old_form_content->fields ) ) {
@@ -334,19 +452,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$added_items = $form_content_array;
 					}
 
-					// Compare the 2 arrays and create array of removed items.
-					$compare_removed_items = array_diff(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$removed_items         = array_map( 'unserialize', $compare_removed_items );
-
-					$compare_changed_items = array_diff_assoc(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$changed_items         = array_map( 'unserialize', $compare_removed_items );
-					$changed_items         = array_intersect_key( $added_items, $changed_items );
+					$changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+					$added_items   = $changes['added'];
+					$removed_items = $changes['deleted'];
+					$changed_items = $changes['modified'];
+					$changed_items = array_intersect_key( $added_items, $changed_items );
 
 					if ( ! empty( $added_items ) ) {
 						$added_items = array_diff(
@@ -359,9 +469,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					// Check new content size determine if something has been added.
 					if ( $added_items && $added_items !== $changed_items ) {
 						$alert_code = 5501;
-						foreach ( $added_items as $fields ) {							
+						foreach ( $added_items as $fields ) {
 							$field_name = $this->get_type_if_field_has_no_name( $fields );
-							$variables = array(
+							$variables  = array(
 								'EventType'      => 'created',
 								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
@@ -381,7 +491,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							if ( ! empty( $changed_items ) ) {
 								if ( ! $changed_items[ $fields ] ) {
 									$field_name = $this->get_type_if_field_has_no_name( $value );
-									$variables = array(
+									$variables  = array(
 										'EventType'      => 'deleted',
 										'field_name'     => $field_name,
 										'form_name'      => sanitize_text_field( $form->post_title ),
@@ -393,7 +503,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								}
 							} else {
 								$field_name = $this->get_type_if_field_has_no_name( $value );
-								$variables = array(
+								$variables  = array(
 									'EventType'      => 'deleted',
 									'field_name'     => $field_name,
 									'form_name'      => sanitize_text_field( $form->post_title ),
@@ -407,11 +517,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					}
 
 					// Check content to see if anything has been modified.
-					if ( $changed_items && ! $this->was_triggered_recently( 5500 ) ) {
+					if ( ! empty( $changed_items ) && ! $this->was_triggered_recently( 5500 ) ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
 							$field_name = $this->get_type_if_field_has_no_name( $fields );
-							$variables = array(
+							$variables  = array(
 								'EventType'      => 'modified',
 								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
@@ -483,15 +593,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 					// Now lets check if anything has been added to our array, if it has, somethings changed so lets alert.
 					if ( $changed_items ) {
-						$editor_link = esc_url(
-							add_query_arg(
-								array(
-									'view'    => 'fields',
-									'form_id' => $post_id,
-								),
-								admin_url( 'admin.php?page=wpforms-builder' )
-							)
-						);
+						$editor_link = $this->create_form_post_editor_link( $post_id );
 
 						$variables = array(
 							'EventType'      => 'modified',
@@ -542,15 +644,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
-		$entry		= wpforms()->entry->get( $row_id );
+		$entry      = wpforms()->entry->get( $row_id );
 
 		if ( is_null( $entry ) ) {
 			return;
 		}
 
-		$form 		= get_post( $entry->form_id );
+		$form = get_post( $entry->form_id );
 
-        // Grab from content.
+		// Grab from content.
 		$form_content = (string) $entry->fields;
 
 		// Search it for any email address
@@ -565,15 +667,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$email_address = esc_html__( 'No email provided', 'wsal-wpforms' );
 		}
 
-		$editor_link = esc_url(
-			add_query_arg(
-				array(
-					'view'    => 'fields',
-					'form_id' => $entry->form_id,
-				),
-				admin_url( 'admin.php?page=wpforms-builder' )
-			)
-		);
+		$editor_link = $this->create_form_post_editor_link( $entry->form_id );
 
 		$variables = array(
 			'entry_email'    => sanitize_text_field( $email_address ),
@@ -598,7 +692,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		foreach ( $updated_fields as $updated_field ) {
 
-			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
+			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ), true ) );
 
 			$editor_link = esc_url(
 				add_query_arg(
@@ -653,20 +747,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						foreach ( $wpforms_caps as $capability ) {
 							if ( $this->array_key_exists_recursive( $capability, $value[ $role_index_name ] ) ) {
 
-								$role =
-									$value[ $role_index_name ]['name'];
+								$role = $value[ $role_index_name ]['name'];
 
 								if ( ! isset( $updated_new[ $capability ]['roles'] ) ) {
-									$updated_new[ $capability ]['roles'] = [];
+									$updated_new[ $capability ]['roles'] = array();
 								}
 								$updated_new[ $capability ]['roles'] +=
-									[ $role => $role ]
-								;
+									array( $role => $role );
 							}
 							// Fill up array with capability anyway, even if its blank.
 							if ( ! isset( $updated_new[ $capability ] ) ) {
 								$updated_new[ $capability ] = array(
-									'roles' => [],
+									'roles' => array(),
 								);
 							}
 						}
@@ -677,20 +769,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						foreach ( $wpforms_caps as $capability ) {
 							if ( $this->array_key_exists_recursive( $capability, $old_value[ $role_index_name ] ) ) {
 
-								$role =
-									$value[ $role_index_name ]['name'];
+								$role = $value[ $role_index_name ]['name'];
 
 								if ( ! isset( $updated_old[ $capability ]['roles'] ) ) {
-									$updated_old[ $capability ]['roles'] = [];
+									$updated_old[ $capability ]['roles'] = array();
 								}
 								$updated_old[ $capability ]['roles'] +=
-									[ $role => $role ]
-								;
+									array( $role => $role );
 							}
 							// Fill up array with capability anyway, even if its blank.
 							if ( ! isset( $updated_old[ $capability ] ) ) {
 								$updated_old[ $capability ] = array(
-									'roles' => [],
+									'roles' => array(),
 								);
 							}
 						}
@@ -706,18 +796,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$setting_name = ucwords( str_replace( '_', ' ', str_replace( 'wpforms', '', $wpforms_capability ) ) );
 						// Determine the type of setting thats been changed.
 						if ( strpos( $wpforms_capability, 'own' ) !== false ) {
-							$setting_type = __( 'Own', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'Own', 'wsal-wpforms' );
 						} elseif ( strpos( $wpforms_capability, 'other' ) !== false ) {
-							$setting_type = __( 'Other', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'Other', 'wsal-wpforms' );
 						} else {
-							$setting_type = __( 'N/A', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'N/A', 'wsal-wpforms' );
 						}
 						// Setup event variables using above.
 						$variables = array(
 							'setting_name' => $setting_name,
 							'setting_type' => $setting_type,
-							'old_value'    => implode( ', ', $updated_old[ $wpforms_capability ]['roles']),
-							'new_value'    => implode( ', ', $updated_new[ $wpforms_capability ]['roles']),
+							'old_value'    => implode( ', ', $updated_old[ $wpforms_capability ]['roles'] ),
+							'new_value'    => implode( ', ', $updated_new[ $wpforms_capability ]['roles'] ),
 						);
 						// Fire off 5508.
 						$this->plugin->alerts->Trigger( $alert_code, $variables );
@@ -762,9 +852,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 						// Tidy labels up.
 						if ( 'mailchimpv3' === $provider ) {
-							$provider = __( 'Mailchimp', 'wsal-wpforms' );
+							$provider = esc_html__( 'Mailchimp', 'wsal-wpforms' );
 						} elseif ( 'getresponse' === $provider ) {
-							$provider = __( 'GetResponse', 'wsal-wpforms' );
+							$provider = esc_html__( 'GetResponse', 'wsal-wpforms' );
 						}
 
 						$alert_code      = 5510;
@@ -820,10 +910,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	public function generate_addon_event( $plugin, $event_type ) {
 		$alert_code       = 5511;
-		$tidy_plugin_name = preg_replace( "/\.[^.]+$/", "", basename( $plugin ) );
+		$tidy_plugin_name = preg_replace( '/\.[^.]+$/', '', basename( $plugin ) );
 		$variables        = array(
-			'EventType'       => $event_type,
-			'addon_name'      => str_replace( 'Wpforms', 'WPForms', ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ) ),
+			'EventType'  => $event_type,
+			'addon_name' => str_replace( 'Wpforms', 'WPForms', ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ) ),
 		);
 		$this->plugin->alerts->Trigger( $alert_code, $variables );
 	}
@@ -924,7 +1014,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Return the fields type if it has no provided label to display.
 	 *
@@ -935,4 +1025,63 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		return ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 	}
 
+	/**
+	 * Checks for added, removed or modified items given an old/new array.
+	 *
+	 * @param array $new_array - Newer array to compare.
+	 * @param array $old_array - Older array to compare
+	 * @return array $result    - Array containging changes.
+	 */
+	private function determine_added_removed_and_changed_items( $new_array, $old_array ) {
+		$result = array(
+			'added'    => array(),
+			'deleted'  => array(),
+			'modified' => array(),
+		);
+		// Compare the 2 arrays and create array of added items.
+		$compare_added_items = array_diff(
+			array_map( 'serialize', $new_array ),
+			array_map( 'serialize', $old_array )
+		);
+		$added_items         = array_map( 'unserialize', $compare_added_items );
+		$result['added']     = $added_items;
+
+		// Compare the 2 arrays and create array of removed items.
+		$compare_removed_items = array_diff(
+			array_map( 'serialize', $old_array ),
+			array_map( 'serialize', $new_array )
+		);
+		$removed_items         = array_map( 'unserialize', $compare_removed_items );
+		$result['deleted']     = $removed_items;
+
+		// Compare the 2 arrays and create array of changed.
+		$compare_changed_items = array_diff_assoc(
+			array_map( 'serialize', $old_array ),
+			array_map( 'serialize', $new_array )
+		);
+		$changed_items         = array_map( 'unserialize', $compare_removed_items );
+		$result['modified']    = $changed_items;
+
+		return $result;
+	}
+
+	/**
+	 * Creates an editor link for a given form_ID.
+	 *
+	 * @param  int $post_id        - Forms ID.
+	 * @return string $editor_link - URL to edit screen.
+	 */
+	private function create_form_post_editor_link( $post_id ) {
+		$editor_link = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $post_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
+
+		return $editor_link;
+	}
 }

@@ -32,7 +32,7 @@
 */
 
 /*
- REQUIRED. Here we include and fire up the main core class. This will be needed regardless so be sure to leave line 37-39 in tact.
+REQUIRED. Here we include and fire up the main core class. This will be needed regardless so be sure to leave line 37-39 in tact.
 */
 require_once plugin_dir_path( __FILE__ ) . 'core/class-extension-core.php';
 $wsal_extension = new WPWhiteSecurity\ActivityLog\Extensions\Common\Core( __FILE__, 'wsal-wpforms' );
@@ -55,6 +55,7 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
 		'wpforms-fields'        => esc_html__( 'Fields in WPForms', 'wsal-wpforms' ),
 		'wpforms_fields'        => esc_html__( 'Fields in WPForms', 'wsal-wpforms' ),
 		'wpforms_forms'         => esc_html__( 'Forms in WPForms', 'wsal-wpforms' ),
+        'wpforms_confirmations' => esc_html__( 'Confirmations in WPForms', 'wsal-wpforms' ),
 	);
 
 	// combine the two arrays.
