@@ -796,11 +796,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$setting_name = ucwords( str_replace( '_', ' ', str_replace( 'wpforms', '', $wpforms_capability ) ) );
 						// Determine the type of setting thats been changed.
 						if ( strpos( $wpforms_capability, 'own' ) !== false ) {
-							$setting_type = __( 'Own', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'Own', 'wsal-wpforms' );
 						} elseif ( strpos( $wpforms_capability, 'other' ) !== false ) {
-							$setting_type = __( 'Other', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'Other', 'wsal-wpforms' );
 						} else {
-							$setting_type = __( 'N/A', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'N/A', 'wsal-wpforms' );
 						}
 						// Setup event variables using above.
 						$variables = array(
@@ -852,9 +852,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 						// Tidy labels up.
 						if ( 'mailchimpv3' === $provider ) {
-							$provider = __( 'Mailchimp', 'wsal-wpforms' );
+							$provider = esc_html__( 'Mailchimp', 'wsal-wpforms' );
 						} elseif ( 'getresponse' === $provider ) {
-							$provider = __( 'GetResponse', 'wsal-wpforms' );
+							$provider = esc_html__( 'GetResponse', 'wsal-wpforms' );
 						}
 
 						$alert_code      = 5510;
@@ -1025,13 +1025,13 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		return ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
 	}
 
-    /**
-     * Checks for added, removed or modified items given an old/new array.
-     *
-     * @param array  $new_array - Newer array to compare.
-     * @param array  $old_array - Older array to compare
-     * @return array $result    - Array containging changes.
-     */
+	/**
+	 * Checks for added, removed or modified items given an old/new array.
+	 *
+	 * @param array $new_array - Newer array to compare.
+	 * @param array $old_array - Older array to compare
+	 * @return array $result    - Array containging changes.
+	 */
 	private function determine_added_removed_and_changed_items( $new_array, $old_array ) {
 		$result = array(
 			'added'    => array(),
@@ -1066,12 +1066,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-     * Creates an editor link for a given form_ID.
-     *
-     * @param  int $post_id        - Forms ID.
-     * @return string $editor_link - URL to edit screen.
-     */
-    private function create_form_post_editor_link( $post_id ) {
+	 * Creates an editor link for a given form_ID.
+	 *
+	 * @param  int $post_id        - Forms ID.
+	 * @return string $editor_link - URL to edit screen.
+	 */
+	private function create_form_post_editor_link( $post_id ) {
 		$editor_link = esc_url(
 			add_query_arg(
 				array(
