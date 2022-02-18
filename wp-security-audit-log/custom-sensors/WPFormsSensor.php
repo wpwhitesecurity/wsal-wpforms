@@ -84,7 +84,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$form_content .= implode( ',', $value );
 		}
 
-		// Search it for any email address
+		// Search it for any email address.
 		$email_address = $this->extract_emails( $form_content );
 
 		// Now lets see if we have more than one email present, if so, just grab the 1st one,
