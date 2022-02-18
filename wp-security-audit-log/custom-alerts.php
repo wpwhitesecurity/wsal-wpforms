@@ -1,4 +1,12 @@
-<?php // phpcs:disable WordPress.WP.I18n.UnorderedPlaceholdersText
+<?php
+/**
+ * Our list of events.
+ *
+ * @package WSAL_GravityForms
+ */
+
+// phpcs:disable WordPress.WP.I18n.UnorderedPlaceholdersText 
+// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
 
 $custom_alerts = array(
 	esc_html__( 'WPForms', 'wsal-wpforms' ) => array(
