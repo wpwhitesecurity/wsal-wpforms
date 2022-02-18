@@ -77,7 +77,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			)
 		);
 
-		// Grab from content.
+		// Grab form content.
 		$form_content = '';
 		$field_values = array_values( $fields );
 		foreach ( $field_values as $value ) {
