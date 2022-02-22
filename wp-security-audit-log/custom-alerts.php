@@ -1,4 +1,12 @@
-<?php // phpcs:disable WordPress.WP.I18n.UnorderedPlaceholdersText
+<?php
+/**
+ * Our list of events.
+ *
+ * @package WSAL_GravityForms
+ */
+
+// phpcs:disable WordPress.WP.I18n.UnorderedPlaceholdersText 
+// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
 
 $custom_alerts = array(
 	esc_html__( 'WPForms', 'wsal-wpforms' ) => array(
@@ -128,6 +136,22 @@ $custom_alerts = array(
 				),
 				'wpforms_entries',
 				'modified',
+			),
+
+			array(
+				5523,
+				WSAL_MEDIUM,
+				esc_html__( 'An Entry was created', 'wsal-wpforms' ),
+				esc_html__( 'An Entry was created with the ID %entry_id%.', 'wsal-wpforms' ),
+				array(
+					esc_html__( 'Entry email', 'wsal-wpforms' )  => '%entry_email%',
+					esc_html__( 'From form', 'wsal-wpforms' )  => '%form_name%',
+				),
+				array(
+					esc_html__( 'View entry in the editor', 'wsal-wpforms' ) => '%EditorLinkEntry%',
+				),
+				'wpforms_entries',
+				'created',
 			),
 
 			array(
