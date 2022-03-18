@@ -1196,7 +1196,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * Decodes giuven item, using WP functions where possible.
+	 * Decodes given item, using WP functions where possible.
 	 *
 	 * @param string  $item_to_decode - Item to be decoded.
 	 * @param boolean $needs_encoding_first - Do we need to encode first.
