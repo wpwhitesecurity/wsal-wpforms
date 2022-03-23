@@ -151,7 +151,7 @@ $custom_alerts = array(
 					esc_html__( 'View entry in the editor', 'wsal-wpforms' ) => '%EditorLinkEntry%',
 				),
 				'wpforms_entries',
-				'created',
+				'submitted',
 			),
 
 			array(

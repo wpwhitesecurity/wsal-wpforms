@@ -107,7 +107,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		$variables = array(
-			'EventType'       => 'created',
 			'form_name'       => sanitize_text_field( $form_data['settings']['form_title'] ),
 			'form_id'         => sanitize_text_field( $form_data['id'] ),
 			'entry_email'     => $email_address,
@@ -304,7 +303,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 									} elseif ( 'redirect' === $change_type ) {
 										$alert_code = 5521;
 									} elseif ( 'message' === $change_type ) {
-										$alert_code = 5522;
+										$alert_code = url5522;
 									}
 									$variables = array(
 										'confirmation_name' => $new_changed_item['name'],
