@@ -108,8 +108,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		$variables = array(
 			'EventType'       => 'created',
-			'form_name'       => sanitize_text_field( $form->post_title ),
-			'entry_id'        => $entry_id,
+			'form_name'       => sanitize_text_field( $form_data['settings']['form_title'] ),
+			'form_id'         => sanitize_text_field( $form_data['id'] ),
 			'entry_email'     => $email_address,
 			'EditorLinkEntry' => $editor_link,
 		);
@@ -208,7 +208,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
 					$alert_code = 5513;
 					$variables  = array(
-						'EventType'      => ( $form_content->settings->antispam ) ? 'enabled' : 'disabled',
+						'EventType'      => ( isset( $form_content->settings->antispam ) ) ? 'enabled' : 'disabled',
 						'form_name'      => sanitize_text_field( $form->post_title ),
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
@@ -218,7 +218,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( isset( $form_content->settings->dynamic_population ) && ! isset( $old_form_content->settings->dynamic_population ) || ! isset( $form_content->settings->dynamic_population ) && isset( $old_form_content->settings->dynamic_population ) ) {
 					$alert_code = 5514;
 					$variables  = array(
-						'EventType'      => ( $form_content->settings->dynamic_population ) ? 'enabled' : 'disabled',
+						'EventType'      => ( isset( $form_content->settings->dynamic_population ) ) ? 'enabled' : 'disabled',
 						'form_name'      => sanitize_text_field( $form->post_title ),
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
@@ -228,7 +228,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( isset( $form_content->settings->ajax_submit ) && ! isset( $old_form_content->settings->ajax_submit ) || ! isset( $form_content->settings->ajax_submit ) && isset( $old_form_content->settings->ajax_submit ) ) {
 					$alert_code = 5515;
 					$variables  = array(
-						'EventType'      => ( $form_content->settings->ajax_submit ) ? 'enabled' : 'disabled',
+						'EventType'      => ( isset( $form_content->settings->ajax_submit ) ) ? 'enabled' : 'disabled',
 						'form_name'      => sanitize_text_field( $form->post_title ),
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
@@ -249,8 +249,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
 						$alert_code = 5518;
 						foreach ( $added_items as $confirmation ) {
-							if ( isset( $confirmation['notification_name'] ) ) {
-								$confirmation_name = $confirmation->name;
+							if ( isset( $confirmation['name'] ) ) {
+								$confirmation_name = $confirmation['name'];
 							} else {
 								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
 							}
@@ -258,7 +258,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'EventType'         => 'added',
 								'confirmation_name' => sanitize_text_field( $confirmation_name ),
 								'form_name'         => sanitize_text_field( $form->post_title ),
-								'PostID'            => $post_id,
+								'form_id'            => $post_id,
 								'EditorLinkForm'    => $editor_link,
 							);
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
@@ -268,8 +268,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
 						$alert_code = 5518;
 						foreach ( $removed_items as $confirmation ) {
-							if ( isset( $confirmation['notification_name'] ) ) {
-								$confirmation_name = $confirmation->name;
+							if ( isset( $confirmation['name'] ) ) {
+								$confirmation_name = $confirmation['name'];
 							} else {
 								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
 							}
@@ -277,7 +277,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'EventType'         => 'deleted',
 								'confirmation_name' => sanitize_text_field( $confirmation_name ),
 								'form_name'         => sanitize_text_field( $form->post_title ),
-								'PostID'            => $post_id,
+								'form_id'           => $post_id,
 								'EditorLinkForm'    => $editor_link,
 							);
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
@@ -307,12 +307,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 										$alert_code = 5522;
 									}
 									$variables = array(
-										'confirmation_name' => $new_changed_item[ $change_type ],
-										'old_value'      => $confirmation[ $change_type ],
-										'new_value'      => $new_changed_item[ $change_type ],
-										'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
-										'form_id'        => $post_id,
-										'EditorLinkForm' => $editor_link,
+										'confirmation_name' => $new_changed_item['name'],
+										'old_value'         => $confirmation[ $change_type ],
+										'new_value'         => $new_changed_item[ $change_type ],
+										'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+										'form_id'           => $post_id,
+										'EditorLinkForm'    => $editor_link,
 									);
 									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 									$has_alert_triggered = true;
@@ -436,7 +436,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							);
 
 							foreach ( $notification_metas as $metas ) {
-								if ( $new_changed_item[ $metas ] !== $changed_items[ $key ][ $metas ] ) {
+								if ( isset( $changed_items[ $key ][ $metas ] ) && $new_changed_item[ $metas ] !== $changed_items[ $key ][ $metas ] ) {
 									$alert_code = 5517;
 									$variables  = array(
 										'EventType'      => 'modified',
