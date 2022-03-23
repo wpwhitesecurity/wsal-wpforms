@@ -218,7 +218,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( isset( $form_content->settings->dynamic_population ) && ! isset( $old_form_content->settings->dynamic_population ) || ! isset( $form_content->settings->dynamic_population ) && isset( $old_form_content->settings->dynamic_population ) ) {
 					$alert_code = 5514;
 					$variables  = array(
-						'EventType'      => ( $form_content->settings->dynamic_population ) ? 'enabled' : 'disabled',
+						'EventType'      => ( isset( $form_content->settings->dynamic_population ) ) ? 'enabled' : 'disabled',
 						'form_name'      => sanitize_text_field( $form->post_title ),
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
