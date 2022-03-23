@@ -208,7 +208,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
 					$alert_code = 5513;
 					$variables  = array(
-						'EventType'      => ( $form_content->settings->antispam ) ? 'enabled' : 'disabled',
+						'EventType'      => ( isset( $form_content->settings->antispam ) ) ? 'enabled' : 'disabled',
 						'form_name'      => sanitize_text_field( $form->post_title ),
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
@@ -228,7 +228,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				if ( isset( $form_content->settings->ajax_submit ) && ! isset( $old_form_content->settings->ajax_submit ) || ! isset( $form_content->settings->ajax_submit ) && isset( $old_form_content->settings->ajax_submit ) ) {
 					$alert_code = 5515;
 					$variables  = array(
-						'EventType'      => ( $form_content->settings->ajax_submit ) ? 'enabled' : 'disabled',
+						'EventType'      => ( isset( $form_content->settings->ajax_submit ) ) ? 'enabled' : 'disabled',
 						'form_name'      => sanitize_text_field( $form->post_title ),
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
