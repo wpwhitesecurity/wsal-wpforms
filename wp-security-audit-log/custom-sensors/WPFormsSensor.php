@@ -436,7 +436,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							);
 
 							foreach ( $notification_metas as $metas ) {
-								if ( $new_changed_item[ $metas ] !== $changed_items[ $key ][ $metas ] ) {
+								if ( isset( $changed_items[ $key ][ $metas ] ) && $new_changed_item[ $metas ] !== $changed_items[ $key ][ $metas ] ) {
 									$alert_code = 5517;
 									$variables  = array(
 										'EventType'      => 'modified',
