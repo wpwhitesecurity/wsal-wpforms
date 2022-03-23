@@ -108,8 +108,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		$variables = array(
 			'EventType'       => 'created',
-			'form_name'       => sanitize_text_field( $form_data[ 'settings' ][ 'form_title' ] ),
-			'form_id'         => sanitize_text_field( $form_data[ 'id' ] ),
+			'form_name'       => sanitize_text_field( $form_data['settings']['form_title'] ),
+			'form_id'         => sanitize_text_field( $form_data['id'] ),
 			'entry_email'     => $email_address,
 			'EditorLinkEntry' => $editor_link,
 		);
@@ -307,12 +307,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 										$alert_code = 5522;
 									}
 									$variables = array(
-										'confirmation_name' => $new_changed_item[ 'name' ],
-										'old_value'      => $confirmation[ $change_type ],
-										'new_value'      => $new_changed_item[ $change_type ],
-										'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
-										'form_id'        => $post_id,
-										'EditorLinkForm' => $editor_link,
+										'confirmation_name' => $new_changed_item['name'],
+										'old_value'         => $confirmation[ $change_type ],
+										'new_value'         => $new_changed_item[ $change_type ],
+										'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+										'form_id'           => $post_id,
+										'EditorLinkForm'    => $editor_link,
 									);
 									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 									$has_alert_triggered = true;
