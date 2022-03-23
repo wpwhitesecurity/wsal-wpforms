@@ -4,9 +4,9 @@ Plugin URI: https://wpactivitylog.com
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Activity Log extension, activity logs
-Requires at least: 4.5
-Tested up to: 5.8.3
-Stable tag: 1.1.2
+Requires at least: 5.0
+Tested up to: 5.9.2
+Stable tag: 1.2.0
 Requires PHP: 7.0
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
@@ -77,6 +77,27 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 1. Forms, entries, notifications and other WPForms plugin changes reported in the WordPress activity log.
 
 == Changelog ==
+
+= 1.2.0 (2022-03-24) =
+
+Extensions: Release notes: [Yoast SEO, WPForms & Gravity Forms activity log extension updates](https://wpactivitylog.com/extensions-march-2022-update/)
+
+* **New event IDs:**
+	* 5513: Enabled / disabled anti-spam protection on a form.
+	* 5514: Enabled / disabled dynamic fields population setting on a form.
+	* 5515: Enabled / disabled dynamic fields population setting on a form.
+	* 5516: Renamed a notification.
+	* 5517: Changed a property of a notification.
+	* 5518: Added / enabled / deleted a confirmation from a form.
+	* 5519: Changed the confirmation type of a form confirmation.
+	* 5520: Changed the confirmation page in a form confirmation.
+	* 5521: Changed the redirect URL in a form confirmation.
+	* 5522: Changed the message in a form confirmation.
+	* 5523: User / website visitor submitted a form on the website.
+	
+* **Improvements:**
+	* Updated code - now using the WordPress coding standard.
+	* Refactored some of the code / reduced duplicate code for some of the event IDs.
 
 = 1.1.2 (2021-09-01) =
 
