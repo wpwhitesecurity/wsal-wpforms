@@ -249,8 +249,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
 						$alert_code = 5518;
 						foreach ( $added_items as $confirmation ) {
-							if ( isset( $confirmation['notification_name'] ) ) {
-								$confirmation_name = $confirmation->name;
+							if ( isset( $confirmation['name'] ) ) {
+								$confirmation_name = $confirmation['name'];
 							} else {
 								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
 							}
@@ -258,7 +258,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'EventType'         => 'added',
 								'confirmation_name' => sanitize_text_field( $confirmation_name ),
 								'form_name'         => sanitize_text_field( $form->post_title ),
-								'PostID'            => $post_id,
+								'form_id'            => $post_id,
 								'EditorLinkForm'    => $editor_link,
 							);
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
@@ -268,8 +268,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
 						$alert_code = 5518;
 						foreach ( $removed_items as $confirmation ) {
-							if ( isset( $confirmation['notification_name'] ) ) {
-								$confirmation_name = $confirmation->name;
+							if ( isset( $confirmation['name'] ) ) {
+								$confirmation_name = $confirmation['name'];
 							} else {
 								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
 							}
@@ -277,7 +277,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'EventType'         => 'deleted',
 								'confirmation_name' => sanitize_text_field( $confirmation_name ),
 								'form_name'         => sanitize_text_field( $form->post_title ),
-								'PostID'            => $post_id,
+								'form_id'           => $post_id,
 								'EditorLinkForm'    => $editor_link,
 							);
 							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
@@ -307,7 +307,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 										$alert_code = 5522;
 									}
 									$variables = array(
-										'confirmation_name' => $new_changed_item[ $change_type ],
+										'confirmation_name' => $new_changed_item[ 'name' ],
 										'old_value'      => $confirmation[ $change_type ],
 										'new_value'      => $new_changed_item[ $change_type ],
 										'form_name'      => sanitize_text_field( $form_content->settings->form_title ),
