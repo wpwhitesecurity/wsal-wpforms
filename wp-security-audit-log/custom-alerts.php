@@ -141,11 +141,11 @@ $custom_alerts = array(
 			array(
 				5523,
 				WSAL_MEDIUM,
-				esc_html__( 'An Entry was created', 'wsal-wpforms' ),
-				esc_html__( 'An Entry was created with the ID %entry_id%.', 'wsal-wpforms' ),
+				esc_html__( 'An form was submitted', 'wsal-wpforms' ),
+				esc_html__( 'Submitted the form %form_name%.', 'wsal-wpforms' ),
 				array(
+					esc_html__( 'Form ID', 'wsal-wpforms' )  => '%form_id%',
 					esc_html__( 'Entry email', 'wsal-wpforms' )  => '%entry_email%',
-					esc_html__( 'From form', 'wsal-wpforms' )  => '%form_name%',
 				),
 				array(
 					esc_html__( 'View entry in the editor', 'wsal-wpforms' ) => '%EditorLinkEntry%',

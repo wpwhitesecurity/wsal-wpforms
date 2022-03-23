@@ -108,8 +108,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		$variables = array(
 			'EventType'       => 'created',
-			'form_name'       => sanitize_text_field( $form->post_title ),
-			'entry_id'        => $entry_id,
+			'form_name'       => sanitize_text_field( $form_data[ 'settings' ][ 'form_title' ] ),
+			'form_id'         => sanitize_text_field( $form_data[ 'id' ] ),
 			'entry_email'     => $email_address,
 			'EditorLinkEntry' => $editor_link,
 		);
