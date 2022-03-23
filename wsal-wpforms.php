@@ -6,7 +6,7 @@
  * Text Domain: wsal-wpforms
  * Author: WP White Security
  * Author URI: http://www.wpwhitesecurity.com/
- * Version: 1.1.2
+ * Version: 1.2.0
  * License: GPL2
  * Network: true
  *
@@ -15,7 +15,7 @@
  */
 
 /*
-	Copyright(c) 2021  WP White Security  (email : info@wpwhitesecurity.com)
+	Copyright(c) 2022  WP White Security  (email : info@wpwhitesecurity.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
