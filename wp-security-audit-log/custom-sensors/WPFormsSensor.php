@@ -306,6 +306,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 										$alert_code = 5521;
 									} elseif ( 'message' === $change_type ) {
 										$alert_code = 5522;
+                                        $confirmation[ $change_type ] = sanitize_text_field( wp_strip_all_tags( $confirmation[ $change_type ] ) );
 									}
                                     if ( ! isset( $alert_code ) ) {
                                         continue;
