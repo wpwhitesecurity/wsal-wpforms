@@ -298,13 +298,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								if ( $new_changed_item[ $change_type ] !== $confirmation[ $change_type ] ) {
 									if ( 'type' === $change_type ) {
 										$alert_code = 5519;
-									} elseif ( 'tpage' === $change_type ) {
+									} elseif ( 'page' === $change_type ) {
 										$alert_code = 5520;
+                                        $new_changed_item[ $change_type ] = get_the_title( $new_changed_item[ $change_type ] );
+                                        $confirmation[ $change_type ]     = get_the_title( $confirmation[ $change_type ] );
 									} elseif ( 'redirect' === $change_type ) {
 										$alert_code = 5521;
 									} elseif ( 'message' === $change_type ) {
-										$alert_code = url5522;
+										$alert_code = 5522;
 									}
+                                    if ( ! isset( $alert_code ) ) {
+                                        continue;
+                                    }
 									$variables = array(
 										'confirmation_name' => $new_changed_item['name'],
 										'old_value'         => $confirmation[ $change_type ],
