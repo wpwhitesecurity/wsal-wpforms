@@ -314,7 +314,7 @@ $custom_alerts = array(
 				esc_html__( 'A Confirmation Page type was modified', 'wsal-wpforms' ),
 				__( 'Changed the <strong>Confirmation Page</strong> to %new_value%', 'wsal-wpforms' ),
 				array(
-					esc_html__( 'Previous Confirmation Type', 'wsal-wpforms' ) => '%old_value%%',
+					esc_html__( 'Previous Confirmation Page', 'wsal-wpforms' ) => '%old_value%%',
 					esc_html__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
 					esc_html__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
 				),
@@ -329,7 +329,7 @@ $custom_alerts = array(
 				esc_html__( 'A Confirmation Redirecttype was modified', 'wsal-wpforms' ),
 				__( 'Changed the <strong>Confirmation Redirect URL</strong> to %new_value%', 'wsal-wpforms' ),
 				array(
-					esc_html__( 'Previous Confirmation Type', 'wsal-wpforms' ) => '%old_value%%',
+					esc_html__( 'Previous Confirmation Redirect URL', 'wsal-wpforms' ) => '%old_value%%',
 					esc_html__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
 					esc_html__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
 				),
@@ -344,7 +344,7 @@ $custom_alerts = array(
 				esc_html__( 'A Confirmation Message type was modified', 'wsal-wpforms' ),
 				__( 'Changed the <strong>Confirmation Message</strong> to %new_value%', 'wsal-wpforms' ),
 				array(
-					esc_html__( 'Previous Confirmation Type', 'wsal-wpforms' ) => '%old_value%',
+					esc_html__( 'Previous Confirmation Message', 'wsal-wpforms' ) => '%old_value%',
 					esc_html__( 'Form name', 'wsal-wpforms' ) => '%form_name%',
 					esc_html__( 'Form ID', 'wsal-wpforms' )   => '%form_id%',
 				),
