@@ -6,7 +6,7 @@
  * Text Domain: wsal-wpforms
  * Author: WP White Security
  * Author URI: http://www.wpwhitesecurity.com/
- * Version: 1.1.2
+ * Version: 1.2.0
  * License: GPL2
  * Network: true
  *
@@ -15,7 +15,7 @@
  */
 
 /*
-	Copyright(c) 2021  WP White Security  (email : info@wpwhitesecurity.com)
+	Copyright(c) 2022  WP White Security  (email : info@wpwhitesecurity.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -32,7 +32,7 @@
 */
 
 /*
- REQUIRED. Here we include and fire up the main core class. This will be needed regardless so be sure to leave line 37-39 in tact.
+REQUIRED. Here we include and fire up the main core class. This will be needed regardless so be sure to leave line 37-39 in tact.
 */
 require_once plugin_dir_path( __FILE__ ) . 'core/class-extension-core.php';
 $wsal_extension = new WPWhiteSecurity\ActivityLog\Extensions\Common\Core( __FILE__, 'wsal-wpforms' );
@@ -55,6 +55,7 @@ function wsal_wpforms_add_custom_event_objects( $objects ) {
 		'wpforms-fields'        => esc_html__( 'Fields in WPForms', 'wsal-wpforms' ),
 		'wpforms_fields'        => esc_html__( 'Fields in WPForms', 'wsal-wpforms' ),
 		'wpforms_forms'         => esc_html__( 'Forms in WPForms', 'wsal-wpforms' ),
+		'wpforms_confirmations' => esc_html__( 'Confirmations in WPForms', 'wsal-wpforms' ),
 	);
 
 	// combine the two arrays.
