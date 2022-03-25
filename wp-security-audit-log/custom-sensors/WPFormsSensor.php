@@ -1129,6 +1129,16 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 		return false;
 	}
+	
+	/**
+	 * Return the fields type if it has no provided label to display.
+	 *
+	 * @param array $fields
+	 * @return string
+	 */
+	private function get_type_if_field_has_no_name( $fields ) {
+		return ( empty( $fields['label'] ) ) ? sanitize_text_field( $fields['type'] ) : sanitize_text_field( $fields['label'] );
+	}
 
 	/**
 	 * Return the fields type if it has no provided label to display.
