@@ -311,8 +311,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
                                     if ( ! isset( $alert_code ) ) {
                                         continue;
                                     }
+
+                                    if ( isset( $new_changed_item['name'] ) ) {
+                                        $confirmation_name = $new_changed_item['name'];
+                                    } else {
+                                        $confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+                                    }
+
 									$variables = array(
-										'confirmation_name' => $new_changed_item['name'],
+										'confirmation_name' => $confirmation_name,
 										'old_value'         => $confirmation[ $change_type ],
 										'new_value'         => $new_changed_item[ $change_type ],
 										'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
