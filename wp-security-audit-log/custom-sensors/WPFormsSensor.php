@@ -543,7 +543,8 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 *
 	 * Detect when an entry has been deleted.
 	 *
-	 * @since 1.0.0
+	 * @param int $row_id - Removed row ID.
+	 * @return void
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
@@ -558,10 +559,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Grab from content.
 		$form_content = (string) $entry->fields;
 
-		// Search it for any email address
+		// Search it for any email address.
 		$email_address = $this->extract_emails( $form_content );
 
-		// Now lets see if we have more than one email present, if so, just grab the 1st one,
+		// Now lets see if we have more than one email present, if so, just grab the 1st one.
 		if ( $email_address && is_array( $email_address ) ) {
 			$email_address = $email_address[0];
 		} elseif ( $email_address && ! is_array( $email_address ) ) {
@@ -594,7 +595,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	/**
 	 * Modify entry event.
 	 *
-	 * @since 1.0.3
+	 * @param array  $form_data - Form data.
+	 * @param string $response - Submission response.
+	 * @param array  $updated_fields - Modified fields.
+	 * @param object $entry - Entry data.
+	 * @return void
 	 */
 	public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
 		$alert_code = 5507;
@@ -603,7 +608,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		foreach ( $updated_fields as $updated_field ) {
 
-			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ) ) );
+			$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ), true ) );
 
 			$editor_link = esc_url(
 				add_query_arg(
@@ -631,6 +636,14 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 	}
 
+	/**
+	 * Trigger alert when WPforms setting is modified.
+	 *
+	 * @param string $option_name - Updated option name.
+	 * @param mixed  $old_value - Previous value.
+	 * @param mixed  $value - New value.
+	 * @return void
+	 */
 	public function event_settings_updated( $option_name, $old_value, $value ) {
 
 		if ( $value !== $old_value ) {
@@ -806,21 +819,46 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 	}
 
+	/**
+	 * WPforms addon activated.
+	 *
+	 * @param string $plugin - Plugin name.
+	 * @return void
+	 */
 	public function addon_plugin_activated( $plugin ) {
 		$event_type = 'activated';
 		$this->generate_addon_event( $plugin, $event_type );
 	}
 
+	/**
+	 * WPforms addon deactivated.
+	 *
+	 * @param string $plugin - Plugin name.
+	 * @return void
+	 */
 	public function addon_plugin_deactivated( $plugin ) {
 		$event_type = 'deactivated';
 		$this->generate_addon_event( $plugin, $event_type );
 	}
 
+	/**
+	 * WPforms addon installed.
+	 *
+	 * @param string $plugin - Plugin name.
+	 * @return void
+	 */
 	public function addon_plugin_installed( $plugin ) {
 		$event_type = 'installed';
 		$this->generate_addon_event( $plugin, $event_type );
 	}
 
+	/**
+	 * Create tidy name for addon for display.
+	 *
+	 * @param string $plugin - Plugin name.
+	 * @param string $event_type - Event type.
+	 * @return void
+	 */
 	public function generate_addon_event( $plugin, $event_type ) {
 		$alert_code       = 5511;
 		$tidy_plugin_name = preg_replace( '/\.[^.]+$/', '', basename( $plugin ) );
@@ -831,6 +869,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		$this->plugin->alerts->trigger_event( $alert_code, $variables );
 	}
 
+	/**
+	 * Ensure event foes not fire if 5501 was also fired.
+	 *
+	 * @param WSAL_AlertManager $manager - WSAL handler.
+	 * @return bool - Was triggered or not.
+	 */
 	public function check_other_changes( WSAL_AlertManager $manager ) {
 		if ( $manager->WillOrHasTriggered( 5501 ) ) {
 			return false;
@@ -873,12 +917,19 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @return string
 	 */
 	private function extract_emails( $string ) {
-		// This regular expression extracts all emails from a string:
+		// This regular expression extracts all emails from a string.
 		$regexp = '/([a-z0-9_\.\-])+\@(([a-z0-9\-])+\.)+([a-z0-9]{2,4})+/i';
 		preg_match( $regexp, $string, $m );
 		return isset( $m[0] ) ? $m[0] : array();
 	}
 
+	/**
+	 * Check if array key is present, recursivly.
+	 *
+	 * @param string $key - Lookup key.
+	 * @param aray   $array - Array to search.
+	 * @return bool - Was found.
+	 */
 	private function array_key_exists_recursive( $key, $array ) {
 		if ( is_array( $array ) && array_key_exists( $key, $array ) ) {
 			return true;
