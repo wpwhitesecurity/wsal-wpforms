@@ -172,6 +172,146 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}
 		}
 
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) ) {
+			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
+				$form_content     = $this->json_decode_encode( $form->post_content );
+				$old_form_content = $this->json_decode_encode( $this->_old_post->post_content );
+				$post_created     = new DateTime( $post->post_date_gmt );
+				$post_modified    = new DateTime( $post->post_modified_gmt );
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
+
+				if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
+					$alert_code = 5513;
+					$variables  = array(
+						'EventType'      => ( isset( $form_content->settings->antispam ) ) ? 'enabled' : 'disabled',
+						'form_name'      => sanitize_text_field( $form->post_title ),
+						'form_id'        => $post_id,
+						'EditorLinkForm' => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
+				}
+				if ( isset( $form_content->settings->dynamic_population ) && ! isset( $old_form_content->settings->dynamic_population ) || ! isset( $form_content->settings->dynamic_population ) && isset( $old_form_content->settings->dynamic_population ) ) {
+					$alert_code = 5514;
+					$variables  = array(
+						'EventType'      => ( isset( $form_content->settings->dynamic_population ) ) ? 'enabled' : 'disabled',
+						'form_name'      => sanitize_text_field( $form->post_title ),
+						'form_id'        => $post_id,
+						'EditorLinkForm' => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
+				}
+				if ( isset( $form_content->settings->ajax_submit ) && ! isset( $old_form_content->settings->ajax_submit ) || ! isset( $form_content->settings->ajax_submit ) && isset( $old_form_content->settings->ajax_submit ) ) {
+					$alert_code = 5515;
+					$variables  = array(
+						'EventType'      => ( isset( $form_content->settings->ajax_submit ) ) ? 'enabled' : 'disabled',
+						'form_name'      => sanitize_text_field( $form->post_title ),
+						'form_id'        => $post_id,
+						'EditorLinkForm' => $editor_link,
+					);
+					$this->plugin->alerts->Trigger( $alert_code, $variables );
+				}
+
+				if ( isset( $form_content->settings->confirmations ) && isset( $old_form_content->settings->confirmations ) ) {
+					$form_content_array     = $this->json_decode_encode( $form_content->settings->confirmations, true, true );
+					$old_form_content_array = $this->json_decode_encode( $old_form_content->settings->confirmations, true, true );
+
+					$changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+					$added_items   = $changes['added'];
+					$removed_items = $changes['deleted'];
+					$changed_items = $changes['modified'];
+
+					// Check new content size determine if something has been added.
+					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
+						$alert_code = 5518;
+						foreach ( $added_items as $confirmation ) {
+							if ( isset( $confirmation['name'] ) ) {
+								$confirmation_name = $confirmation['name'];
+							} else {
+								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+							}
+							$variables = array(
+								'EventType'         => 'added',
+								'confirmation_name' => sanitize_text_field( $confirmation_name ),
+								'form_name'         => sanitize_text_field( $form->post_title ),
+								'form_id'            => $post_id,
+								'EditorLinkForm'    => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$has_alert_triggered = true;
+						}
+						// Check new content size determine if something has been removed.
+					} elseif ( count( $form_content_array ) < count( $old_form_content_array ) ) {
+						$alert_code = 5518;
+						foreach ( $removed_items as $confirmation ) {
+							if ( isset( $confirmation['name'] ) ) {
+								$confirmation_name = $confirmation['name'];
+							} else {
+								$confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+							}
+							$variables = array(
+								'EventType'         => 'deleted',
+								'confirmation_name' => sanitize_text_field( $confirmation_name ),
+								'form_name'         => sanitize_text_field( $form->post_title ),
+								'form_id'           => $post_id,
+								'EditorLinkForm'    => $editor_link,
+							);
+							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$has_alert_triggered = true;
+						}
+					} elseif ( ! empty( $changed_items ) ) {
+						foreach ( $changed_items as $key => $confirmation ) {
+							$new_array        = (array) $form_content->settings->confirmations;
+							$new_changed_item = (array) $new_array[ $key ];
+
+							$confirmation_changes = array(
+								'type',
+								'page',
+								'redirect',
+								'message',
+							);
+
+							foreach ( $confirmation_changes as $change_type ) {
+								if ( $new_changed_item[ $change_type ] !== $confirmation[ $change_type ] ) {
+									if ( 'type' === $change_type ) {
+										$alert_code = 5519;
+									} elseif ( 'page' === $change_type ) {
+										$alert_code = 5520;
+                                        $new_changed_item[ $change_type ] = get_the_title( $new_changed_item[ $change_type ] );
+                                        $confirmation[ $change_type ]     = get_the_title( $confirmation[ $change_type ] );
+									} elseif ( 'redirect' === $change_type ) {
+										$alert_code = 5521;
+									} elseif ( 'message' === $change_type ) {
+										$alert_code = 5522;
+                                        $confirmation[ $change_type ] = sanitize_text_field( wp_strip_all_tags( $confirmation[ $change_type ] ) );
+									}
+                                    if ( ! isset( $alert_code ) ) {
+                                        continue;
+                                    }
+
+                                    if ( isset( $new_changed_item['name'] ) ) {
+                                        $confirmation_name = $new_changed_item['name'];
+                                    } else {
+                                        $confirmation_name = esc_html__( 'Default confirmation', 'wsal-wpforms' );
+                                    }
+
+									$variables = array(
+										'confirmation_name' => $confirmation_name,
+										'old_value'         => $confirmation[ $change_type ],
+										'new_value'         => $new_changed_item[ $change_type ],
+										'form_name'         => sanitize_text_field( $form_content->settings->form_title ),
+										'form_id'           => $post_id,
+										'EditorLinkForm'    => $editor_link,
+									);
+									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+									$has_alert_triggered = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		// Handling form notifications.
 		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
