@@ -113,7 +113,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			'EditorLinkEntry' => $editor_link,
 		);
 
-		$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
+		$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				'EditorLinkForm' => $editor_link,
 			);
 
-			$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
+			$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
 			$has_alert_triggered = true;
 
 			// Handling form rename. Check if this is a form and if an old title is set.
@@ -164,7 +164,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					'EditorLinkForm' => $editor_link,
 				);
 
-				$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+				$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 				$has_alert_triggered = true;
 			}
 		}
@@ -189,7 +189,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						'PostID'                   => $post_id,
 						'EditorLinkFormDuplicated' => $editor_link,
 					);
-					$this->plugin->alerts->Trigger( $alert_code, $variables );
+					$this->plugin->alerts->trigger_event( $alert_code, $variables );
 					$has_alert_triggered = true;
 					remove_action( 'save_post', array( $this, 'event_form_saved' ), 10, 3 );
 				}
@@ -212,7 +212,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
 					);
-					$this->plugin->alerts->Trigger( $alert_code, $variables );
+					$this->plugin->alerts->trigger_event( $alert_code, $variables );
 				}
 				if ( isset( $form_content->settings->dynamic_population ) && ! isset( $old_form_content->settings->dynamic_population ) || ! isset( $form_content->settings->dynamic_population ) && isset( $old_form_content->settings->dynamic_population ) ) {
 					$alert_code = 5514;
@@ -222,7 +222,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
 					);
-					$this->plugin->alerts->Trigger( $alert_code, $variables );
+					$this->plugin->alerts->trigger_event( $alert_code, $variables );
 				}
 				if ( isset( $form_content->settings->ajax_submit ) && ! isset( $old_form_content->settings->ajax_submit ) || ! isset( $form_content->settings->ajax_submit ) && isset( $old_form_content->settings->ajax_submit ) ) {
 					$alert_code = 5515;
@@ -232,7 +232,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						'form_id'        => $post_id,
 						'EditorLinkForm' => $editor_link,
 					);
-					$this->plugin->alerts->Trigger( $alert_code, $variables );
+					$this->plugin->alerts->trigger_event( $alert_code, $variables );
 				}
 
 				if ( isset( $form_content->settings->confirmations ) && isset( $old_form_content->settings->confirmations ) ) {
@@ -260,7 +260,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'form_id'            => $post_id,
 								'EditorLinkForm'    => $editor_link,
 							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
 						// Check new content size determine if something has been removed.
@@ -279,7 +279,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'form_id'           => $post_id,
 								'EditorLinkForm'    => $editor_link,
 							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
 					} elseif ( ! empty( $changed_items ) ) {
@@ -326,7 +326,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 										'form_id'           => $post_id,
 										'EditorLinkForm'    => $editor_link,
 									);
-									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+									$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 									$has_alert_triggered = true;
 								}
 							}
@@ -372,7 +372,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'PostID'           => $post_id,
 								'EditorLinkForm'   => $editor_link,
 							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
 						// Check new content size determine if something has been removed.
@@ -391,7 +391,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'PostID'           => $post_id,
 								'EditorLinkForm'   => $editor_link,
 							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
 						// Compare old post and new post to see if the notifications have been disabled.
@@ -403,7 +403,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'         => $post_id,
 							'EditorLinkForm' => $editor_link,
 						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 
 					} elseif ( ! isset( $old_form_content->settings->notification_enable ) && isset( $form_content->settings->notification_enable ) ) {
@@ -414,7 +414,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'         => $post_id,
 							'EditorLinkForm' => $editor_link,
 						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 
 						// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
@@ -460,7 +460,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 										'form_id'        => $post_id,
 										'EditorLinkForm' => $editor_link,
 									);
-									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+									$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 									$alert_code = null;
 								}
 							}
@@ -485,7 +485,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								);
 							}
 							if ( $alert_code ) {
-								$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+								$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							}
 							$has_alert_triggered = true;
 						}
@@ -547,7 +547,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'PostID'         => $post_id,
 								'EditorLinkForm' => $editor_link,
 							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
 					}
@@ -567,7 +567,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 										'PostID'         => $post_id,
 										'EditorLinkForm' => $editor_link,
 									);
-									$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+									$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 									$has_alert_triggered = true;
 								}
 							} else {
@@ -579,7 +579,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 									'PostID'         => $post_id,
 									'EditorLinkForm' => $editor_link,
 								);
-								$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+								$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 								$has_alert_triggered = true;
 							}
 						}
@@ -597,7 +597,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 								'PostID'         => $post_id,
 								'EditorLinkForm' => $editor_link,
 							);
-							$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+							$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 							$has_alert_triggered = true;
 						}
 					}
@@ -615,7 +615,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'         => $post_id,
 							'EditorLinkForm' => $editor_link,
 						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 					}
 
@@ -632,7 +632,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'PostID'         => $post_id,
 							'EditorLinkForm' => $editor_link,
 						);
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
+						$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 					}
 				}
@@ -671,7 +671,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'EditorLinkForm' => $editor_link,
 						);
 
-						$this->plugin->alerts->TriggerIf( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
+						$this->plugin->alerts->trigger_event_if( $alert_code, $variables, array( $this, 'check_if_duplicate' ) );
 						remove_action( 'save_post', array( $this, 'event_form_saved' ), 10, 3 );
 					}
 				}
@@ -700,7 +700,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				'PostID'    => $post_id,
 			);
 
-			$this->plugin->alerts->Trigger( $alert_code, $variables );
+			$this->plugin->alerts->trigger_event( $alert_code, $variables );
 		}
 	}
 
@@ -747,7 +747,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			'form_id'        => $entry->form_id,
 			'EditorLinkForm' => $editor_link,
 		);
-		$this->plugin->alerts->Trigger( $alert_code, $variables );
+		$this->plugin->alerts->trigger_event( $alert_code, $variables );
 		remove_action( 'wpforms_pre_delete', array( $this, 'event_entry_deleted' ), 10, 1 );
 	}
 
@@ -789,7 +789,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					'EditorLinkEntry' => $editor_link,
 				);
 
-				$this->plugin->alerts->Trigger( $alert_code, $variables );
+				$this->plugin->alerts->trigger_event( $alert_code, $variables );
 			}
 		}
 
@@ -893,7 +893,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'new_value'    => implode( ', ', $updated_new[ $wpforms_capability ]['roles'] ),
 						);
 						// Fire off 5508.
-						$this->plugin->alerts->Trigger( $alert_code, $variables );
+						$this->plugin->alerts->trigger_event( $alert_code, $variables );
 					}
 				}
 			}
@@ -907,7 +907,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					'new_value' => $wp_forms_currencies[ $value['currency'] ]['name'] . ' (' . $value['currency'] . ')',
 				);
 
-				$this->plugin->alerts->Trigger( $alert_code, $variables );
+				$this->plugin->alerts->trigger_event( $alert_code, $variables );
 			}
 
 			// Event 5510 (Integration enabled/disabled).
@@ -947,7 +947,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							'service_name'    => ucwords( str_replace( '-', ' ', $provider ) ),
 							'connection_name' => $connection_name,
 						);
-						$this->plugin->alerts->Trigger( $alert_code, $variables );
+						$this->plugin->alerts->trigger_event( $alert_code, $variables );
 					}
 				}
 			}
@@ -972,7 +972,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				'new_value' => $wp_forms_currencies[ $value['currency'] ]['name'] . ' (' . $value['currency'] . ')',
 			);
 
-			$this->plugin->alerts->Trigger( $alert_code, $variables );
+			$this->plugin->alerts->trigger_event( $alert_code, $variables );
 		}
 	}
 
@@ -1023,7 +1023,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			'EventType'  => $event_type,
 			'addon_name' => str_replace( 'Wpforms', 'WPForms', ucwords( str_replace( '-', ' ', $tidy_plugin_name ) ) ),
 		);
-		$this->plugin->alerts->Trigger( $alert_code, $variables );
+		$this->plugin->alerts->trigger_event( $alert_code, $variables );
 	}
 
 	/**
@@ -1034,7 +1034,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @return bool
 	 */
 	public function check_other_changes( WSAL_AlertManager $manager ) {
-		if ( $manager->WillOrHasTriggered( 5501 ) ) {
+		if ( $manager->will_or_has_triggered( 5501 ) ) {
 			return false;
 		}
 		return true;
@@ -1048,7 +1048,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @return bool
 	 */
 	public function must_not_be_new_form( WSAL_AlertManager $manager ) {
-		if ( $manager->WillOrHasTriggered( 5500 ) ) {
+		if ( $manager->will_or_has_triggered( 5500 ) ) {
 			return false;
 		}
 		return true;
@@ -1062,7 +1062,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @return bool
 	 */
 	public function check_if_duplicate( WSAL_AlertManager $manager ) {
-		if ( $manager->WillOrHasTriggered( 5502 ) ) {
+		if ( $manager->will_or_has_triggered( 5502 ) ) {
 			return false;
 		}
 		return true;
@@ -1076,7 +1076,12 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 * @param integer|array $alert_id - Alert code.
 	 * @return boolean
 	 */
-	private function was_triggered_recently( $alert_id ) {
+	protected function was_triggered_recently( $alert_id ) {
+
+		if ( method_exists( 'self', 'was_triggered_recently' ) ) {
+			return self::was_triggered_recently();
+		}		
+
 		// if we have already checked this don't check again.
 		if ( isset( $this->cached_alert_checks ) && array_key_exists( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[ $alert_id ] ) {
 			return true;
