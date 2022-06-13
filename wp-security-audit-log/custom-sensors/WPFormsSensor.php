@@ -174,11 +174,19 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) ) {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
-				$form_content     = $this->json_decode_encode( $form->post_content );
-				$old_form_content = $this->json_decode_encode( $this->_old_post->post_content );
+				$form_content     = json_decode( $form->post_content );
+				$old_form_content = json_decode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = $this->create_form_post_editor_link( $post_id );
+				$editor_link      = esc_url(
+					add_query_arg(
+						array(
+							'view'    => 'fields',
+							'form_id' => $post_id,
+						),
+						admin_url( 'admin.php?page=wpforms-builder' )
+					)
+				);
 
 				if ( isset( $form_content->settings->antispam ) && ! isset( $old_form_content->settings->antispam ) || isset( $old_form_content->settings->antispam ) && ! isset( $form_content->settings->antispam ) ) {
 					$alert_code = 5513;
@@ -212,13 +220,29 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 				}
 
 				if ( isset( $form_content->settings->confirmations ) && isset( $old_form_content->settings->confirmations ) ) {
-					$form_content_array     = $this->json_decode_encode( $form_content->settings->confirmations, true, true );
-					$old_form_content_array = $this->json_decode_encode( $old_form_content->settings->confirmations, true, true );
+					$form_content_array     = json_decode( json_encode( $form_content->settings->confirmations), true );
+					$old_form_content_array = json_decode( json_encode( $old_form_content->settings->confirmations), true );
 
-					$changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
-					$added_items   = $changes['added'];
-					$removed_items = $changes['deleted'];
-					$changed_items = $changes['modified'];
+					// Compare the 2 arrays and create array of added items.
+					$compare_added_items = array_diff(
+						array_map( 'serialize', $form_content_array ),
+						array_map( 'serialize', $old_form_content_array )
+					);
+					$added_items         = array_map( 'unserialize', $compare_added_items );
+
+					// Compare the 2 arrays and create array of removed items.
+					$compare_removed_items = array_diff(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$removed_items         = array_map( 'unserialize', $compare_removed_items );
+
+					// Compare the 2 arrays and create array of changed.
+					$compare_changed_items = array_diff_assoc(
+						array_map( 'serialize', $old_form_content_array ),
+						array_map( 'serialize', $form_content_array )
+					);
+					$changed_items         = array_map( 'unserialize', $compare_removed_items );
 
 					// Check new content size determine if something has been added.
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
