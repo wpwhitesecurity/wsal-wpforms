@@ -1087,9 +1087,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			return true;
 		}
 		$query = new WSAL_Models_OccurrenceQuery();
-		$query->addOrderBy( 'created_on', true );
-		$query->setLimit( 5 );
-		$last_occurences  = $query->getAdapter()->Execute( $query );
+		$query->add_order_by( 'created_on', true );
+		$query->set_limit( 5 );
+		$last_occurences  = $query->get_adapter()->execute( $query );
 		$known_to_trigger = false;
 		foreach ( $last_occurences as $last_occurence ) {
 			if ( $known_to_trigger ) {
