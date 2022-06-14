@@ -1,4 +1,6 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+
 /**
  * Custom Sensors for WPForms
  *
@@ -14,15 +16,6 @@
  * @since 1.0.0
  */
 class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
-
-	/**
-	 * Amount of seconds to check back for the given alert occurrence.
-	 *
-	 * @var integer
-	 *
-	 * @since latest
-	 */
-	protected static $seconds_to_check_back = 20;
 
 	/**
 	 * Holds a cached value if the checked alert has recently fired.
@@ -47,6 +40,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		add_action( 'wpforms_plugin_activated', array( $this, 'addon_plugin_activated' ), 10, 1 );
 		add_action( 'wpforms_plugin_deactivated', array( $this, 'addon_plugin_deactivated' ), 10, 1 );
 		add_action( 'wpforms_plugin_installed', array( $this, 'addon_plugin_installed' ), 10, 1 );
+		add_action( 'wpforms_process_complete', array( $this, 'event_entry_added' ), 10, 4 );
+		add_action( 'wpforms_post_delete_entry', array( $this, 'event_entry_deleted' ), 10, 1 );
+
 	}
 
 	/**
@@ -139,15 +135,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		// Handling form creation. First lets check an old post was set and its not flagged as an update, then finally check its not a duplicate.
 		if ( ! isset( $this->_old_post->post_title ) && ! $update && ! preg_match( '/\s\(ID #[0-9].*?\)/', $form->post_title ) && 'wpforms' === $post->post_type ) {
 			$alert_code  = 5500;
-			$editor_link = esc_url(
-				add_query_arg(
-					array(
-						'view'    => 'fields',
-						'form_id' => $post_id,
-					),
-					admin_url( 'admin.php?page=wpforms-builder' )
-				)
-			);
+			$editor_link = $this->create_form_post_editor_link( $post_id );
 
 			$variables = array(
 				'EventType'      => 'created',
@@ -166,15 +154,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code  = 5506;
 				$post        = get_post( $post_id );
-				$editor_link = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link = $this->create_form_post_editor_link( $post_id );
 
 				$variables = array(
 					'EventType'      => 'renamed',
@@ -198,24 +178,16 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			// Check if this is indeed a new form.
 			if ( $form->post_date_gmt === $form->post_modified_gmt ) {
 				// Grab old form ID from its post content.
-				$old_form_content = json_decode( $this->_old_post->post_content );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$old_form_content = $this->json_decode_encode( $this->_old_post->post_content );
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				if ( isset( $old_form_content->id ) ) {
 					$variables = array(
-						'OldPostTitle'   => sanitize_text_field( $this->_old_post->post_title ),
-						'PostTitle'      => sanitize_text_field( $form->post_title ),
-						'SourceID'       => sanitize_text_field( $old_form_content->id ),
-						'PostID'         => $post_id,
-						'EditorLinkForm' => $editor_link,
+						'OldPostTitle'             => sanitize_text_field( $this->_old_post->post_title ),
+						'PostTitle'                => sanitize_text_field( $form->post_title ),
+						'SourceID'                 => sanitize_text_field( $old_form_content->id ),
+						'PostID'                   => $post_id,
+						'EditorLinkFormDuplicated' => $editor_link,
 					);
 					$this->trigger_event( $alert_code, $variables );
 					$has_alert_triggered = true;
@@ -368,45 +340,21 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
-				$form_content     = json_decode( $form->post_content );
-				$old_form_content = json_decode( $this->_old_post->post_content );
+				$form_content     = $this->json_decode_encode( $form->post_content );
+				$old_form_content = $this->json_decode_encode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				// Create 2 arrays from the notification object for comparison later.
 				if ( isset( $form_content->settings->notifications ) && isset( $old_form_content->settings->notifications ) ) {
-					$form_content_array     = json_decode( json_encode( $form_content->settings->notifications ), true );
-					$old_form_content_array = json_decode( json_encode( $old_form_content->settings->notifications ), true );
+					$form_content_array     = $this->json_decode_encode( $form_content->settings->notifications, true, true );
+					$old_form_content_array = $this->json_decode_encode( $old_form_content->settings->notifications, true, true );
 
-					// Compare the 2 arrays and create array of added items.
-					$compare_added_items = array_diff(
-						array_map( 'serialize', $form_content_array ),
-						array_map( 'serialize', $old_form_content_array )
-					);
-					$added_items         = array_map( 'unserialize', $compare_added_items );
-
-					// Compare the 2 arrays and create array of removed items.
-					$compare_removed_items = array_diff(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$removed_items         = array_map( 'unserialize', $compare_removed_items );
-
-					// Compare the 2 arrays and create array of changed.
-					$compare_changed_items = array_diff_assoc(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$changed_items         = array_map( 'unserialize', $compare_removed_items );
+					$changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+					$added_items   = $changes['added'];
+					$removed_items = $changes['deleted'];
+					$changed_items = $changes['modified'];
 
 					// Check new content size determine if something has been added.
 					if ( count( $form_content_array ) > count( $old_form_content_array ) ) {
@@ -447,7 +395,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							$has_alert_triggered = true;
 						}
 						// Compare old post and new post to see if the notifications have been disabled.
-					} elseif ( $old_form_content->settings->notification_enable && ! $form_content->settings->notification_enable ) {
+					} elseif ( isset( $old_form_content->settings->notification_enable ) && ! isset( $form_content->settings->notification_enable ) ) {
 						$alert_code = 5505;
 						$variables  = array(
 							'EventType'      => 'disabled',
@@ -458,7 +406,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$this->trigger_event_if( $alert_code, $variables, array( $this, 'must_not_be_new_form' ) );
 						$has_alert_triggered = true;
 
-					} elseif ( ! $old_form_content->settings->notification_enable && $form_content->settings->notification_enable ) {
+					} elseif ( ! isset( $old_form_content->settings->notification_enable ) && isset( $form_content->settings->notification_enable ) ) {
 						$alert_code = 5505;
 						$variables  = array(
 							'EventType'      => 'enabled',
@@ -470,7 +418,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$has_alert_triggered = true;
 
 						// Finally, as none of the above triggered anything, lets see if the notifications themselves have been modified.
-					} elseif ( $changed_items ) {
+					} elseif ( ! empty( $changed_items ) ) {
 
 						// Check time and also if there is an actual change in the post content.
 						if ( abs( $post_created->diff( $post_modified )->s ) <= 1 ) {
@@ -479,18 +427,24 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						}
 
 						$alert_code = 5503;
-						foreach ( $removed_items as $notification ) {
+						foreach ( $changed_items as $key => $notification ) {
 							if ( isset( $notification['notification_name'] ) ) {
 								$notification_name = $notification['notification_name'];
 							} else {
 								$notification_name = esc_html__( 'Default Notification', 'wsal-wpforms' );
 							}
-							$variables = array(
-								'EventType'        => 'modified',
-								'notifiation_name' => sanitize_text_field( $notification_name ),
-								'form_name'        => sanitize_text_field( $form->post_title ),
-								'PostID'           => $post_id,
-								'EditorLinkForm'   => $editor_link,
+
+							$new_array        = (array) $form_content->settings->notifications;
+							$new_changed_item = (array) $new_array[ $key ];
+							$new_name         = $new_changed_item['notification_name'];
+
+							$notification_metas = array(
+								'email',
+								'subject',
+								'sender_name',
+								'sender_address',
+								'replyto',
+								'message',
 							);
 
 							foreach ( $notification_metas as $metas ) {
@@ -544,25 +498,17 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
-				$form_content     = json_decode( $form->post_content );
-				$old_form_content = json_decode( $this->_old_post->post_content );
+				$form_content     = $this->json_decode_encode( $form->post_content );
+				$old_form_content = $this->json_decode_encode( $this->_old_post->post_content );
 				$post_created     = new DateTime( $post->post_date_gmt );
 				$post_modified    = new DateTime( $post->post_modified_gmt );
-				$editor_link      = esc_url(
-					add_query_arg(
-						array(
-							'view'    => 'fields',
-							'form_id' => $post_id,
-						),
-						admin_url( 'admin.php?page=wpforms-builder' )
-					)
-				);
+				$editor_link      = $this->create_form_post_editor_link( $post_id );
 
 				// First lets see if we have BOTH old and new content to compare.
 				if ( isset( $form_content->fields ) && isset( $old_form_content->fields ) && serialize( $form_content->fields ) !== serialize( $old_form_content->fields ) ) {
 					// Create 2 arrays from the fields object for comparison later.
-					$form_content_array     = json_decode( json_encode( $form_content->fields ), true );
-					$old_form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
+					$form_content_array     = $this->json_decode_encode( $form_content->fields, true, true );
+					$old_form_content_array = $this->json_decode_encode( $old_form_content->fields, true, true );
 
 					// Compare the 2 arrays and create array of added items.
 					if ( $form_content_array !== $old_form_content_array ) {
@@ -575,19 +521,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$added_items = $form_content_array;
 					}
 
-					// Compare the 2 arrays and create array of removed items.
-					$compare_removed_items = array_diff(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$removed_items         = array_map( 'unserialize', $compare_removed_items );
-
-					$compare_changed_items = array_diff_assoc(
-						array_map( 'serialize', $old_form_content_array ),
-						array_map( 'serialize', $form_content_array )
-					);
-					$changed_items         = array_map( 'unserialize', $compare_removed_items );
-					$changed_items         = array_intersect_key( $added_items, $changed_items );
+					$changes       = $this->determine_added_removed_and_changed_items( $form_content_array, $old_form_content_array );
+					$added_items   = $changes['added'];
+					$removed_items = $changes['deleted'];
+					$changed_items = $changes['modified'];
+					$changed_items = array_intersect_key( $added_items, $changed_items );
 
 					if ( ! empty( $added_items ) ) {
 						$added_items = array_diff(
@@ -601,9 +539,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					if ( $added_items && $added_items !== $changed_items ) {
 						$alert_code = 5501;
 						foreach ( $added_items as $fields ) {
-							$variables = array(
+							$field_name = $this->get_type_if_field_has_no_name( $fields );
+							$variables  = array(
 								'EventType'      => 'created',
-								'field_name'     => sanitize_text_field( $fields['label'] ),
+								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
 								'PostID'         => $post_id,
 								'EditorLinkForm' => $editor_link,
@@ -620,9 +559,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 							if ( ! empty( $changed_items ) ) {
 								if ( ! $changed_items[ $fields ] ) {
-									$variables = array(
+									$field_name = $this->get_type_if_field_has_no_name( $value );
+									$variables  = array(
 										'EventType'      => 'deleted',
-										'field_name'     => sanitize_text_field( $value['label'] ),
+										'field_name'     => $field_name,
 										'form_name'      => sanitize_text_field( $form->post_title ),
 										'PostID'         => $post_id,
 										'EditorLinkForm' => $editor_link,
@@ -631,9 +571,10 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 									$has_alert_triggered = true;
 								}
 							} else {
-								$variables = array(
+								$field_name = $this->get_type_if_field_has_no_name( $value );
+								$variables  = array(
 									'EventType'      => 'deleted',
-									'field_name'     => sanitize_text_field( $value['label'] ),
+									'field_name'     => $field_name,
 									'form_name'      => sanitize_text_field( $form->post_title ),
 									'PostID'         => $post_id,
 									'EditorLinkForm' => $editor_link,
@@ -645,12 +586,13 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					}
 
 					// Check content to see if anything has been modified.
-					if ( $changed_items && ! $this->was_triggered_recently( 5500 ) ) {
+					if ( ! empty( $changed_items ) && ! $this->was_triggered_recently( 5500 ) ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
-							$variables = array(
+							$field_name = $this->get_type_if_field_has_no_name( $fields );
+							$variables  = array(
 								'EventType'      => 'modified',
-								'field_name'     => sanitize_text_field( $fields['label'] ),
+								'field_name'     => $field_name,
 								'form_name'      => sanitize_text_field( $form->post_title ),
 								'PostID'         => $post_id,
 								'EditorLinkForm' => $editor_link,
@@ -663,7 +605,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					// Now we shall check if we have just a single new field thats been added.
 				} elseif ( isset( $form_content->fields ) && ! isset( $old_form_content->fields ) ) {
 					// Create 2 arrays from the fields object for comparison later.
-					$form_content_array = json_decode( json_encode( $form_content->fields ), true );
+					$form_content_array = $this->json_decode_encode( $form_content->fields, true, true );
 					$alert_code         = 5501;
 					foreach ( $form_content_array as $fields ) {
 						$variables = array(
@@ -680,7 +622,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					// Finally we shall check if we have just a single new field thats been removed.
 				} elseif ( ! isset( $form_content->fields ) && isset( $old_form_content->fields ) ) {
 					// Create 2 arrays from the fields object for comparison later.
-					$form_content_array = json_decode( json_encode( $old_form_content->fields ), true );
+					$form_content_array = $this->json_decode_encode( $old_form_content->fields, true, true );
 					$alert_code         = 5501;
 					foreach ( $form_content_array as $fields ) {
 						$variables = array(
@@ -701,15 +643,15 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $update && ! $this->was_triggered_recently( 5500 ) ) {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code       = 5500;
-				$form_content     = json_decode( $form->post_content );
-				$old_form_content = json_decode( $this->_old_post->post_content );
+				$form_content     = $this->json_decode_encode( $form->post_content );
+				$old_form_content = $this->json_decode_encode( $this->_old_post->post_content );
 
 				// First, lets check the content is available in the current and old post.
 				if ( isset( $form_content ) && isset( $old_form_content ) ) {
 
 					// Content is found, so lets create some arrays to compare for changes.
-					$form_content_array     = json_decode( json_encode( $form_content ), true );
-					$old_form_content_array = json_decode( json_encode( $old_form_content ), true );
+					$form_content_array     = $this->json_decode_encode( $form_content, true, true );
+					$old_form_content_array = $this->json_decode_encode( $old_form_content, true, true );
 					$compare_changed_items  = array_diff_assoc(
 						array_map( 'serialize', $old_form_content_array ),
 						array_map( 'serialize', $form_content_array )
@@ -720,15 +662,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 					// Now lets check if anything has been added to our array, if it has, somethings changed so lets alert.
 					if ( $changed_items ) {
-						$editor_link = esc_url(
-							add_query_arg(
-								array(
-									'view'    => 'fields',
-									'form_id' => $post_id,
-								),
-								admin_url( 'admin.php?page=wpforms-builder' )
-							)
-						);
+						$editor_link = $this->create_form_post_editor_link( $post_id );
 
 						$variables = array(
 							'EventType'      => 'modified',
@@ -775,8 +709,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 *
 	 * Detect when an entry has been deleted.
 	 *
-	 * @param int $row_id - Removed row ID.
-	 * @return void
+	 * @param int $row_id - Row ID.
+	 *
+	 * @since 1.0.0
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
@@ -803,15 +738,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			$email_address = esc_html__( 'No email provided', 'wsal-wpforms' );
 		}
 
-		$editor_link = esc_url(
-			add_query_arg(
-				array(
-					'view'    => 'fields',
-					'form_id' => $entry->form_id,
-				),
-				admin_url( 'admin.php?page=wpforms-builder' )
-			)
-		);
+		$editor_link = $this->create_form_post_editor_link( $entry->form_id );
 
 		$variables = array(
 			'entry_email'    => sanitize_text_field( $email_address ),
@@ -825,18 +752,18 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * Modify entry event.
+	 * Trigger event when entry is modified.
 	 *
 	 * @param array  $form_data - Form data.
-	 * @param string $response - Submission response.
-	 * @param array  $updated_fields - Modified fields.
+	 * @param int    $response - Response.
+	 * @param array  $updated_fields - New fields.
 	 * @param object $entry - Entry data.
 	 * @return void
 	 */
 	public function event_entry_modified( $form_data, $response, $updated_fields, $entry ) {
 		$alert_code = 5507;
 
-		$fields = json_decode( $entry->fields, true );
+		$fields = $this->json_decode_encode( $entry->fields, false, true );
 
 		foreach ( $updated_fields as $updated_field ) {
 
@@ -869,11 +796,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * Trigger alert when WPforms setting is modified.
+	 * Trigger event when settings are update.
 	 *
-	 * @param string $option_name - Updated option name.
-	 * @param mixed  $old_value - Previous value.
-	 * @param mixed  $value - New value.
+	 * @param string $option_name - Option being updated.
+	 * @param array  $old_value - Previoud value.
+	 * @param array  $value - Updated value.
 	 * @return void
 	 */
 	public function event_settings_updated( $option_name, $old_value, $value ) {
@@ -903,8 +830,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						foreach ( $wpforms_caps as $capability ) {
 							if ( $this->array_key_exists_recursive( $capability, $value[ $role_index_name ] ) ) {
 
-								$role =
-									$value[ $role_index_name ]['name'];
+								$role = $value[ $role_index_name ]['name'];
 
 								if ( ! isset( $updated_new[ $capability ]['roles'] ) ) {
 									$updated_new[ $capability ]['roles'] = array();
@@ -926,8 +852,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						foreach ( $wpforms_caps as $capability ) {
 							if ( $this->array_key_exists_recursive( $capability, $old_value[ $role_index_name ] ) ) {
 
-								$role =
-									$value[ $role_index_name ]['name'];
+								$role = $value[ $role_index_name ]['name'];
 
 								if ( ! isset( $updated_old[ $capability ]['roles'] ) ) {
 									$updated_old[ $capability ]['roles'] = array();
@@ -954,11 +879,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 						$setting_name = ucwords( str_replace( '_', ' ', str_replace( 'wpforms', '', $wpforms_capability ) ) );
 						// Determine the type of setting thats been changed.
 						if ( strpos( $wpforms_capability, 'own' ) !== false ) {
-							$setting_type = __( 'Own', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'Own', 'wsal-wpforms' );
 						} elseif ( strpos( $wpforms_capability, 'other' ) !== false ) {
-							$setting_type = __( 'Other', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'Other', 'wsal-wpforms' );
 						} else {
-							$setting_type = __( 'N/A', 'wsal-wpforms' );
+							$setting_type = esc_html__( 'N/A', 'wsal-wpforms' );
 						}
 						// Setup event variables using above.
 						$variables = array(
@@ -1010,9 +935,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 						// Tidy labels up.
 						if ( 'mailchimpv3' === $provider ) {
-							$provider = __( 'Mailchimp', 'wsal-wpforms' );
+							$provider = esc_html__( 'Mailchimp', 'wsal-wpforms' );
 						} elseif ( 'getresponse' === $provider ) {
-							$provider = __( 'GetResponse', 'wsal-wpforms' );
+							$provider = esc_html__( 'GetResponse', 'wsal-wpforms' );
 						}
 
 						$alert_code      = 5510;
@@ -1052,9 +977,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * WPforms addon activated.
+	 * Trigger event when addon is activated.
 	 *
-	 * @param string $plugin - Plugin name.
+	 * @param  string $plugin - Activated addon name.
 	 * @return void
 	 */
 	public function addon_plugin_activated( $plugin ) {
@@ -1063,9 +988,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * WPforms addon deactivated.
+	 * Trigger event when addon is deactivated.
 	 *
-	 * @param string $plugin - Plugin name.
+	 * @param  string $plugin - Deactivated addon name.
 	 * @return void
 	 */
 	public function addon_plugin_deactivated( $plugin ) {
@@ -1074,9 +999,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * WPforms addon installed.
+	 * Trigger event when addon is installed.
 	 *
-	 * @param string $plugin - Plugin name.
+	 * @param  string $plugin - Installed addon name.
 	 * @return void
 	 */
 	public function addon_plugin_installed( $plugin ) {
@@ -1085,9 +1010,9 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * Create tidy name for addon for display.
+	 * Trigger addon alert.
 	 *
-	 * @param string $plugin - Plugin name.
+	 * @param string $plugin - Plugin being installed etc.
 	 * @param string $event_type - Event type.
 	 * @return void
 	 */
@@ -1102,10 +1027,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * Ensure event foes not fire if 5501 was also fired.
+	 * Method: This function make sures that alert 5501
+	 * has not been triggered before triggering.
 	 *
-	 * @param WSAL_AlertManager $manager - WSAL handler.
-	 * @return bool - Was triggered or not.
+	 * @param  WSAL_AlertManager $manager - WSAL Alert Manager.
+	 * @return bool
 	 */
 	public function check_other_changes( WSAL_AlertManager $manager ) {
 		if ( method_exists( $manager, 'will_or_has_triggered' ) ) {
@@ -1173,7 +1099,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		if ( method_exists( 'self', 'was_triggered_recently' ) ) {
 			return self::was_triggered_recently();
 		}		
-
 		// if we have already checked this don't check again.
 		if ( isset( $this->cached_alert_checks ) && array_key_exists( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[ $alert_id ] ) {
 			return true;
@@ -1220,11 +1145,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	}
 
 	/**
-	 * Check if array key is present, recursivly.
+	 * Checkes multi-dimentional arrays for a key.
 	 *
-	 * @param string $key - Lookup key.
-	 * @param aray   $array - Array to search.
-	 * @return bool - Was found.
+	 * @param string $key - Needle..
+	 * @param array  $array - Haystack.
+	 * @return array|false;
 	 */
 	private function array_key_exists_recursive( $key, $array ) {
 		if ( is_array( $array ) && array_key_exists( $key, $array ) ) {
@@ -1274,5 +1199,80 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		} else {
 			$this->plugin->alerts->Trigger( $alert_code, $variables );
 		}
+	}
+
+	/**
+	 * Checks for added, removed or modified items given an old/new array.
+	 *
+	 * @param array $new_array - Newer array to compare.
+	 * @param array $old_array - Older array to compare.
+	 * @return array $result    - Array containging changes.
+	 */
+	private function determine_added_removed_and_changed_items( $new_array, $old_array ) {
+		$result = array(
+			'added'    => array(),
+			'deleted'  => array(),
+			'modified' => array(),
+		);
+		// Compare the 2 arrays and create array of added items.
+		$compare_added_items = array_diff(
+			array_map( 'serialize', $new_array ),
+			array_map( 'serialize', $old_array )
+		);
+		$added_items         = array_map( 'unserialize', $compare_added_items );
+		$result['added']     = $added_items;
+
+		// Compare the 2 arrays and create array of removed items.
+		$compare_removed_items = array_diff(
+			array_map( 'serialize', $old_array ),
+			array_map( 'serialize', $new_array )
+		);
+		$removed_items         = array_map( 'unserialize', $compare_removed_items );
+		$result['deleted']     = $removed_items;
+
+		// Compare the 2 arrays and create array of changed.
+		$compare_changed_items = array_diff_assoc(
+			array_map( 'serialize', $old_array ),
+			array_map( 'serialize', $new_array )
+		);
+		$changed_items         = array_map( 'unserialize', $compare_removed_items );
+		$result['modified']    = $changed_items;
+
+		return $result;
+	}
+
+	/**
+	 * Creates an editor link for a given form_ID.
+	 *
+	 * @param  int $post_id        - Forms ID.
+	 * @return string $editor_link - URL to edit screen.
+	 */
+	private function create_form_post_editor_link( $post_id ) {
+		$editor_link = esc_url(
+			add_query_arg(
+				array(
+					'view'    => 'fields',
+					'form_id' => $post_id,
+				),
+				admin_url( 'admin.php?page=wpforms-builder' )
+			)
+		);
+
+		return $editor_link;
+	}
+
+	/**
+	 * Decodes given item, using WP functions where possible.
+	 *
+	 * @param string  $item_to_decode - Item to be decoded.
+	 * @param boolean $needs_encoding_first - Do we need to encode first.
+	 * @param boolean $decode_associative - Return associative array from decode.
+	 * @return string item_to_decode - Decoded string.
+	 */
+	private function json_decode_encode( $item_to_decode, $needs_encoding_first = false, $decode_associative = null ) {
+		if ( $needs_encoding_first ) {
+			$item_to_decode = ( function_exists( 'wp_json_encode' ) ) ? wp_json_encode( $item_to_decode ) : json_encode( $item_to_decode );
+		}
+		return json_decode( $item_to_decode, $decode_associative );
 	}
 }
