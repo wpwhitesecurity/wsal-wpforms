@@ -715,6 +715,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
+
+		if ( is_null( $row_id ) || isset( $row_id ) ) {
+			return;
+		}
+
 		$entry      = wpforms()->entry->get( $row_id );
 
 		if ( is_null( $entry ) ) {
