@@ -86,7 +86,7 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 * **Bug fixes**
 	* Fix PHP error when creating confirmations.
 	* Fix PHP error when creating new forms.
-
+  
 = 1.2.1 (2022-06-14) =
 
 * **Improvements**
