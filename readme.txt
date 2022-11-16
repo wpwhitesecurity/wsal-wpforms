@@ -78,6 +78,15 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 
 == Changelog ==
 
+= 1.2.2 (2022-11-146) =
+
+* **Improvements**
+	* Updated plugin inline with recent WP Activity Log Changes.
+
+* **Bug fixes**
+	* Fix PHP error when creating confirmations.
+	* Fix PHP error when creating new forms.
+  
 = 1.2.1 (2022-06-14) =
 
 * **Improvements**

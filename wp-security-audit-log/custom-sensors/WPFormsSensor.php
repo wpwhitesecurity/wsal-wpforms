@@ -295,7 +295,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							);
 
 							foreach ( $confirmation_changes as $change_type ) {
-								if ( $new_changed_item[ $change_type ] !== $confirmation[ $change_type ] ) {
+								if ( ! isset( $confirmation[ $change_type ] ) ) {
+									continue;
+								}
+
+								if ( strip_tags( $new_changed_item[ $change_type ] ) !== strip_tags( $confirmation[ $change_type ] ) ) {
 									if ( 'type' === $change_type ) {
 										$alert_code = 5519;
 									} elseif ( 'page' === $change_type ) {
@@ -337,7 +341,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		// Handling form notifications.
-		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! $this->was_triggered_recently( 5500 ) ) {
+		if ( 'wpforms' === $form->post_type && isset( $this->_old_post ) && $update && ! self::was_triggered_recently( 5500 ) ) {
 			// Checking to ensure this is not a draft or fresh form.
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$form_content     = $this->json_decode_encode( $form->post_content );
@@ -436,7 +440,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 							$new_array        = (array) $form_content->settings->notifications;
 							$new_changed_item = (array) $new_array[ $key ];
-							$new_name         = $new_changed_item['notification_name'];
+							$new_name         = isset( $new_changed_item['notification_name'] ) ? $new_changed_item['notification_name'] : false;
+
+							if ( ! $new_name ) {
+								continue;
+							}
 
 							$notification_metas = array(
 								'email',
@@ -586,7 +594,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 					}
 
 					// Check content to see if anything has been modified.
-					if ( ! empty( $changed_items ) && ! $this->was_triggered_recently( 5500 ) ) {
+					if ( ! empty( $changed_items ) && ! self::was_triggered_recently( 5500 ) ) {
 						$alert_code = 5501;
 						foreach ( $changed_items as $fields ) {
 							$field_name = $this->get_type_if_field_has_no_name( $fields );
@@ -640,7 +648,7 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 		}
 
 		// Finally, if all of the above didnt catch anything, but the form as still been modified in some way, lets handle that.
-		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $update && ! $this->was_triggered_recently( 5500 ) ) {
+		if ( ! $has_alert_triggered && 'wpforms' === $form->post_type && isset( $this->_old_post ) && ! $update && ! self::was_triggered_recently( 5500 ) ) {
 			if ( isset( $post->post_status ) && 'auto-draft' !== $post->post_status ) {
 				$alert_code       = 5500;
 				$form_content     = $this->json_decode_encode( $form->post_content );
@@ -715,6 +723,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 	 */
 	public function event_entry_deleted( $row_id ) {
 		$alert_code = 5504;
+
+		if ( is_null( $row_id ) || isset( $row_id ) ) {
+			return;
+		}
+
 		$entry      = wpforms()->entry->get( $row_id );
 
 		if ( is_null( $entry ) ) {
@@ -1084,51 +1097,6 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 			}	
 		}
 		return true;
-	}
-
-	/**
-	 * Check if the alert was triggered recently.
-	 *
-	 * Checks last 5 events if they occured less than 20 seconds ago.
-	 *
-	 * @param integer|array $alert_id - Alert code.
-	 * @return boolean
-	 */
-	protected function was_triggered_recently( $alert_id ) {
-
-		if ( method_exists( 'self', 'was_triggered_recently' ) ) {
-			return self::was_triggered_recently();
-		}		
-		// if we have already checked this don't check again.
-		if ( isset( $this->cached_alert_checks ) && array_key_exists( $alert_id, $this->cached_alert_checks ) && $this->cached_alert_checks[ $alert_id ] ) {
-			return true;
-		}
-		$query = new WSAL_Models_OccurrenceQuery();
-		if ( method_exists( $query, 'add_order_by' ) ) {
-			$query->add_order_by( 'created_on', true );
-			$query->set_limit( 5 );
-			$last_occurences  = $query->get_adapter()->execute( $query );
-		} else {
-			$query->addOrderBy( 'created_on', true );
-			$query->setLimit( 5 );
-			$last_occurences  = $query->GetAdapter()->Execute( $query );
-		}
-		$known_to_trigger = false;
-		foreach ( $last_occurences as $last_occurence ) {
-			if ( $known_to_trigger ) {
-				break;
-			}
-			if ( ! empty( $last_occurence ) && ( $last_occurence->created_on + 20 ) > time() ) {
-				if ( ! is_array( $alert_id ) && $last_occurence->alert_id === $alert_id ) {
-					$known_to_trigger = true;
-				} elseif ( is_array( $alert_id ) && in_array( $last_occurence[0]->alert_id, $alert_id, true ) ) {
-					$known_to_trigger = true;
-				}
-			}
-		}
-		// once we know the answer to this don't check again to avoid queries.
-		$this->cached_alert_checks[ $alert_id ] = $known_to_trigger;
-		return $known_to_trigger;
 	}
 
 	/**
