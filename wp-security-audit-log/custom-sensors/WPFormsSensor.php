@@ -295,7 +295,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 							);
 
 							foreach ( $confirmation_changes as $change_type ) {
-								if ( $new_changed_item[ $change_type ] !== $confirmation[ $change_type ] ) {
+								if ( ! isset( $confirmation[ $change_type ] ) ) {
+									continue;
+								}
+
+								if ( strip_tags( $new_changed_item[ $change_type ] ) !== strip_tags( $confirmation[ $change_type ] ) ) {
 									if ( 'type' === $change_type ) {
 										$alert_code = 5519;
 									} elseif ( 'page' === $change_type ) {
@@ -436,7 +440,11 @@ class WSAL_Sensors_WPFormsSensor extends WSAL_AbstractSensor {
 
 							$new_array        = (array) $form_content->settings->notifications;
 							$new_changed_item = (array) $new_array[ $key ];
-							$new_name         = $new_changed_item['notification_name'];
+							$new_name         = isset( $new_changed_item['notification_name'] ) ? $new_changed_item['notification_name'] : false;
+
+							if ( ! $new_name ) {
+								continue;
+							}
 
 							$notification_metas = array(
 								'email',
