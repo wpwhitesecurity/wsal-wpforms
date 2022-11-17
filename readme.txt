@@ -5,8 +5,8 @@ License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.html
 Tags: activity log for WPForms, WP Activity Log extension, activity logs
 Requires at least: 5.0
-Tested up to: 5.9.2
-Stable tag: 1.2.1
+Tested up to: 6.1.1
+Stable tag: 1.2.2
 Requires PHP: 7.0
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
@@ -78,14 +78,14 @@ Please refer to our [Support & Documentation pages](https://wpactivitylog.com/su
 
 == Changelog ==
 
-= 1.2.2 (2022-11-146) =
+= 1.2.2 (2022-11-17) =
 
 * **Improvements**
-	* Updated plugin inline with recent WP Activity Log Changes.
+	* Updated plugin inline with recent [WP Activity Log](https://wpactivitylog.com) plugin changes.
 
 * **Bug fixes**
-	* Fix PHP error when creating confirmations.
-	* Fix PHP error when creating new forms.
+	* Fixed PHP error when creating confirmations in forms.
+	* Fixed PHP error reported in some cases when creating new forms.
   
 = 1.2.1 (2022-06-14) =
 
