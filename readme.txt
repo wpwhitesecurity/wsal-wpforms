@@ -7,7 +7,7 @@ Tags: activity log for WPForms, WP Activity Log extension, activity logs
 Requires at least: 5.0
 Tested up to: 6.1.1
 Stable tag: 1.2.2
-Requires PHP: 7.0
+Requires PHP: 7.2
 
 Keep a log of changes that happen in the WPForms plugin, forms, entries (leads) & more.
 
