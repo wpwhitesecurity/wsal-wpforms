@@ -87,13 +87,13 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 			$alert_code  = 5523;
 			$form        = get_post( $entry['post_id'] );
 			$editor_link = esc_url(
-                add_query_arg(
-                    array(
+				add_query_arg(
+					array(
 						'view'     => 'edit',
 						'entry_id' => $entry_id,
-                    ),
-                    admin_url( 'admin.php?page=wpforms-entries' )
-                )
+					),
+					admin_url( 'admin.php?page=wpforms-entries' )
+				)
 			);
 
 			// Grab form content.
@@ -530,8 +530,8 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 						// Compare the 2 arrays and create array of added items.
 						if ( $form_content_array !== $old_form_content_array ) {
 							$compare_added_items = array_diff(
-                                array_map( 'serialize', $form_content_array ),
-                                array_map( 'serialize', $old_form_content_array )
+								array_map( 'serialize', $form_content_array ),
+								array_map( 'serialize', $old_form_content_array )
 							);
 							$added_items         = array_map( 'unserialize', $compare_added_items );
 						} else {
@@ -546,8 +546,8 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 
 						if ( ! empty( $added_items ) ) {
 							$added_items = array_diff(
-                                array_map( 'serialize', $added_items ),
-                                array_map( 'serialize', $changed_items )
+								array_map( 'serialize', $added_items ),
+								array_map( 'serialize', $changed_items )
 							);
 							$added_items = array_map( 'unserialize', $added_items );
 						}
@@ -670,8 +670,8 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 						$form_content_array     = self::json_decode_encode( $form_content, true, true );
 						$old_form_content_array = self::json_decode_encode( $old_form_content, true, true );
 						$compare_changed_items  = array_diff_assoc(
-                            array_map( 'serialize', $old_form_content_array ),
-                            array_map( 'serialize', $form_content_array )
+							array_map( 'serialize', $old_form_content_array ),
+							array_map( 'serialize', $form_content_array )
 						);
 
 						// Round up any changes into a neat array, could expand in this later also.
@@ -792,13 +792,13 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 				$modified_value = array( array_search( $updated_field['name'], array_column( $fields, 'name', 'value' ), true ) );
 
 				$editor_link = esc_url(
-                    add_query_arg(
-                        array(
+					add_query_arg(
+						array(
 							'view'     => 'edit',
 							'entry_id' => $entry->entry_id,
-                        ),
-                        admin_url( 'admin.php?page=wpforms-entries' )
-                    )
+						),
+						admin_url( 'admin.php?page=wpforms-entries' )
+					)
 				);
 
 				if ( isset( $updated_field['name'] ) ) {
@@ -1144,24 +1144,24 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 			);
 			// Compare the 2 arrays and create array of added items.
 			$compare_added_items = array_diff(
-                array_map( 'serialize', $new_array ),
-                array_map( 'serialize', $old_array )
+				array_map( 'serialize', $new_array ),
+				array_map( 'serialize', $old_array )
 			);
 			$added_items         = array_map( 'unserialize', $compare_added_items );
 			$result['added']     = $added_items;
 
 			// Compare the 2 arrays and create array of removed items.
 			$compare_removed_items = array_diff(
-                array_map( 'serialize', $old_array ),
-                array_map( 'serialize', $new_array )
+				array_map( 'serialize', $old_array ),
+				array_map( 'serialize', $new_array )
 			);
 			$removed_items         = array_map( 'unserialize', $compare_removed_items );
 			$result['deleted']     = $removed_items;
 
 			// Compare the 2 arrays and create array of changed.
 			$compare_changed_items = array_diff_assoc(
-                array_map( 'serialize', $old_array ),
-                array_map( 'serialize', $new_array )
+				array_map( 'serialize', $old_array ),
+				array_map( 'serialize', $new_array )
 			);
 			$changed_items         = array_map( 'unserialize', $compare_removed_items );
 			$result['modified']    = $changed_items;
@@ -1177,13 +1177,13 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 		 */
 		private static function create_form_post_editor_link( $post_id ) {
 			$editor_link = esc_url(
-                add_query_arg(
-                    array(
+				add_query_arg(
+					array(
 						'view'    => 'fields',
 						'form_id' => $post_id,
-                    ),
-                    admin_url( 'admin.php?page=wpforms-builder' )
-                )
+					),
+					admin_url( 'admin.php?page=wpforms-builder' )
+				)
 			);
 
 			return $editor_link;

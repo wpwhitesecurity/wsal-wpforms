@@ -90,7 +90,6 @@ function wsal_wpforms_add_custom_ignored_cpt( $post_types ) {
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
 add_filter( 'wsal_ignored_custom_post_types', 'wsal_wpforms_add_custom_ignored_cpt' );
 
-
 add_action(
 	'wsal_sensors_manager_add',
 	/**
