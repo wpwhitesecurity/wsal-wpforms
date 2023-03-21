@@ -85,7 +85,6 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 		public static function event_entry_added( $fields, $entry, $form_data, $entry_id ) {
 
 			$alert_code  = 5523;
-			$form        = get_post( $entry['post_id'] );
 			$editor_link = esc_url(
 				add_query_arg(
 					array(
@@ -735,7 +734,7 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 		public static function event_entry_deleted( $row_id ) {
 			$alert_code = 5504;
 
-			if ( is_null( $row_id ) || isset( $row_id ) ) {
+			if ( is_null( $row_id ) || ! isset( $row_id ) ) {
 				return;
 			}
 
