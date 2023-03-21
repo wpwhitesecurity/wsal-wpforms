@@ -293,7 +293,10 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 							}
 						} elseif ( ! empty( $changed_items ) ) {
 							foreach ( $changed_items as $key => $confirmation ) {
-								$new_array        = (array) $form_content->settings->confirmations;
+								$new_array = (array) $form_content->settings->confirmations;
+								if ( empty( $new_array ) || ! isset( $new_array[ $key ] ) ) {
+									continue;
+								}
 								$new_changed_item = (array) $new_array[ $key ];
 
 								$confirmation_changes = array(
@@ -694,7 +697,6 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 					}
 				}
 			}
-
 		}
 
 		/**
@@ -922,9 +924,15 @@ if ( ! class_exists( '\WSAL\Plugin_Sensors\WPForms_Sensor' ) ) {
 				// Event 5509 (Change of currency).
 				if ( 'wpforms_settings' === $option_name && isset( $value['currency'] ) && function_exists( 'wpforms_get_currencies' ) ) {
 					$wp_forms_currencies = wpforms_get_currencies();
-					$alert_code          = 5509;
-					$variables           = array(
-						'old_value' => $wp_forms_currencies[ $old_value['currency'] ]['name'] . ' (' . $old_value['currency'] . ')',
+
+					if ( isset( $old_value['currency'] ) ) {
+						$old_value = $wp_forms_currencies[ $old_value['currency'] ]['name'] . ' (' . $old_value['currency'] . ')';
+					} else {
+						$old_value = null;
+					}
+					$alert_code = 5509;
+					$variables  = array(
+						'old_value' => $old_value,
 						'new_value' => $wp_forms_currencies[ $value['currency'] ]['name'] . ' (' . $value['currency'] . ')',
 					);
 

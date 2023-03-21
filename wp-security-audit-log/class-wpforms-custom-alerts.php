@@ -58,7 +58,7 @@ if ( ! class_exists( '\WSAL\Custom_Alerts\WPForms_Custom_Alerts' ) ) {
 							5501,
 							WSAL_MEDIUM,
 							esc_html__( 'A field was created, modified or deleted from a form.', 'wsal-wpforms' ),
-							esc_html__( 'The Field called %1$field_name% in the form %2$form_name%.', 'wsal-wpforms' ),
+							esc_html__( 'The Field called %field_name% in the form %form_name%.', 'wsal-wpforms' ),
 							array(
 								esc_html__( 'Form ID', 'wsal-wpforms' ) => '%PostID%',
 							),
