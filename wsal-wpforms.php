@@ -6,13 +6,15 @@
  * Text Domain: wsal-wpforms
  * Author: WP White Security
  * Author URI: http://www.wpwhitesecurity.com/
- * Version: 1.2.2
+ * Version: 1.2.3
  * License: GPL2
  * Network: true
  *
  * @package Wsal
  * @subpackage Wsal Custom Events Loader
  */
+
+use WSAL\Helpers\Classes_Helper;
 
 /*
 	Copyright(c) 2022  WP White Security  (email : info@wpwhitesecurity.com)
@@ -87,3 +89,43 @@ function wsal_wpforms_add_custom_ignored_cpt( $post_types ) {
  */
 add_filter( 'wsal_event_objects', 'wsal_wpforms_add_custom_event_objects' );
 add_filter( 'wsal_ignored_custom_post_types', 'wsal_wpforms_add_custom_ignored_cpt' );
+
+add_action(
+	'wsal_sensors_manager_add',
+	/**
+	* Adds sensors classes to the Class Helper
+	*
+	* @return void
+	*
+	* @since latest
+	*/
+	function () {
+		require_once __DIR__ . '/wp-security-audit-log/sensors/class-wpforms-sensor.php';
+
+		Classes_Helper::add_to_class_map(
+			array(
+				'WSAL\\Plugin_Sensors\\WPForms_Sensor' => __DIR__ . '/wp-security-audit-log/sensors/class-wpforms-sensor.php',
+			)
+		);
+	}
+);
+
+add_action(
+	'wsal_custom_alerts_register',
+	/**
+	* Adds sensors classes to the Class Helper
+	*
+	* @return void
+	*
+	* @since latest
+	*/
+	function () {
+		require_once __DIR__ . '/wp-security-audit-log/class-wpforms-custom-alerts.php';
+
+		Classes_Helper::add_to_class_map(
+			array(
+				'WSAL\\Custom_Alerts\\WPForms_Custom_Alerts' => __DIR__ . '/wp-security-audit-log/class-wpforms-custom-alerts.php',
+			)
+		);
+	}
+);
