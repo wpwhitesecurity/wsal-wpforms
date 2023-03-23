@@ -6,7 +6,7 @@
  * Text Domain: wsal-wpforms
  * Author: WP White Security
  * Author URI: http://www.wpwhitesecurity.com/
- * Version: 1.2.2
+ * Version: 1.2.3
  * License: GPL2
  * Network: true
  *
